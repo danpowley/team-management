@@ -27,7 +27,12 @@
 
         <newteam v-if="mode === 'NEW_TEAM'"
             :ruleset-id="newTeamRulesetId"
+            @quick-start-finished="handleQuickStartFinished"
         ></newteam>
+
+        <team v-if="mode === 'MANAGE_TEAM'"
+            :team="team"
+        ></team>
     </div>
 </template>
 
@@ -36,10 +41,12 @@ import Vue from "vue";
 import Axios from "axios";
 import Component from "vue-class-component";
 import NewTeamComponent from "./components/NewTeam.vue";
+import TeamComponent from "./components/Team.vue";
 
 @Component({
     components: {
         'newteam': NewTeamComponent,
+        'team': TeamComponent,
     },
 })
 export default class TeamManagement extends Vue {
@@ -47,6 +54,8 @@ export default class TeamManagement extends Vue {
     public newTeamDivisionId: number | null = null;
     public newTeamLeagueId: number | null = null;
     public newTeamRulesetId: number | null = null;
+
+    public team: any = null;
 
     async mounted() {
     }
@@ -63,6 +72,64 @@ export default class TeamManagement extends Vue {
             this.newTeamRulesetId = result.data.ruleset;
             this.mode = 'NEW_TEAM';
         }
+    }
+
+    public handleQuickStartFinished(buildData: any) {
+        this.setupNewTeamFromBuildData(buildData);
+        this.mode = 'MANAGE_TEAM';
+    }
+
+    private setupNewTeamFromBuildData(buildData) {
+        let players = [];
+        for (const position of buildData.roster.positions) {
+            for (let step = 0; step < buildData.positionQuantities[position.id]; step++) {
+                const playerNumber = step + 1;
+                players.push(this.createNewPlayer(playerNumber, position.id));
+            }
+        }
+
+        players.sort((a,b) => {
+            const positionA = this.getPosition(buildData.roster, a.positionId);
+            const positionB = this.getPosition(buildData.roster, b.positionId);
+            const positionACost = ~~positionA.cost;
+            const positionBCost = ~~positionB.cost;
+            if (positionACost === positionBCost) {
+                return 0;
+            }
+            return positionACost > positionBCost ? -1 : 1;
+        });
+
+        this.team = {
+            ruleset: buildData.ruleset,
+            roster: buildData.roster,
+            players: players,
+            rerolls: buildData.rerolls,
+            dedicatedFans: buildData.dedicatedFans,
+            assistantCoaches: buildData.assistantCoaches,
+            cheerleaders: buildData.cheerleaders,
+            apothecary: buildData.apothecary,
+        };
+    }
+
+    private createNewPlayer(playerNumber: number, positionId: number) {
+        return {
+            id: null,
+            number: playerNumber,
+            name: 'Bert',
+            gender: 'Female',
+            positionId: positionId,
+            // earned skills,
+            // injuries,
+        };
+    }
+
+    public getPosition(roster: any, positionId: number) {
+        for (const position of roster.positions) {
+            if (positionId === position.id) {
+                return position;
+            }
+        }
+        throw new Error('Failed to find position for ' + positionId);
     }
 }
 </script>

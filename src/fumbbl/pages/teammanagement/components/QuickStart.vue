@@ -146,6 +146,8 @@ export default class QuickStartComponent extends Vue {
             assistantCoaches: this.assistantCoaches,
             cheerleaders: this.cheerleaders,
             apothecary: this.apothecary,
+            ruleset: this.$props.ruleset,
+            roster: this.roster,
         };
         this.$emit('quick-start-finished', buildData);
     }

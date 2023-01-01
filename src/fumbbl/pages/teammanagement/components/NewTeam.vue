@@ -78,7 +78,7 @@ export default class NewTeamComponent extends Vue {
     }
 
     public handleQuickStartFinished(buildData: any) {
-        console.log('handing qsf', buildData);
+        this.$emit('quick-start-finished', buildData);
     }
 }
 </script>
