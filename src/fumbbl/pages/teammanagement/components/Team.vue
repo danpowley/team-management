@@ -3,7 +3,10 @@
         <table>
             <tr v-for="(player, index) in team.players" :key="index">
                 <td>
-                    {{ getPosition(player.positionId).title }}
+                    {{ player.number }}
+                </td>
+                <td>
+                    {{ player.position }}
                 </td>
                 <td>
                     {{ player.gender }}

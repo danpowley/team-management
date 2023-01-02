@@ -140,7 +140,7 @@ export default class QuickStartComponent extends Vue {
 
     public finishedBuild() {
         const buildData = {
-            positionQuantities: this.positionQuantities,
+            players: this.createPlayers(),
             rerolls: this.rerolls,
             dedicatedFans: this.dedicatedFans,
             assistantCoaches: this.assistantCoaches,
@@ -150,6 +150,57 @@ export default class QuickStartComponent extends Vue {
             roster: this.roster,
         };
         this.$emit('quick-start-finished', buildData);
+    }
+
+    private createPlayers(): any[] {
+        const positionsLookup = {};
+        for (const position of this.roster.positions) {
+            positionsLookup[position.id] = position;
+        }
+
+        // sort by cost
+        const sortedPositionIds = this.roster.positions
+            .map((position) => { return {positionId: ~~position.id, cost: ~~position.cost};})
+            .sort((a, b) => {
+                if (a.cost === b.cost) {
+                    return 0;
+                }
+                return a.cost > b.cost ? -1 : 1;
+            })
+            .map((positionData => { return positionData.positionId; }));
+
+        const players = [];
+
+        let playerNumber = 1;
+        for (const positionId of sortedPositionIds) {
+            for (let step = 0; step < this.positionQuantities[positionId]; step++) {
+                players.push(this.createPlayer(playerNumber, positionsLookup[positionId]));
+                playerNumber++;
+            }
+        }
+
+        return players;
+    }
+
+    private createPlayer(playerNumber: number, positionObject: any): any {
+        return {
+            id: 'NEW--' + playerNumber,
+            number: playerNumber,
+            name: `Player_${playerNumber}`,
+            position: positionObject.title,
+            positionId: positionObject.id,
+            record: {
+                completions: 0,
+                touchdowns: 0,
+                interceptions: 0,
+                casualties: 0,
+                mvps: 0,
+                spp: 0,
+            },
+            injuries: '',
+            skills: [],
+            gender: 'Female',
+        };
     }
 
     public get teamValue() {
