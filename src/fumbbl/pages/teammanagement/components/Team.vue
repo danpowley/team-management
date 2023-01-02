@@ -1,20 +1,92 @@
 <template>
     <div class="team" v-if="team !== null">
         <table>
+            <thead>
+            <tr>
+                <th>-</th>
+                <th>-</th>
+                <th>Player</th>
+                <th>Ma</th>
+                <th>St</th>
+                <th>Ag</th>
+                <th>Pa</th>
+                <th>Av</th>
+                <th>Skills</th>
+                <th>Inj</th>
+                <th>G</th>
+                <th>Cp</th>
+                <th>Td</th>
+                <th>It</th>
+                <th>Cs</th>
+                <th>Mvp</th>
+                <th>SPP</th>
+                <th>Cost</th>
+            </tr>
+            </thead>
+            <tbody>
             <tr v-for="(player, index) in team.players" :key="index">
                 <td>
                     {{ player.number }}
                 </td>
                 <td>
-                    {{ player.position }}
+                    <img src="x.jpg">
                 </td>
                 <td>
-                    {{ player.gender }}
+                    <div>{{ player.name }} ({{ player.gender }})</div>
+                    <div>{{ player.position }}</div>
+                </td>
+                <td>
+                    {{ team.positionsLookup[player.positionId].stats.MA }}
+                </td>
+                <td>
+                    {{ team.positionsLookup[player.positionId].stats.ST }}
+                </td>
+                <td>
+                    {{ team.positionsLookup[player.positionId].stats.AG }}+
+                </td>
+                <td>
+                    {{ team.positionsLookup[player.positionId].stats.PA }}+
+                </td>
+                <td>
+                    {{ team.positionsLookup[player.positionId].stats.AV }}+
+                </td>
+                <td>
+                    <div>
+                        {{ team.positionsLookup[player.positionId].skills.join(', ') }}
+                    </div>
+                    <div>
+                        {{ player.skills.join(', ') }}
+                    </div>
+                </td>
+                <td>
+                    {{ player.injuries }}
+                </td>
+                <td>
+                    ?
+                </td>
+                <td>
+                    {{ player.record.completions }}
+                </td>
+                <td>
+                    {{ player.record.touchdowns }}
+                </td>
+                <td>
+                    {{ player.record.interceptions }}
+                </td>
+                <td>
+                    {{ player.record.casualties }}
+                </td>
+                <td>
+                    {{ player.record.mvps }}
+                </td>
+                <td>
+                    {{ player.record.spp }}
                 </td>
                 <td>
                     {{ team.positionsLookup[player.positionId].cost }}
                 </td>
             </tr>
+            </tbody>
         </table>
     </div>
 </template>
