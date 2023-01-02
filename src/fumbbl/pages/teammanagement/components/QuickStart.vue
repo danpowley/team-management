@@ -203,8 +203,8 @@ export default class QuickStartComponent extends Vue {
                 mvps: 0,
                 spp: 0,
             },
-            injuries: '',
-            skills: [],
+            injuries: 'x,y,z',
+            skills: ['skill1', 'skill2'],
             gender: 'Female',
         };
     }
