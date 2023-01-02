@@ -139,6 +139,11 @@ export default class QuickStartComponent extends Vue {
     }
 
     public finishedBuild() {
+        const positionsLookup = {};
+        for (const position of this.roster.positions) {
+            positionsLookup[position.id] = position;
+        }
+
         const buildData = {
             players: this.createPlayers(),
             rerolls: this.rerolls,
@@ -148,6 +153,7 @@ export default class QuickStartComponent extends Vue {
             apothecary: this.apothecary,
             ruleset: this.$props.ruleset,
             roster: this.roster,
+            positionsLookup: positionsLookup,
         };
         this.$emit('quick-start-finished', buildData);
     }

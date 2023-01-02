@@ -12,7 +12,7 @@
                     {{ player.gender }}
                 </td>
                 <td>
-                    {{ getPosition(player.positionId).cost }}
+                    {{ team.positionsLookup[player.positionId].cost }}
                 </td>
             </tr>
         </table>
@@ -35,16 +35,8 @@ import Component from 'vue-class-component';
     }
 })
 export default class TeamComponent extends Vue {
+    public positionsLookup: any = null;
     async mounted() {
-    }
-
-    public getPosition(positionId: number) {
-        for (const position of this.$props.team.roster.positions) {
-            if (positionId === position.id) {
-                return position;
-            }
-        }
-        throw new Error('Failed to find position for ' + positionId);
     }
 }
 </script>
