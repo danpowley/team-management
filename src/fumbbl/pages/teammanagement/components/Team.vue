@@ -35,6 +35,9 @@
                     <td>
                         <div>{{ player.name }} ({{ player.gender }})</div>
                         <div>{{ player.position }}</div>
+                        <div style="font-size: larger; font-weight: bold;">
+                            <a @click.prevent="movePlayerUp(playerNumber)" href="#">&#8679;</a> <a @click.prevent="movePlayerDown(playerNumber)" href="#">&#8681;</a>
+                        </div>
                     </td>
                     <td>
                         {{ team.positionsLookup[player.positionId].stats.MA }}
@@ -109,6 +112,15 @@ import Component from 'vue-class-component';
             type: Object,
             required: true,
         },
+    },
+    watch: {
+        team: {
+            handler(newValue, oldValue) {
+                // @ts-ignore: Property does not exist on type 'Vue'.
+                this.refreshPlayersInPositions();
+            },
+            deep: true
+        },
     }
 })
 export default class TeamComponent extends Vue {
@@ -127,10 +139,52 @@ export default class TeamComponent extends Vue {
         }
 
         for (const player of this.$props.team.players) {
-            playersInPositions[player.number] = player;
+            playersInPositions[~~player.number] = player;
         }
 
         this.playersInPositions = playersInPositions;
+    }
+
+    public movePlayerUp(playerNumber: number) {
+        this.movePlayer(playerNumber, 'UP');
+    }
+
+    public movePlayerDown(playerNumber: number) {
+        this.movePlayer(playerNumber, 'DOWN');
+    }
+
+    private movePlayer(playerNumber: number, upOrDown: 'UP' | 'DOWN') {
+        playerNumber = ~~playerNumber;
+
+        if (playerNumber === 1 && upOrDown === 'UP') {
+            return;
+        }
+
+        if (playerNumber === this.$props.team.ruleset.maxPlayers && upOrDown === 'DOWN') {
+            return;
+        }
+
+        const swapPlayerNumber = upOrDown === 'UP' ? playerNumber - 1 : playerNumber + 1;
+
+        let originPlayerId = null;
+        let swapPlayerId = null;
+        for (const player of this.$props.team.players) {
+            if (player.number === playerNumber) {
+                originPlayerId = player.id;
+            }
+
+            if (player.number === swapPlayerNumber) {
+                swapPlayerId = player.id;
+            }
+        }
+
+        if (originPlayerId) {
+            this.$emit('change-player-number', originPlayerId, swapPlayerNumber);
+        }
+
+        if (swapPlayerId) {
+            this.$emit('change-player-number', swapPlayerId, playerNumber);
+        }
     }
 }
 </script>

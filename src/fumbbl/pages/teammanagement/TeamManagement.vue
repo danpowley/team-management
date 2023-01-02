@@ -32,6 +32,7 @@
 
         <team v-if="mode === 'MANAGE_TEAM'"
             :team="team"
+            @change-player-number="handleChangePlayerNumber"
         ></team>
     </div>
 </template>
@@ -77,6 +78,14 @@ export default class TeamManagement extends Vue {
     public handleQuickStartFinished(buildData: any) {
         this.team = buildData;
         this.mode = 'MANAGE_TEAM';
+    }
+
+    public handleChangePlayerNumber(playerId: number, newPlayerNumber) {
+        const player = this.team.players.find((player) => {
+            return player.id == playerId;
+        });
+
+        player.number = newPlayerNumber;
     }
 }
 </script>
