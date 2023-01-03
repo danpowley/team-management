@@ -44,6 +44,24 @@ export default class NewTeamComponent extends Vue {
     async mounted() {
         const result = await Axios.post('http://localhost:3000/api/ruleset/get/' + this.$props.rulesetId);
 
+        const rosters = [];
+        for (const roster of result.data.rosters) {
+            if (roster.value.startsWith('_')) {
+                continue;
+            }
+            rosters.push({
+                id: ~~roster.id,
+                name: roster.value
+            });
+        }
+
+        rosters.sort((a, b) => {
+            if (a.name === b.name) {
+                return 0;
+            }
+            return a.name > b.name ? 1 : -1;
+        });
+
         const ruleset = {
             id: result.data.id,
             name: result.data.name,
@@ -53,15 +71,8 @@ export default class NewTeamComponent extends Vue {
             startFans: result.data.options.teamSettings.startFans,
             minStartFans: result.data.options.teamSettings.minStartFans,
             maxStartFans: result.data.options.teamSettings.maxStartFans,
-            rosters: [],
+            rosters: rosters,
         };
-
-        for (const roster of result.data.rosters) {
-            ruleset.rosters.push({
-                id: ~~roster.id,
-                name: roster.value
-            });
-        }
 
         this.ruleset = ruleset;
 
