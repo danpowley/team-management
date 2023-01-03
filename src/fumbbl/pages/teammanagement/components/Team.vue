@@ -1,6 +1,7 @@
 <template>
     <div class="team" v-if="team !== null">
-        <table>
+        <a @click.prevent="editMode = !editMode">Edit mode toggle</a>
+        <table class="infotable teamtable">
             <thead>
             <tr>
                 <th>-</th>
@@ -14,18 +15,25 @@
                 <th>Skills</th>
                 <th>Inj</th>
                 <th>G</th>
-                <th>Cp</th>
-                <th>Td</th>
-                <th>It</th>
-                <th>Cs</th>
-                <th>Mvp</th>
+                <template v-if="editMode === false">
+                    <th>Cp</th>
+                    <th>Td</th>
+                    <th>It</th>
+                    <th>Cs</th>
+                    <th>Mvp</th>
+                </template>
+                <template v-else>
+                    <th colspan="5" class="editcontrolscolumn">
+                        Edit
+                    </th>
+                </template>
                 <th>SPP</th>
                 <th>Cost</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="(player, playerNumber) in playersInPositions" :key="playerNumber">
-                <td>
+                <td class="playernumber">
                     {{ playerNumber }}
                 </td>
                 <template v-if="player !== null">
@@ -33,11 +41,8 @@
                         <img src="x.jpg">
                     </td>
                     <td>
-                        <div>{{ player.name }} ({{ player.gender }})</div>
-                        <div>{{ player.position }}</div>
-                        <div style="font-size: larger; font-weight: bold;">
-                            <a @click.prevent="movePlayerUp(playerNumber)" href="#">&#8679;</a> <a @click.prevent="movePlayerDown(playerNumber)" href="#">&#8681;</a>
-                        </div>
+                        <div class="playername">{{ player.name }}</div>
+                        <div class="playerposition">{{ player.position }}</div>
                     </td>
                     <td>
                         {{ team.positionsLookup[player.positionId].stats.MA }}
@@ -55,10 +60,10 @@
                         {{ team.positionsLookup[player.positionId].stats.AV }}+
                     </td>
                     <td>
-                        <div>
+                        <div class="positionskills">
                             {{ team.positionsLookup[player.positionId].skills.join(', ') }}
                         </div>
-                        <div>
+                        <div class="playerskills">
                             {{ player.skills.join(', ') }}
                         </div>
                     </td>
@@ -68,21 +73,30 @@
                     <td>
                         ?
                     </td>
-                    <td>
-                        {{ player.record.completions }}
-                    </td>
-                    <td>
-                        {{ player.record.touchdowns }}
-                    </td>
-                    <td>
-                        {{ player.record.interceptions }}
-                    </td>
-                    <td>
-                        {{ player.record.casualties }}
-                    </td>
-                    <td>
-                        {{ player.record.mvps }}
-                    </td>
+                    <template v-if="editMode === false">
+                        <td>
+                            {{ player.record.completions }}
+                        </td>
+                        <td>
+                            {{ player.record.touchdowns }}
+                        </td>
+                        <td>
+                            {{ player.record.interceptions }}
+                        </td>
+                        <td>
+                            {{ player.record.casualties }}
+                        </td>
+                        <td>
+                            {{ player.record.mvps }}
+                        </td>
+                    </template>
+                    <template v-else>
+                        <td colspan="5">
+                            <div style="font-size: 30px; font-weight: bold;">
+                                <a @click.prevent="movePlayerUp(playerNumber)" href="#">&#8679;</a> <a @click.prevent="movePlayerDown(playerNumber)" href="#">&#8681;</a>
+                            </div>
+                        </td>
+                    </template>
                     <td>
                         {{ player.record.spp }}
                     </td>
@@ -124,6 +138,7 @@ import Component from 'vue-class-component';
     }
 })
 export default class TeamComponent extends Vue {
+    public editMode: boolean = false;
     public positionsLookup: any = null;
     public playersInPositions: any = null;
 

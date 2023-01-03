@@ -278,14 +278,14 @@ export default class QuickStartComponent extends Vue {
         this.$emit('quick-start-finished', buildData);
     }
 
-    public finishedBuild() {
+    public async finishedBuild() {
         const positionsLookup = {};
         for (const position of this.roster.positions) {
             positionsLookup[position.id] = position;
         }
 
         const buildData = {
-            players: this.createPlayers(),
+            players: await this.createPlayers(),
             rerolls: this.rerolls,
             dedicatedFans: this.dedicatedFans,
             assistantCoaches: this.assistantCoaches,
@@ -298,7 +298,7 @@ export default class QuickStartComponent extends Vue {
         this.$emit('quick-start-finished', buildData);
     }
 
-    private createPlayers(): any[] {
+    private async createPlayers(): Promise<any[]> {
         const positionsLookup = {};
         for (const position of this.roster.positions) {
             positionsLookup[position.id] = position;
@@ -320,7 +320,7 @@ export default class QuickStartComponent extends Vue {
         let playerNumber = 1;
         for (const positionId of sortedPositionIds) {
             for (let step = 0; step < this.positionQuantities[positionId]; step++) {
-                players.push(this.createPlayer(playerNumber, positionsLookup[positionId]));
+                players.push(await this.createPlayer(playerNumber, positionsLookup[positionId]));
                 playerNumber++;
             }
         }
@@ -328,11 +328,14 @@ export default class QuickStartComponent extends Vue {
         return players;
     }
 
-    private createPlayer(playerNumber: number, positionObject: any): any {
+    private async createPlayer(playerNumber: number, positionObject: any): Promise<any> {
+        const result = await Axios.post('http://localhost:3000/api/name/generate/default');
+        const playerName = result.data;
+
         return {
             id: 'NEW--' + playerNumber,
             number: playerNumber,
-            name: `Player_${playerNumber}`,
+            name: playerName,
             position: positionObject.title,
             positionId: positionObject.id,
             record: {
