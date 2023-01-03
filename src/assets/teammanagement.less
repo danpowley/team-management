@@ -187,6 +187,17 @@
   .team {
     .teamtable {
       width: 100%;
+      .iconouter {
+        display: grid;
+        place-items: center;
+        width: 50px;
+        height: 100%;
+        .iconinner {
+          image-rendering: pixelated;
+          display: inline-block;
+          vertical-align: baseline;
+        }
+      }
       th.editcontrolscolumn {
         width: 150px;
       }
@@ -196,6 +207,7 @@
       }
       .playername {
         font-size: 15px;
+        white-space: nowrap;
       }
       .playerposition {
         font-size: 10px;

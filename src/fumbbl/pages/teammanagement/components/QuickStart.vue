@@ -381,7 +381,6 @@ export default class QuickStartComponent extends Vue {
 
     public getRosterTier(rosterId: number) {
         for (const roster of this.$props.ruleset.rosters) {
-            console.log(rosterId, roster.id, rosterId === roster.id);
             if (roster.id === ~~rosterId) {
                 return roster.tier;
             }
