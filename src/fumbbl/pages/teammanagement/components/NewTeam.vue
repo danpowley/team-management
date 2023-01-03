@@ -51,6 +51,7 @@ export default class NewTeamComponent extends Vue {
             rosters.push({
                 id: rosterId,
                 name: roster.value,
+                tier: roster.tier,
                 logos: rosterLogos[rosterId],
             });
         }

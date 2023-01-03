@@ -1,8 +1,10 @@
 <template>
     <div class="quickstart" v-if="roster !== null">
-        <div class="rostername">{{ roster.name }}</div>
+        <div class="rostername">{{ roster.name }} (Tier: {{ getRosterTier(roster.id) }})</div>
 
-        <div class="introduction">
+        <div class="rosterinfo">{{ roster.info }}</div>
+
+        <div class="quickstarthelp">
             Use this page to quickly get your team up and running, you can still make changes after you finish on this page
             or you can skip this page and set everything up manually if you prefer.
         </div>
@@ -372,6 +374,16 @@ export default class QuickStartComponent extends Vue {
         }
 
         return options;
+    }
+
+    public getRosterTier(rosterId: number) {
+        for (const roster of this.$props.ruleset.rosters) {
+            console.log(rosterId, roster.id, rosterId === roster.id);
+            if (roster.id === ~~rosterId) {
+                return roster.tier;
+            }
+        }
+        return null;
     }
 }
 </script>
