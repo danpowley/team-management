@@ -159,14 +159,21 @@
                         <div class="playercount calculatedcell">{{ playerCount }}</div>
                         <div class="maximumcell">/ {{ ruleset.maxPlayers }}</div>
                     </div>
-                    <div v-for="(error, index) in errors" :key="index" class="error">
-                        {{ error}}
+                    <div v-if="errors.length > 0" class="errors">
+                        <div class="errorheading">Issues to fix:</div>
+                        <div v-for="(error, index) in errors" :key="index" class="error">
+                            {{ error}}
+                        </div>
                     </div>
                 </div>
 
                 <div class="nextbutton" v-if="errors.length === 0">
                     <button @click="finishedBuild">Continue</button>
                     <div>You'll still be able to make further changes, this is just to get things setup quickly.</div>
+                </div>
+
+                <div v-if="errors.length > 0">
+                    <a @click.prevent="skipQuickStart" href="#">Set everything up manually</a>
                 </div>
             </div>
         </div>
@@ -235,14 +242,38 @@ export default class QuickStartComponent extends Vue {
     public get errors() {
         const errors = [];
         if (this.teamValue > this.$props.ruleset.startTreasury) {
-            errors.push('Exceeded starting treasury.');
+            errors.push(`Starting treasury is ${this.$props.ruleset.startTreasury}, you have spent ${this.teamValue}.`);
         }
 
         if (this.playerCount > this.$props.ruleset.maxPlayers) {
-            errors.push('Exceeded maximum players.');
+            errors.push(`Maximum players is ${this.$props.ruleset.maxPlayers}, you have selected ${this.playerCount}.`);
+        }
+
+        if (this.playerCount < this.$props.ruleset.startPlayers) {
+            errors.push(`Minimum players is ${this.$props.ruleset.startPlayers}, you have selected ${this.playerCount}.`);
         }
 
         return errors;
+    }
+
+    public skipQuickStart() {
+        const positionsLookup = {};
+        for (const position of this.roster.positions) {
+            positionsLookup[position.id] = position;
+        }
+
+        const buildData = {
+            players: [],
+            rerolls: 0,
+            dedicatedFans: 0,
+            assistantCoaches: 0,
+            cheerleaders: 0,
+            apothecary: false,
+            ruleset: this.$props.ruleset,
+            roster: this.roster,
+            positionsLookup: positionsLookup,
+        };
+        this.$emit('quick-start-finished', buildData);
     }
 
     public finishedBuild() {

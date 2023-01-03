@@ -97,6 +97,10 @@
         td.positionstat {
           width: 30px;
         }
+        td.positionskills {
+          font-size: 90%;
+          font-style: oblique;
+        }
         td.positioncost {
           width: 50px;
         }
@@ -155,17 +159,24 @@
           .playercount {
           }
         }
-        .error {
-          color: @Carmine;
-          margin-bottom: 5px;
-          font-size: 115%;
+        .errors {
+          background-color: @OldLace;
+          border: solid @Jet 1px;
+          padding: 5px;
+          .errorheading {
+            font-weight: bold;
+            margin-bottom: 5px;
+          }
+          .error {
+            margin-bottom: 2px;
+          }
         }
       }
     }
     .nextbutton {
       margin-top: 30px;
       button {
-        font-size: 150%;
+        font-size: 120%;
       }
     }
   }
