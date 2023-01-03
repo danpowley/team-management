@@ -1,28 +1,40 @@
 <template>
     <div class="teammanagement">
-        <div v-if="mode === 'START'">Do you want to <a @click="mode = 'CHOOSE_RULESET'">new team</a> or <input type=text><button>load team</button></div>
-
-        <div v-if="mode === 'CHOOSE_RULESET'">
-            Just for demo purposes: choose either a division or a league/group.
-            <div>
-                By Division ({{ newTeamDivisionId }}):
-                <select v-model="newTeamDivisionId">
-                    <option value="">Please choose</option>
-                    <option value="2">Competitive</option>
-                    <option value="1">Ranked</option>
-                </select>
+        <div v-if="mode === 'START'" class="demosetup">
+            <div style="text-align: center; margin-bottom: 1em">
+                <div style="font-size: 200%; line-height: 200%;">Create Team</div>
+                Choose a Division or Group for the demo.
             </div>
-
             <div>
-                By League ({{ newTeamLeagueId }}):
-                <select  v-model="newTeamLeagueId">
-                    <option value="">Please choose</option>
-                    <option value="15734">Open League 2020</option>
-                    <option value="3180">145 League</option>
-                    <option value="14708">Secret League</option>
-                </select>
+                <table>
+                    <tr>
+                        <td>Competitive</td>
+                        <td><a href="#" @click.prevent="createForDivision(2)">Create team for this division</a></td>
+                    </tr>
+                    <tr>
+                        <td>Ranked</td>
+                        <td><a href="#" @click.prevent="createForDivision(1)">Create team for this division</a></td>
+                    </tr>
+                    <tr>
+                        <td>Group: Open League 2020</td>
+                        <td><a href="#" @click.prevent="createForGroup(15734)">Create team for this group</a></td>
+                    </tr>
+                    <tr>
+                        <td>Group: 145 League</td>
+                        <td><a href="#" @click.prevent="createForGroup(3180)">Create team for this group</a></td>
+                    </tr>
+                    <tr>
+                        <td>Group: Secret League</td>
+                        <td><a href="#" @click.prevent="createForGroup(14708)">Create team for this group</a></td>
+                    </tr>
+                </table>
+                <br>
+                <br>
+                <br>
+                <div>
+                    <input type=text><button>load team</button>
+                </div>
             </div>
-            <button @click="getRulesetFromChosenDivisionOrGroup">Go</button>
         </div>
 
         <newteam v-if="mode === 'NEW_TEAM'"
@@ -51,7 +63,7 @@ import TeamComponent from "./components/Team.vue";
     },
 })
 export default class TeamManagement extends Vue {
-    public mode: 'START' | 'CHOOSE_RULESET' | 'NEW_TEAM' | 'MANAGE_TEAM' = 'START';
+    public mode: 'START' | 'NEW_TEAM' | 'MANAGE_TEAM' = 'START';
     public newTeamDivisionId: number | null = null;
     public newTeamLeagueId: number | null = null;
     public newTeamRulesetId: number | null = null;
@@ -61,7 +73,25 @@ export default class TeamManagement extends Vue {
     async mounted() {
     }
 
-    public async getRulesetFromChosenDivisionOrGroup() {
+    private resetDemo() {
+        this.newTeamDivisionId = null;
+        this.newTeamLeagueId = null;
+        this.newTeamRulesetId = null;
+    }
+
+    public createForDivision(divisionId: number) {
+        this.resetDemo();
+        this.newTeamDivisionId = divisionId;
+        this.createNewTeam();
+    }
+
+    public createForGroup(groupId: number) {
+        this.resetDemo();
+        this.newTeamLeagueId = groupId;
+        this.createNewTeam();
+    }
+
+    public async createNewTeam() {
         if (this.newTeamDivisionId) {
             const result = await Axios.post('http://localhost:3000/api/division/get/' + this.newTeamDivisionId);
             this.newTeamRulesetId = result.data.rulesetId;
