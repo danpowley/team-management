@@ -15,6 +15,26 @@
 @lightGrey: #ddd;
 
 .teammanagement {
+  .infotable {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-collapse: separate !important;
+    border-spacing: 0;
+    border: solid @Eggshell 1px;
+    thead {
+      th {
+        background-color: @Forest;
+        color: @White;
+      }
+    }
+    tbody {
+      td {
+        background-color: @OldLace;
+        border-bottom: solid @Jet 1px;
+        vertical-align: middle;
+      }
+    }
+  }
   .newteam {
     .chooseroster {
       .heading {
@@ -48,6 +68,104 @@
             white-space: nowrap;
           }
         }
+      }
+    }
+
+    .quickstart {
+      .rostername {
+        font-size: 200%;
+        line-height: 200%;
+      }
+      .introduction {
+        margin-bottom: 20px;
+      }
+      .subheading {
+        font-size: 150%;
+        line-height: 150%;
+      }
+      .playertable {
+        margin-bottom: 30px;
+        td.positionquantity {
+          width: 65px;
+          select {
+            width: 60px;
+          }
+        }
+        td.positiontitle {
+          width: 250px;
+        }
+        td.positionstat {
+          width: 30px;
+        }
+        td.positioncost {
+          width: 50px;
+        }
+      }
+      .fiftyfifty {
+        display: flex;
+        column-gap: 30px;
+        .theleft {
+          width: 50%;
+        }
+        .theright {
+          width: 50%;
+        }
+      }
+      .stafftable {
+        width: 100%;
+        td.staffquantity {
+          width: 65px;
+          select {
+            width: 60px;
+          }
+        }
+        td.staffcost {
+          width: 50px;
+        }
+      }
+      .calculatedteam {
+        .calculatedcelllabel {
+          display: inline-block;
+          width: 120px;
+          border: solid @Eggshell 1px;
+          padding: 4px 4px 4px 0;
+        }
+        .calculatedcell {
+          display: inline-block;
+          width: 80px;
+          background-color: @OldLace;
+          border: solid @Jet 1px;
+          padding: 4px;
+        }
+        .maximumcell {
+          display: inline-block;
+          border: solid @Eggshell 1px;
+          padding: 4px;
+          margin-left: 5px;
+        }
+        .costs {
+          font-size: 130%;
+          margin-bottom: 10px;
+          .teamvalue {
+          }
+        }
+        .players {
+          font-size: 130%;
+          margin-bottom: 10px;
+          .playercount {
+          }
+        }
+        .error {
+          color: @Carmine;
+          margin-bottom: 5px;
+          font-size: 115%;
+        }
+      }
+    }
+    .nextbutton {
+      margin-top: 30px;
+      button {
+        font-size: 150%;
       }
     }
   }

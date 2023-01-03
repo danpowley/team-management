@@ -1,72 +1,174 @@
 <template>
     <div class="quickstart" v-if="roster !== null">
-        <h1>{{ roster.name }}</h1>
+        <div class="rostername">{{ roster.name }}</div>
 
-        <table>
+        <div class="introduction">
+            Use this page to quickly get your team up and running, you can still make changes after you finish on this page
+            or you can skip this page and set everything up manually if you prefer.
+        </div>
+
+        <div class="subheading">
+            Players
+        </div>
+
+        <table class="infotable playertable">
+            <thead>
+            <tr>
+                <th>Quantity</th>
+                <th>Position</th>
+                <th>MA</th>
+                <th>ST</th>
+                <th>AG</th>
+                <th>PA</th>
+                <th>AV</th>
+                <th>Skills</th>
+                <th>Cost</th>
+            </tr>
+            </thead>
+            <tbody>
             <tr v-for="position in roster.positions" :key="position.id">
-                <td>
+                <td class="positionquantity">
                     <select v-model="positionQuantities[position.id]" @change="positionQuantityChanged">
                         <option>0</option>
                         <option v-for="index in ~~position.quantity" :key="index" :value="index">{{ index }}</option>
                     </select>
                 </td>
-                <td>
+                <td class="positiontitle">
                     {{ position.title }}
                 </td>
-                <td>
+                <td class="positionstat">
+                    {{ position.stats.MA }}
+                </td>
+                <td class="positionstat">
+                    {{ position.stats.ST }}
+                </td>
+                <td class="positionstat">
+                    {{ position.stats.AG }}+
+                </td>
+                <td class="positionstat">
+                    {{ position.stats.PA }}+
+                </td>
+                <td class="positionstat">
+                    {{ position.stats.AV }}+
+                </td>
+                <td class="positionskills">
+                    {{ position.skills.join(', ') }}
+                </td>
+                <td class="positioncost">
                     {{ position.cost }}
                 </td>
             </tr>
+            </tbody>
         </table>
 
-        <div>
-            <select v-model="rerolls">
-                <option value="0">0</option>
-                <option v-for="index in 8" :key="index" :value="index">{{ index }}</option>
-            </select>
-            Team re-rolls
-        </div>
+        <div class="fiftyfifty">
+            <div class="theleft">
+                <div class="subheading">
+                    Staff and Rerolls
+                </div>
 
-        <div>
-            <select v-model="dedicatedFans">
-                <option v-for="df in dedicatedFansOptions" :key="df.amountBuying" :value="df.amountBuying">{{ df.amountDisplay }}</option>
-            </select>
-            Dedicated fans
-        </div>
+                <table class="infotable stafftable">
+                    <thead>
+                        <th>Quantity</th>
+                        <th>Type</th>
+                        <th>Cost</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="staffquantity">
+                                <select v-model="rerolls" id="rerolls">
+                                    <option value="0">0</option>
+                                    <option v-for="index in 8" :key="index" :value="index">{{ index }}</option>
+                                </select>
+                            </td>
+                            <td>
+                                <label for="rerolls">Team re-rolls</label>
+                            </td>
+                            <td class="staffcost">
+                                {{ roster.rerollCost }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="staffquantity">
+                                <select v-model="dedicatedFans" id="dedicatedfans">
+                                    <option v-for="df in dedicatedFansOptions" :key="df.amountBuying" :value="df.amountBuying">{{ df.amountDisplay }}</option>
+                                </select>
+                            </td>
+                            <td>
+                                <label for="dedicatedfans">Dedicated fans</label>
+                            </td>
+                            <td class="staffcost">
+                                {{ dedicatedFansCost }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="staffquantity">
+                                <select v-model="assistantCoaches" id="assistantcoaches">
+                                    <option value="0">0</option>
+                                    <option v-for="index in 6" :key="index" :value="index">{{ index }}</option>
+                                </select>
+                            </td>
+                            <td>
+                                <label for="assistantcoaches">Assistant coaches</label>
+                            </td>
+                            <td class="staffcost">
+                                {{ assistantCoachesCost }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="staffquantity">
+                                <select v-model="cheerleaders" id="cheerleaders">
+                                    <option value="0">0</option>
+                                    <option v-for="index in 12" :key="index" :value="index">{{ index }}</option>
+                                </select>
+                            </td>
+                            <td>
+                                <label for="cheerleaders">Cheerleaders</label>
+                            </td>
+                            <td class="staffcost">
+                                {{ cheerleadersCost }}
+                            </td>
+                        </tr>
+                        <tr v-if="roster.apothecary === 'Yes'">
+                            <td class="staffquantity">
+                                <input type="checkbox" v-model="apothecary" id="apothecary">
+                            </td>
+                            <td>
+                                <label for="apothecary">Apothecary</label>
+                            </td>
+                            <td class="staffcost">
+                                {{ apothecaryCost }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="theright">
+                <div class="subheading">
+                    Your team:
+                </div>
 
-        <div>
-            <select v-model="assistantCoaches">
-                <option value="0">0</option>
-                <option v-for="index in 6" :key="index" :value="index">{{ index }}</option>
-            </select>
-            Assistant coaches
-        </div>
+                <div class="calculatedteam">
+                    <div class="costs">
+                        <div class="calculatedcelllabel">Cost:</div>
+                        <div class="teamvalue calculatedcell">{{ teamValue }}</div>
+                        <div class="maximumcell">/ {{ ruleset.startTreasury }}</div>
+                    </div>
+                    <div class="players">
+                        <div class="calculatedcelllabel">Total players:</div>
+                        <div class="playercount calculatedcell">{{ playerCount }}</div>
+                        <div class="maximumcell">/ {{ ruleset.maxPlayers }}</div>
+                    </div>
+                    <div v-for="(error, index) in errors" :key="index" class="error">
+                        {{ error}}
+                    </div>
+                </div>
 
-        <div>
-            <select v-model="cheerleaders">
-                <option value="0">0</option>
-                <option v-for="index in 12" :key="index" :value="index">{{ index }}</option>
-            </select>
-            Cheerleaders
-        </div>
-
-        <div v-if="roster.apothecary === 'Yes'">
-            <input type="checkbox" v-model="apothecary">
-            Apothecary
-        </div>
-
-        <div>
-            {{ teamValue }} / {{ ruleset.startTreasury }}
-        </div>
-        <div>
-            {{ playerCount }} / {{ ruleset.maxPlayers }}
-        </div>
-        <div v-for="(error, index) in errors" :key="index" style="color: red; font-weight: bold;">
-            {{ error}}
-        </div>
-
-        <div v-if="errors.length === 0">
-            <button @click="finishedBuild">Finished build</button>
+                <div class="nextbutton" v-if="errors.length === 0">
+                    <button @click="finishedBuild">Continue</button>
+                    <div>You'll still be able to make further changes, this is just to get things setup quickly.</div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -91,6 +193,11 @@ import Component from 'vue-class-component';
     }
 })
 export default class QuickStartComponent extends Vue {
+    readonly dedicatedFansCost = 10000;
+    readonly assistantCoachesCost = 10000;
+    readonly cheerleadersCost = 10000;
+    readonly apothecaryCost = 50000;
+
     public roster: any = null;
     public positionQuantities: any = null;
     public playerCost: number = 0;
@@ -212,10 +319,10 @@ export default class QuickStartComponent extends Vue {
     public get teamValue() {
         return this.playerCost +
             (this.rerolls * this.roster.rerollCost) +
-            (this.assistantCoaches * 10000) +
-            (this.cheerleaders * 10000) +
-            (this.apothecary && this.roster.apothecary === 'Yes' ? 50000 : 0) +
-            (this.dedicatedFans * 10000);
+            (this.assistantCoaches * this.assistantCoachesCost) +
+            (this.cheerleaders * this.cheerleadersCost) +
+            (this.apothecary && this.roster.apothecary === 'Yes' ? this.apothecaryCost : 0) +
+            (this.dedicatedFans * this.dedicatedFansCost);
     }
 
     public get dedicatedFansOptions() {
