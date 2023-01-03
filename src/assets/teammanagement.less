@@ -14,3 +14,41 @@
 @darkBlue: #009;
 @lightGrey: #ddd;
 
+.teammanagement {
+  .newteam {
+    .chooseroster {
+      .heading {
+        font-size: 200%;
+        line-height: 200%;
+        text-align: center;
+      }
+      .availablerosters {
+        .selectroster {
+          position: relative;
+          display: inline-block;
+          width: 191px;
+          height: 191px;
+          cursor: pointer;
+          &:hover {
+            background-color: @OldLace;
+          }
+          img {
+            position: absolute;
+            width: 128px;
+            height: 128px;
+            left: 32px;
+            top: 10px;
+          }
+          .rostername {
+            position: absolute;
+            top: 150px;
+            width: 100%;
+            font-size: 150%;
+            text-align: center;
+            white-space: nowrap;
+          }
+        }
+      }
+    }
+  }
+}

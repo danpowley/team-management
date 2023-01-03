@@ -1,8 +1,11 @@
 <template>
     <div class="chooseroster">
-        Choose a roster
-        <div v-for="roster in rosters" :key="roster.id">
-            <a @click="raiseChosenRoster(roster.id)">{{ roster.name }}</a>
+        <div class="heading">Select Roster</div>
+        <div class="availablerosters">
+            <div v-for="roster in rosters" :key="roster.id" class="selectroster" @click="raiseChosenRoster(roster.id)">
+                <img :src="'https://fumbbl.com/i/' + roster.logos[128]">
+                <div class="rostername">{{ roster.name }}</div>
+            </div>
         </div>
     </div>
 </template>

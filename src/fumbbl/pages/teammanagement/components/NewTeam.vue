@@ -1,13 +1,9 @@
 <template>
     <div class="newteam" v-if="ruleset !== null">
-        NT: Ruleset: {{ ruleset.id }}: {{ ruleset.name }}
-
         <chooseroster v-if="newTeamRosterId === null"
             :rosters="ruleset.rosters"
             @chosen-roster="handleChosenRoster"
         ></chooseroster>
-
-        <hr>
 
         <quickstart v-if="newTeamRosterId !== null"
             :roster-id="newTeamRosterId"
@@ -44,14 +40,18 @@ export default class NewTeamComponent extends Vue {
     async mounted() {
         const result = await Axios.post('http://localhost:3000/api/ruleset/get/' + this.$props.rulesetId);
 
+        const rosterLogos = await this.getRosterLogosVeryInefficiently(result.data.rosters);
+
         const rosters = [];
         for (const roster of result.data.rosters) {
             if (roster.value.startsWith('_')) {
                 continue;
             }
+            const rosterId = ~~roster.id;
             rosters.push({
-                id: ~~roster.id,
-                name: roster.value
+                id: rosterId,
+                name: roster.value,
+                logos: rosterLogos[rosterId],
             });
         }
 
@@ -90,6 +90,21 @@ export default class NewTeamComponent extends Vue {
 
     public handleQuickStartFinished(buildData: any) {
         this.$emit('quick-start-finished', buildData);
+    }
+
+    private async getRosterLogosVeryInefficiently(rosters: any[]): Promise<any> {
+        const realLogos = false;
+        const rosterLogos = {};
+        for (const roster of rosters) {
+            if (realLogos) {
+                console.log('INEFFICIENT: loading logo data for ', roster.id);
+                const result = await Axios.post('http://localhost:3000/api/roster/get/' + roster.id);
+                rosterLogos[roster.id] = result.data.logos;
+            } else {
+                rosterLogos[roster.id] = {128: 486276};
+            }
+        }
+        return rosterLogos;
     }
 }
 </script>
