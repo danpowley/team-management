@@ -169,10 +169,15 @@
                     </div>
                 </div>
 
-                <div class="nextbutton" v-if="errors.length === 0">
-                    <button @click="finishedBuild">Continue</button>
-                    <div>You'll still be able to make further changes, this is just to get things setup quickly.</div>
-                </div>
+                <template v-if="! pleaseWait">
+                    <div class="nextbutton" v-if="errors.length === 0">
+                        <button @click="finishedBuild" v-if="pleaseWait === false">Continue</button>
+                        <div>You'll still be able to make further changes, this is just to get things setup quickly.</div>
+                    </div>
+                </template>
+                <template v-else>
+                    <div>Please wait, generating team...</div>
+                </template>
 
                 <div v-if="errors.length > 0">
                     <a @click.prevent="skipQuickStart" href="#">Set everything up manually</a>
@@ -216,6 +221,8 @@ export default class QuickStartComponent extends Vue {
     public assistantCoaches: number = 0;
     public cheerleaders: number = 0;
     public apothecary: boolean = false;
+
+    public pleaseWait: boolean = false;
 
     async mounted() {
         const result = await Axios.post('http://localhost:3000/api/roster/get/' + this.$props.rosterId);
@@ -279,6 +286,7 @@ export default class QuickStartComponent extends Vue {
     }
 
     public async finishedBuild() {
+        this.pleaseWait = true;
         const positionsLookup = {};
         for (const position of this.roster.positions) {
             positionsLookup[position.id] = position;
@@ -296,6 +304,7 @@ export default class QuickStartComponent extends Vue {
             positionsLookup: positionsLookup,
         };
         this.$emit('quick-start-finished', buildData);
+        this.pleaseWait = false;
     }
 
     private async createPlayers(): Promise<any[]> {
