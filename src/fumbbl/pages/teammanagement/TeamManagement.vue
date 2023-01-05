@@ -12,6 +12,7 @@
         <team v-if="mode === 'MANAGE_TEAM'"
             :team="team"
             @change-player-number="handleChangePlayerNumber"
+            @drag-drop-player="handleDragDropPlayer"
         ></team>
     </div>
 </template>
@@ -55,6 +56,35 @@ export default class TeamManagement extends Vue {
         });
 
         player.number = newPlayerNumber;
+    }
+
+    public handleDragDropPlayer(dragDropData: any) {
+        if (dragDropData.source.playerNumber === dragDropData.target.playerNumber) {
+            return;
+        }
+
+        const emptyTarget = dragDropData.target.playerId === null;
+        const movingUp = dragDropData.source.playerNumber > dragDropData.target.playerNumber;
+
+        let sourcePlayer = null;
+        for (const player of this.team.players) {
+            if (player.number === dragDropData.source.playerNumber) {
+                sourcePlayer = player;
+            }
+
+            if (! emptyTarget) {
+                if (movingUp) {
+                    if (player.number >= dragDropData.target.playerNumber && player.number < dragDropData.source.playerNumber) {
+                        player.number += 1;
+                    }
+                } else {
+                    if (player.number <= dragDropData.target.playerNumber && player.number > dragDropData.source.playerNumber) {
+                        player.number -= 1;
+                    }
+                }
+            }
+        }
+        sourcePlayer.number = dragDropData.target.playerNumber;
     }
 }
 </script>

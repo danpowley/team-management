@@ -218,6 +218,35 @@
       }
       .playerskills {
       }
+      tbody {
+        tr {
+          &.draggable {
+            cursor: move;
+          }
+          .droptargetplayernumber {
+            display: none;
+          }
+          &.dragsource {
+            .normalplayernumber {
+              display: none;
+            }
+            .droptargetplayernumber {
+              display: none !important;
+            }
+          }
+          &.droptarget {
+            td {
+              background-color: @White;
+            }
+            .normalplayernumber {
+              display: none;
+            }
+            .droptargetplayernumber {
+              display: inline;
+            }
+          }
+        }
+      }
     }
   }
 }

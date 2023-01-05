@@ -32,9 +32,10 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="(player, playerNumber) in playersInPositions" :key="playerNumber">
+            <tr v-for="(player, playerNumber) in playersInPositions" :key="playerNumber" :draggable="player ? 'true' : 'false'" :class="{ draggable: player !== null }" :data-position="playerNumber" :data-id="player ? player.id : ''">
                 <td class="playernumber">
-                    {{ playerNumber }}
+                    <span class="normalplayernumber">{{ playerNumber }}</span>
+                    <span class="droptargetplayernumber">⌖</span>
                 </td>
                 <template v-if="player !== null">
                     <td>
@@ -109,6 +110,7 @@
                 <template v-else>
                     <td colspan="17">No player here</td>
                 </template>
+
             </tr>
             </tbody>
         </table>
@@ -148,6 +150,7 @@ export default class TeamComponent extends Vue {
     async mounted() {
         this.refreshPlayersInPositions();
         await this.refreshPlayerIconStyles();
+        this.setupDragDrop();
     }
 
     public refreshPlayersInPositions() {
@@ -177,6 +180,70 @@ export default class TeamComponent extends Vue {
         }
 
         this.playerIconStyles = playerIconStyles;
+    }
+
+    public setupDragDrop() {
+        const vueComponent = this;
+        let tbody = document.querySelector('.teamtable tbody');
+        let rows = document.querySelectorAll('.teamtable tbody tr');
+        let rowBeingDragged = null;
+        rows.forEach(function (row) {
+
+            row.addEventListener('dragstart', function (this: any, e) {
+                tbody.classList.add('dragdropstarted');
+                this.classList.add('dragsource');
+                rowBeingDragged = {position: this.dataset.position, id: this.dataset.id};
+            });
+
+            row.addEventListener('dragend', function (this: any, e) {
+                tbody.classList.remove('dragdropstarted');
+                this.classList.remove('dragsource');
+
+                rows.forEach(function (r) {
+                    r.classList.remove('droptarget');
+                });
+            });
+
+            row.addEventListener('dragover', function (this: any, e) {
+                e.preventDefault();
+                return false;
+            });
+
+            row.addEventListener('dragenter', function (this: any, e) {
+                let rowElement = row as HTMLElement;
+                let dragPlayerNumber = rowElement.dataset.position;
+
+                this.classList.add('droptarget');
+
+                rows.forEach(function (r) {
+                    let r2 = r as HTMLElement;
+                    if (r2.dataset.position !== dragPlayerNumber) {
+                        r2.classList.remove('droptarget');
+                    }
+                });
+            });
+
+            // row.addEventListener('dragleave', function (this: any, e) {
+            // });
+
+            row.addEventListener('drop', function (this: any, e) {
+                const eventData = {
+                    source: {
+                        playerNumber: ~~rowBeingDragged.position,
+                        playerId: rowBeingDragged.id,
+                    },
+                    target: {
+                        playerNumber: ~~this.dataset.position,
+                        playerId: this.dataset.id ? this.dataset.id : null,
+                    }
+                };
+
+                vueComponent.$emit('drag-drop-player', eventData);
+                e.stopPropagation();
+                return false;
+            });
+        });
+
     }
 
     public movePlayerUp(playerNumber: number) {
