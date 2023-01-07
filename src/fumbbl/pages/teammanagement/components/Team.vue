@@ -120,8 +120,8 @@
                     </template>
                     <template v-else>
                         <td colspan="5">
-                            <div style="font-size: 30px; font-weight: bold;">
-                                <a @click.prevent="movePlayerUp(playerNumber)" href="#">&#8679;</a> <a @click.prevent="movePlayerDown(playerNumber)" href="#">&#8681;</a>
+                            <div>
+                                <a href="#">edit</a> <a href="#">delete</a>
                             </div>
                         </td>
                     </template>
@@ -175,7 +175,7 @@ export default class TeamComponent extends Vue {
     public playersInPositions: any = null;
     public playerIconStyles: any = null;
 
-    public dragSourcePlayerNumber: number | false = null;
+    public dragSourcePlayerNumber: number | false = false;
 
     async mounted() {
         this.refreshPlayersInPositions();
@@ -236,6 +236,8 @@ export default class TeamComponent extends Vue {
                     r.classList.remove('dragdrophighlightbottomborder');
                     r.classList.remove('dragdrophighlighttopborder');
                 });
+
+                vueComponent.makePlayerDraggable(false);
             });
 
             row.addEventListener('dragover', function (this: any, e) {
@@ -333,48 +335,6 @@ export default class TeamComponent extends Vue {
             });
         });
 
-    }
-
-    public movePlayerUp(playerNumber: number) {
-        this.movePlayer(playerNumber, 'UP');
-    }
-
-    public movePlayerDown(playerNumber: number) {
-        this.movePlayer(playerNumber, 'DOWN');
-    }
-
-    private movePlayer(playerNumber: number, upOrDown: 'UP' | 'DOWN') {
-        playerNumber = ~~playerNumber;
-
-        if (playerNumber === 1 && upOrDown === 'UP') {
-            return;
-        }
-
-        if (playerNumber === this.$props.team.ruleset.maxPlayers && upOrDown === 'DOWN') {
-            return;
-        }
-
-        const swapPlayerNumber = upOrDown === 'UP' ? playerNumber - 1 : playerNumber + 1;
-
-        let originPlayerId = null;
-        let swapPlayerId = null;
-        for (const player of this.$props.team.players) {
-            if (player.number === playerNumber) {
-                originPlayerId = player.id;
-            }
-
-            if (player.number === swapPlayerNumber) {
-                swapPlayerId = player.id;
-            }
-        }
-
-        if (originPlayerId) {
-            this.$emit('change-player-number', originPlayerId, swapPlayerNumber);
-        }
-
-        if (swapPlayerId) {
-            this.$emit('change-player-number', swapPlayerId, playerNumber);
-        }
     }
 
     public async getIconData(positionIconId: number): Promise<any> {
