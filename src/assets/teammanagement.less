@@ -190,7 +190,7 @@
       .iconouter {
         display: grid;
         place-items: center;
-        width: 50px;
+        width: 30px;
         height: 100%;
         .iconinner {
           image-rendering: pixelated;
@@ -201,9 +201,14 @@
       th.editcontrolscolumn {
         width: 150px;
       }
-      .playernumber {
-        font-size: 20px;
-        text-align: center;
+      td {
+        &.draghandle {
+          width: 20px;
+        }
+        &.playernumber {
+          width: 20px;
+          font-size: 20px;
+        }
       }
       .playername {
         font-size: 15px;
@@ -234,8 +239,10 @@
               border-top: solid @brightGreen 2px;
             }
           }
-          &.draggable {
-            cursor: move;
+          &.playerinrow {
+            .draghandle {
+              cursor: move;
+            }
           }
           .draggingnowindicator {
             display: none;

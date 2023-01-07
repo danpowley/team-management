@@ -6,6 +6,7 @@
             <tr>
                 <th></th>
                 <th></th>
+                <th></th>
                 <th>Player</th>
                 <th>Ma</th>
                 <th>St</th>
@@ -34,16 +35,31 @@
             <tbody>
             <tr v-for="(player, playerNumber) in playersInPositions"
                 :key="playerNumber"
-                :draggable="player ? 'true' : 'false'"
+                :draggable="playerNumber == draggablePlayerNumber"
                 :class="{
-                    draggable: player !== null,
+                    playerinrow: player !== null,
                     dragsource: dragSourcePlayerNumber === ~~playerNumber,
                 }"
                 :data-position="playerNumber"
                 :data-id="player ? player.id : ''"
             >
+                <td class="draghandle" @mousedown="makePlayerDraggable(playerNumber)" @mouseup="makePlayerDraggable(false)">
+                    <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                        width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
+                        <title>draggable</title>
+                        <rect x="10" y="6" width="4" height="4"/>
+                        <rect x="18" y="6" width="4" height="4"/>
+                        <rect x="10" y="14" width="4" height="4"/>
+                        <rect x="18" y="14" width="4" height="4"/>
+                        <rect x="10" y="22" width="4" height="4"/>
+                        <rect x="18" y="22" width="4" height="4"/>
+                        <rect id="_Transparent_Rectangle_" width="15" height="25" style="fill:none;"/>
+                    </svg>
+                </td>
                 <td class="playernumber">
-                    <span class="normalplayernumber">{{ playerNumber }}</span>
+                    <span class="normalplayernumber">
+                        {{ playerNumber }}
+                    </span>
                     <div class="draggingnowindicator">&#8597;</div>
                 </td>
                 <template v-if="player !== null">
@@ -161,6 +177,8 @@ export default class TeamComponent extends Vue {
 
     public dragSourcePlayerNumber: number | null = null;
 
+    public draggablePlayerNumber: number | false = null;
+
     async mounted() {
         this.refreshPlayersInPositions();
         await this.refreshPlayerIconStyles();
@@ -169,6 +187,10 @@ export default class TeamComponent extends Vue {
 
     public get maxPlayers(): number {
         return Object.keys(this.playersInPositions).length;
+    }
+
+    public makePlayerDraggable(playerNumber: number | false) {
+        this.draggablePlayerNumber = playerNumber;
     }
 
     public refreshPlayersInPositions() {
@@ -296,8 +318,7 @@ export default class TeamComponent extends Vue {
                 });
             });
 
-            // row.addEventListener('dragleave', function (this: any, e) {
-            // });
+            // naming, rowBeingDragged, dataset.position, dataset.id
 
             row.addEventListener('drop', function (this: any, e) {
                 const eventData = {
