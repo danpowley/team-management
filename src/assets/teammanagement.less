@@ -220,29 +220,53 @@
       }
       tbody {
         tr {
+          td {
+            border-top: solid transparent 1px; // border used here to allow thicker bottom border during drag/drop
+          }
+          &.dragdrophighlightbottomborder {
+            td {
+              border-bottom: solid @brightGreen 2px;
+              border-top-width: 0; // clear fake top border to avoid screen stutter
+            }
+          }
+          &.dragdrophighlighttopborder {
+            td {
+              border-top: solid @brightGreen 2px;
+            }
+          }
           &.draggable {
             cursor: move;
           }
-          .droptargetplayernumber {
+          .draggingnowindicator {
             display: none;
+          }
+          &.dragsource {
+            td {
+              background-color: @Eggshell !important;
+              border-top: solid @Eggshell 1px; // keep the fake border in sync
+            }
           }
           &.dragsource {
             .normalplayernumber {
               display: none;
             }
-            .droptargetplayernumber {
-              display: none !important;
+            .draggingnowindicator {
+              display: block;
             }
+          }
+          .droptargetnoplayerhere {
+            display: none;
           }
           &.droptarget {
             td {
               background-color: @White;
-            }
-            .normalplayernumber {
-              display: none;
-            }
-            .droptargetplayernumber {
-              display: inline;
+              .normalnoplayerhere {
+                display: none;
+              }
+              .droptargetnoplayerhere {
+                display: block;
+                font-size: 20px;
+              }
             }
           }
         }

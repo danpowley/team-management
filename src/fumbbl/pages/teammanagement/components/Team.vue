@@ -32,10 +32,19 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="(player, playerNumber) in playersInPositions" :key="playerNumber" :draggable="player ? 'true' : 'false'" :class="{ draggable: player !== null }" :data-position="playerNumber" :data-id="player ? player.id : ''">
+            <tr v-for="(player, playerNumber) in playersInPositions"
+                :key="playerNumber"
+                :draggable="player ? 'true' : 'false'"
+                :class="{
+                    draggable: player !== null,
+                    dragsource: dragSourcePlayerNumber === ~~playerNumber,
+                }"
+                :data-position="playerNumber"
+                :data-id="player ? player.id : ''"
+            >
                 <td class="playernumber">
                     <span class="normalplayernumber">{{ playerNumber }}</span>
-                    <span class="droptargetplayernumber">⌖</span>
+                    <div class="draggingnowindicator">&#8597;</div>
                 </td>
                 <template v-if="player !== null">
                     <td>
@@ -108,7 +117,10 @@
                     </td>
                 </template>
                 <template v-else>
-                    <td colspan="17">No player here</td>
+                    <td colspan="17">
+                        <div class="normalnoplayerhere">No player here</div>
+                        <div class="droptargetnoplayerhere">&#8982;</div>
+                    </td>
                 </template>
 
             </tr>
@@ -147,10 +159,16 @@ export default class TeamComponent extends Vue {
     public playersInPositions: any = null;
     public playerIconStyles: any = null;
 
+    public dragSourcePlayerNumber: number | null = null;
+
     async mounted() {
         this.refreshPlayersInPositions();
         await this.refreshPlayerIconStyles();
-        this.setupDragDrop();
+        this.setupDragDrop(); // how will this behave as new ones are added???
+    }
+
+    public get maxPlayers(): number {
+        return Object.keys(this.playersInPositions).length;
     }
 
     public refreshPlayersInPositions() {
@@ -184,24 +202,23 @@ export default class TeamComponent extends Vue {
 
     public setupDragDrop() {
         const vueComponent = this;
-        let tbody = document.querySelector('.teamtable tbody');
         let rows = document.querySelectorAll('.teamtable tbody tr');
         let rowBeingDragged = null;
         rows.forEach(function (row) {
 
             row.addEventListener('dragstart', function (this: any, e) {
-                tbody.classList.add('dragdropstarted');
-                this.classList.add('dragsource');
                 rowBeingDragged = {position: this.dataset.position, id: this.dataset.id};
+                vueComponent.dragSourcePlayerNumber = ~~rowBeingDragged.position;
             });
 
             row.addEventListener('dragend', function (this: any, e) {
-                tbody.classList.remove('dragdropstarted');
-                this.classList.remove('dragsource');
-
                 rows.forEach(function (r) {
                     r.classList.remove('droptarget');
+                    r.classList.remove('dragdrophighlightbottomborder');
+                    r.classList.remove('dragdrophighlighttopborder');
                 });
+
+                vueComponent.dragSourcePlayerNumber = null;
             });
 
             row.addEventListener('dragover', function (this: any, e) {
@@ -209,16 +226,72 @@ export default class TeamComponent extends Vue {
                 return false;
             });
 
-            row.addEventListener('dragenter', function (this: any, e) {
-                let rowElement = row as HTMLElement;
-                let dragPlayerNumber = rowElement.dataset.position;
+            const getClassesForDragDropBorderHighlight = function (iteratorRowData: any) {
+                const classes = {
+                    top: false,
+                    bottom: false,
+                };
 
-                this.classList.add('droptarget');
+                // when dragging downwards, we change the bottom border of the drop target
+                if (iteratorRowData.isBelowDragSource && iteratorRowData.hasPlayer && iteratorRowData.isDropTarget) {
+                    classes.bottom = true;
+                }
+
+                // when dragging upwards, we change the bottom border of the row ABOVE the drop target
+                if (iteratorRowData.isAboveDragSource && iteratorRowData.nextNumberHasPlayer && iteratorRowData.isImmediatelyAboveDropTarget) {
+                    classes.bottom = true;
+                }
+
+                // when dragging onto the top row, we change the TOP border of the top row
+                if (iteratorRowData.hasPlayer && iteratorRowData.isDropTarget && iteratorRowData.isTopRow) {
+                    classes.top = true;
+                }
+
+                return classes;
+            };
+
+            row.addEventListener('dragenter', function (this: any, e) {
+                const dropTargetRow = this;
+
+                dropTargetRow.classList.add('droptarget');
+
+                const dropTargetPlayerNumber = ~~dropTargetRow.dataset.position;
+
+                const rowsHavePlayers = {};
+                rows.forEach(function (r) {
+                    const iteratorRow = r as HTMLElement;
+                    rowsHavePlayers[~~iteratorRow.dataset.position] = iteratorRow.dataset.id !== '';
+                });
 
                 rows.forEach(function (r) {
-                    let r2 = r as HTMLElement;
-                    if (r2.dataset.position !== dragPlayerNumber) {
-                        r2.classList.remove('droptarget');
+                    const iteratorRow = r as HTMLElement;
+
+                    const iteratorRowPlayerNumber = ~~iteratorRow.dataset.position;
+
+                    const iteratorRowData = {
+                        hasPlayer: iteratorRow.dataset.id !== '', // Need to resolve issue of new player id's (not saved yet)
+                        nextNumberHasPlayer: iteratorRowPlayerNumber < vueComponent.maxPlayers && rowsHavePlayers[iteratorRowPlayerNumber + 1],
+                        isDropTarget: iteratorRowPlayerNumber === dropTargetPlayerNumber,
+                        isImmediatelyAboveDropTarget: iteratorRowPlayerNumber === dropTargetPlayerNumber - 1,
+                        isAboveDragSource: iteratorRowPlayerNumber < vueComponent.dragSourcePlayerNumber - 1,
+                        isBelowDragSource: iteratorRowPlayerNumber > vueComponent.dragSourcePlayerNumber,
+                        isTopRow: iteratorRowPlayerNumber === 1,
+                    };
+
+                    if (! iteratorRowData.isDropTarget) {
+                        iteratorRow.classList.remove('droptarget');
+                    }
+
+                    const classesForDragDropBorderHighlight = getClassesForDragDropBorderHighlight(iteratorRowData);
+                    if (classesForDragDropBorderHighlight.top) {
+                        iteratorRow.classList.add('dragdrophighlighttopborder');
+                        iteratorRow.classList.remove('dragdrophighlightbottomborder');
+                    } else if (classesForDragDropBorderHighlight.bottom) {
+                        iteratorRow.classList.add('dragdrophighlightbottomborder');
+                        iteratorRow.classList.remove('dragdrophighlighttopborder');
+                    } else {
+                        iteratorRow.classList.remove('dragdrophighlightbottomborder');
+                        iteratorRow.classList.remove('dragdrophighlighttopborder');
                     }
                 });
             });
