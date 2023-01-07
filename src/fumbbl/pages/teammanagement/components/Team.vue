@@ -32,114 +32,143 @@
                 <th>Cost</th>
             </tr>
             </thead>
-            <tbody>
-            <tr v-for="(player, playerNumber) in playersInPositions"
-                :key="playerNumber"
+            <tbody v-for="(player, playerNumber) in playersInPositions" :key="playerNumber"
                 :draggable="playerNumber == dragSourcePlayerNumber"
                 :class="{
                     playerinrow: player !== null,
                     dragsource: dragSourcePlayerNumber === ~~playerNumber,
+                    droptarget: dropTargetPlayerNumber === ~~playerNumber,
                 }"
                 :data-position="playerNumber"
                 :data-id="player ? player.id : ''"
             >
-                <td class="draghandle" @mousedown="makePlayerDraggable(~~playerNumber)" @mouseup="makePlayerDraggable(false)">
-                    <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                        width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
-                        <title>draggable</title>
-                        <rect x="10" y="6" width="4" height="4"/>
-                        <rect x="18" y="6" width="4" height="4"/>
-                        <rect x="10" y="14" width="4" height="4"/>
-                        <rect x="18" y="14" width="4" height="4"/>
-                        <rect x="10" y="22" width="4" height="4"/>
-                        <rect x="18" y="22" width="4" height="4"/>
-                        <rect id="_Transparent_Rectangle_" width="15" height="25" style="fill:none;"/>
-                    </svg>
-                </td>
-                <td class="playernumber">
-                    <span class="normalplayernumber">
-                        {{ playerNumber }}
-                    </span>
-                    <div class="draggingnowindicator">&#8597;</div>
-                </td>
-                <template v-if="player !== null">
-                    <td>
-                        <div v-if="playerIconStyles !== null" class="iconouter">
-                            <div class="iconinner" :style="playerIconStyles[player.id]"></div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="playername">{{ player.name }}</div>
-                        <div class="playerposition">{{ player.position }}</div>
-                    </td>
-                    <td>
-                        {{ team.positionsLookup[player.positionId].stats.MA }}
-                    </td>
-                    <td>
-                        {{ team.positionsLookup[player.positionId].stats.ST }}
-                    </td>
-                    <td>
-                        {{ team.positionsLookup[player.positionId].stats.AG }}+
-                    </td>
-                    <td>
-                        {{ team.positionsLookup[player.positionId].stats.PA }}+
-                    </td>
-                    <td>
-                        {{ team.positionsLookup[player.positionId].stats.AV }}+
-                    </td>
-                    <td>
-                        <div class="positionskills">
-                            {{ team.positionsLookup[player.positionId].skills.join(', ') }}
-                        </div>
-                        <div class="playerskills">
-                            {{ player.skills.join(', ') }}
-                        </div>
-                    </td>
-                    <td>
-                        {{ player.injuries }}
-                    </td>
-                    <td>
-                        ?
-                    </td>
-                    <template v-if="editMode === false">
-                        <td>
-                            {{ player.record.completions }}
+                <template v-if="~~playerNumber !== dragSourcePlayerNumber && ~~playerNumber === dropTargetPlayerNumber && ~~playerNumber === 1">
+                    <tr class="seperator active">
+                        <td colspan="19">
+                            <div class="line"></div>
                         </td>
-                        <td>
-                            {{ player.record.touchdowns }}
+                    </tr>
+                </template>
+                <template v-else>
+                    <tr class="seperator spacer">
+                        <td colspan="19">
+                            <div class="line"></div>
                         </td>
-                        <td>
-                            {{ player.record.interceptions }}
-                        </td>
-                        <td>
-                            {{ player.record.casualties }}
-                        </td>
-                        <td>
-                            {{ player.record.mvps }}
+                    </tr>
+                </template>
+                <tr class="main">
+                    <template v-if="player !== null">
+                        <td class="draghandle" @mousedown="makePlayerDraggable(~~playerNumber, player.id)" @mouseup="makePlayerDraggable(false, '')">
+                            <template v-if="dragSourcePlayerNumber === false || dragSourcePlayerNumber === ~~playerNumber">
+                                <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
+                                    <title>draggable</title>
+                                    <rect x="10" y="6" width="4" height="4"/>
+                                    <rect x="18" y="6" width="4" height="4"/>
+                                    <rect x="10" y="14" width="4" height="4"/>
+                                    <rect x="18" y="14" width="4" height="4"/>
+                                    <rect x="10" y="22" width="4" height="4"/>
+                                    <rect x="18" y="22" width="4" height="4"/>
+                                    <rect id="_Transparent_Rectangle_" width="15" height="25" style="fill:none;"/>
+                                </svg>
+                            </template>
+                            <template v-else>
+                                <div class="droptargetindicator">&#8982;</div>
+                            </template>
                         </td>
                     </template>
                     <template v-else>
-                        <td colspan="5">
-                            <div>
-                                <a href="#">edit</a> <a href="#">delete</a>
-                            </div>
+                        <td class="draghandle">
+                            <div class="droptargetindicator">&#8982;</div>
                         </td>
                     </template>
-                    <td>
-                        {{ player.record.spp }}
+                    <td class="playernumber">
+                        <span class="normalplayernumber">
+                            {{ playerNumber }}
+                        </span>
+                        <div class="draggingnowindicator">&#8597;</div>
                     </td>
-                    <td>
-                        {{ team.positionsLookup[player.positionId].cost }}
+                    <template v-if="player !== null">
+                        <td>
+                            <div v-if="playerIconStyles !== null" class="iconouter">
+                                <div class="iconinner" :style="playerIconStyles[player.id]"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="playername">{{ player.name }}</div>
+                            <div class="playerposition">{{ player.position }}</div>
+                        </td>
+                        <td>
+                            {{ team.positionsLookup[player.positionId].stats.MA }}
+                        </td>
+                        <td>
+                            {{ team.positionsLookup[player.positionId].stats.ST }}
+                        </td>
+                        <td>
+                            {{ team.positionsLookup[player.positionId].stats.AG }}+
+                        </td>
+                        <td>
+                            {{ team.positionsLookup[player.positionId].stats.PA }}+
+                        </td>
+                        <td>
+                            {{ team.positionsLookup[player.positionId].stats.AV }}+
+                        </td>
+                        <td>
+                            <div class="positionskills">
+                                {{ team.positionsLookup[player.positionId].skills.join(', ') }}
+                            </div>
+                            <div class="playerskills">
+                                {{ player.skills.join(', ') }}
+                            </div>
+                        </td>
+                        <td>
+                            {{ player.injuries }}
+                        </td>
+                        <td>
+                            ?
+                        </td>
+                        <template v-if="editMode === false">
+                            <td>
+                                {{ player.record.completions }}
+                            </td>
+                            <td>
+                                {{ player.record.touchdowns }}
+                            </td>
+                            <td>
+                                {{ player.record.interceptions }}
+                            </td>
+                            <td>
+                                {{ player.record.casualties }}
+                            </td>
+                            <td>
+                                {{ player.record.mvps }}
+                            </td>
+                        </template>
+                        <template v-else>
+                            <td colspan="5">
+                                <div>
+                                    <a href="#">edit</a> <a href="#">delete</a>
+                                </div>
+                            </td>
+                        </template>
+                        <td>
+                            {{ player.record.spp }}
+                        </td>
+                        <td>
+                            {{ team.positionsLookup[player.positionId].cost }}
+                        </td>
+                    </template>
+                    <template v-else>
+                        <td colspan="17">
+                            No player here
+                        </td>
+                    </template>
+                </tr>
+                <tr class="seperator" :class="getSeperatorClasses(~~playerNumber)">
+                    <td colspan="19">
+                        <div class="line"></div>
                     </td>
-                </template>
-                <template v-else>
-                    <td colspan="17">
-                        <div class="normalnoplayerhere">No player here</div>
-                        <div class="droptargetnoplayerhere">&#8982;</div>
-                    </td>
-                </template>
-
-            </tr>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -176,6 +205,9 @@ export default class TeamComponent extends Vue {
     public playerIconStyles: any = null;
 
     public dragSourcePlayerNumber: number | false = false;
+    public dragSourcePlayerId: string = ''; // deal with new id string
+    public dropTargetPlayerNumber: number | false = false;
+    public dropTargetPlayerId: string = '';
 
     async mounted() {
         this.refreshPlayersInPositions();
@@ -187,8 +219,40 @@ export default class TeamComponent extends Vue {
         return Object.keys(this.playersInPositions).length;
     }
 
-    public makePlayerDraggable(playerNumber: number | false) {
+    public makePlayerDraggable(playerNumber: number | false, playerId: string) {
         this.dragSourcePlayerNumber = playerNumber;
+        this.dragSourcePlayerId = playerId;
+    }
+
+    public getSeperatorClasses(playerNumber: number) {
+        const draggingDownward = this.dropTargetPlayerNumber > this.dragSourcePlayerNumber;
+        const ourPlayerNumberIsTheDropTarget = playerNumber === this.dropTargetPlayerNumber;
+        const hasPlayer = this.playersInPositions[playerNumber] !== null;
+        if (
+            draggingDownward &&
+            ourPlayerNumberIsTheDropTarget &&
+            hasPlayer
+        ) {
+            return { active: true };
+        }
+
+        const draggingUpward = this.dropTargetPlayerNumber < this.dragSourcePlayerNumber;
+        const ourPlayerNumberIsImmediatelyAboveDropTarget = this.dropTargetPlayerNumber !== false && playerNumber === this.dropTargetPlayerNumber - 1;
+        let hasPlayerBelow = false;
+        if (playerNumber < this.maxPlayers) {
+            hasPlayerBelow = this.playersInPositions[playerNumber + 1] !== null;
+        }
+        if (
+            draggingUpward &&
+            ourPlayerNumberIsImmediatelyAboveDropTarget &&
+            hasPlayerBelow
+        ) {
+            return { active: true };
+        }
+
+        return {
+            normal: true,
+        };
     }
 
     public refreshPlayersInPositions() {
@@ -222,106 +286,39 @@ export default class TeamComponent extends Vue {
 
     public setupDragDrop() {
         const vueComponent = this;
-        let rows = document.querySelectorAll('.teamtable tbody tr');
-        let rowBeingDragged = null;
-        rows.forEach(function (row) {
-
-            row.addEventListener('dragstart', function (this: any, e) {
-                rowBeingDragged = {position: this.dataset.position, id: this.dataset.id};
+        let rowsGroupedByTbody = document.querySelectorAll('.teamtable tbody');
+        rowsGroupedByTbody.forEach(function (tbody) {
+            tbody.addEventListener('dragend', function (this: any, e) {
+                vueComponent.makePlayerDraggable(false, '');
+                vueComponent.dropTargetPlayerNumber = false;
+                vueComponent.dropTargetPlayerId = '';
             });
 
-            row.addEventListener('dragend', function (this: any, e) {
-                rows.forEach(function (r) {
-                    r.classList.remove('droptarget');
-                    r.classList.remove('dragdrophighlightbottomborder');
-                    r.classList.remove('dragdrophighlighttopborder');
-                });
-
-                vueComponent.makePlayerDraggable(false);
-            });
-
-            row.addEventListener('dragover', function (this: any, e) {
+            tbody.addEventListener('dragover', function (this: any, e) {
                 e.preventDefault();
                 return false;
             });
 
-            const getClassesForDragDropBorderHighlight = function (iteratorRowData: any) {
-                const classes = {
-                    top: false,
-                    bottom: false,
-                };
-
-                // when dragging downwards, we change the bottom border of the drop target
-                if (iteratorRowData.isBelowDragSource && iteratorRowData.hasPlayer && iteratorRowData.isDropTarget) {
-                    classes.bottom = true;
-                }
-
-                // when dragging upwards, we change the bottom border of the row ABOVE the drop target
-                if (iteratorRowData.isAboveDragSource && iteratorRowData.nextNumberHasPlayer && iteratorRowData.isImmediatelyAboveDropTarget) {
-                    classes.bottom = true;
-                }
-
-                // when dragging onto the top row, we change the TOP border of the top row
-                if (iteratorRowData.hasPlayer && iteratorRowData.isDropTarget && iteratorRowData.isTopRow) {
-                    classes.top = true;
-                }
-
-                return classes;
-            };
-
-            row.addEventListener('dragenter', function (this: any, e) {
+            tbody.addEventListener('dragenter', function (this: any, e) {
                 const dropTargetRow = this;
 
-                dropTargetRow.classList.add('droptarget');
-
                 const dropTargetPlayerNumber = ~~dropTargetRow.dataset.position;
-
-                const rowsHavePlayers = {};
-                rows.forEach(function (r) {
-                    const iteratorRow = r as HTMLElement;
-                    rowsHavePlayers[~~iteratorRow.dataset.position] = iteratorRow.dataset.id !== '';
-                });
-
-                rows.forEach(function (r) {
-                    const iteratorRow = r as HTMLElement;
-
-                    const iteratorRowPlayerNumber = ~~iteratorRow.dataset.position;
-
-                    const iteratorRowData = {
-                        hasPlayer: iteratorRow.dataset.id !== '', // Need to resolve issue of new player id's (not saved yet)
-                        nextNumberHasPlayer: iteratorRowPlayerNumber < vueComponent.maxPlayers && rowsHavePlayers[iteratorRowPlayerNumber + 1],
-                        isDropTarget: iteratorRowPlayerNumber === dropTargetPlayerNumber,
-                        isImmediatelyAboveDropTarget: iteratorRowPlayerNumber === dropTargetPlayerNumber - 1,
-                        isAboveDragSource: vueComponent.dragSourcePlayerNumber !== false && iteratorRowPlayerNumber < vueComponent.dragSourcePlayerNumber - 1,
-                        isBelowDragSource: iteratorRowPlayerNumber > vueComponent.dragSourcePlayerNumber,
-                        isTopRow: iteratorRowPlayerNumber === 1,
-                    };
-
-                    if (! iteratorRowData.isDropTarget) {
-                        iteratorRow.classList.remove('droptarget');
-                    }
-
-                    const classesForDragDropBorderHighlight = getClassesForDragDropBorderHighlight(iteratorRowData);
-                    if (classesForDragDropBorderHighlight.top) {
-                        iteratorRow.classList.add('dragdrophighlighttopborder');
-                        iteratorRow.classList.remove('dragdrophighlightbottomborder');
-                    } else if (classesForDragDropBorderHighlight.bottom) {
-                        iteratorRow.classList.add('dragdrophighlightbottomborder');
-                        iteratorRow.classList.remove('dragdrophighlighttopborder');
-                    } else {
-                        iteratorRow.classList.remove('dragdrophighlightbottomborder');
-                        iteratorRow.classList.remove('dragdrophighlighttopborder');
-                    }
-                });
+                if (dropTargetPlayerNumber !== vueComponent.dragSourcePlayerNumber) {
+                    vueComponent.dropTargetPlayerNumber = dropTargetPlayerNumber;
+                    vueComponent.dropTargetPlayerId = dropTargetRow.dataset.id; // string id!!!
+                } else {
+                    vueComponent.dropTargetPlayerNumber = false;
+                    vueComponent.dropTargetPlayerId = ''; // string id!!!
+                }
             });
 
-            // naming, rowBeingDragged, dataset.position, dataset.id
+            // naming, dataset.position, dataset.id
 
-            row.addEventListener('drop', function (this: any, e) {
+            tbody.addEventListener('drop', function (this: any, e) {
                 const eventData = {
                     source: {
-                        playerNumber: ~~rowBeingDragged.position,
-                        playerId: rowBeingDragged.id,
+                        playerNumber: vueComponent.dragSourcePlayerNumber,
+                        playerId: vueComponent.dragSourcePlayerId,
                     },
                     target: {
                         playerNumber: ~~this.dataset.position,

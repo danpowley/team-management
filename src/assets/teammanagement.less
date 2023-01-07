@@ -30,7 +30,6 @@
     tbody {
       td {
         background-color: @OldLace;
-        border-bottom: solid @Jet 1px;
         vertical-align: middle;
       }
     }
@@ -203,7 +202,7 @@
       }
       td {
         &.draghandle {
-          width: 20px;
+          width: 30px;
         }
         &.playernumber {
           width: 20px;
@@ -224,7 +223,87 @@
       .playerskills {
       }
       tbody {
+        &.playerinrow {
+          .draghandle {
+            cursor: move;
+          }
+        }
+        &.dragsource {
+          td {
+            background-color: @Eggshell !important;
+            border-top: solid @Eggshell 1px; // keep the fake border in sync
+          }
+        }
+        &.dragsource {
+          .normalplayernumber {
+            display: none;
+          }
+          .draggingnowindicator {
+            display: block;
+          }
+          .spacer {
+            td {
+              .line {
+                background-color: @Eggshell !important;
+              }
+            }
+          }
+        }
+        &.droptarget {
+          tr.main {
+            td {
+              background-color: @White;
+              .droptargetindicator {
+                display: block;
+                font-size: 20px;
+              }
+            }
+          }
+          .spacer {
+            td {
+              .line {
+                background-color: @White !important;
+              }
+            }
+          }
+        }
         tr {
+          &.seperator {
+            padding: 0;
+            margin: 0;
+            td {
+              padding: 0;
+              margin: 0;
+            }
+            .line {
+              margin: 0 5px;
+              padding: 0;
+              height: 0;
+            }
+            &.normal {
+              .line {
+                border-bottom: solid @Forest 1px;
+                height: 2px;
+              }
+            }
+            &.active {
+              td {
+                background-color: @White;
+                .line {
+                  background-color: @Carmine;
+                  height: 2px;
+                }
+              }
+            }
+            &.spacer {
+              td {
+                .line {
+                  background-color: @OldLace;
+                  height: 2px;
+                }
+              }
+            }
+          }
           td {
             border-top: solid transparent 1px; // border used here to allow thicker bottom border during drag/drop
           }
@@ -239,42 +318,11 @@
               border-top: solid @brightGreen 2px;
             }
           }
-          &.playerinrow {
-            .draghandle {
-              cursor: move;
-            }
-          }
           .draggingnowindicator {
             display: none;
           }
-          &.dragsource {
-            td {
-              background-color: @Eggshell !important;
-              border-top: solid @Eggshell 1px; // keep the fake border in sync
-            }
-          }
-          &.dragsource {
-            .normalplayernumber {
-              display: none;
-            }
-            .draggingnowindicator {
-              display: block;
-            }
-          }
-          .droptargetnoplayerhere {
+          .droptargetindicator {
             display: none;
-          }
-          &.droptarget {
-            td {
-              background-color: @White;
-              .normalnoplayerhere {
-                display: none;
-              }
-              .droptargetnoplayerhere {
-                display: block;
-                font-size: 20px;
-              }
-            }
           }
         }
       }
