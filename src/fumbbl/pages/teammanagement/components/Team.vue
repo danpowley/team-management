@@ -35,7 +35,7 @@
             <tbody>
             <tr v-for="(player, playerNumber) in playersInPositions"
                 :key="playerNumber"
-                :draggable="playerNumber == draggablePlayerNumber"
+                :draggable="playerNumber == dragSourcePlayerNumber"
                 :class="{
                     playerinrow: player !== null,
                     dragsource: dragSourcePlayerNumber === ~~playerNumber,
@@ -43,7 +43,7 @@
                 :data-position="playerNumber"
                 :data-id="player ? player.id : ''"
             >
-                <td class="draghandle" @mousedown="makePlayerDraggable(playerNumber)" @mouseup="makePlayerDraggable(false)">
+                <td class="draghandle" @mousedown="makePlayerDraggable(~~playerNumber)" @mouseup="makePlayerDraggable(false)">
                     <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                         width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
                         <title>draggable</title>
@@ -175,9 +175,7 @@ export default class TeamComponent extends Vue {
     public playersInPositions: any = null;
     public playerIconStyles: any = null;
 
-    public dragSourcePlayerNumber: number | null = null;
-
-    public draggablePlayerNumber: number | false = null;
+    public dragSourcePlayerNumber: number | false = null;
 
     async mounted() {
         this.refreshPlayersInPositions();
@@ -190,7 +188,7 @@ export default class TeamComponent extends Vue {
     }
 
     public makePlayerDraggable(playerNumber: number | false) {
-        this.draggablePlayerNumber = playerNumber;
+        this.dragSourcePlayerNumber = playerNumber;
     }
 
     public refreshPlayersInPositions() {
@@ -230,7 +228,6 @@ export default class TeamComponent extends Vue {
 
             row.addEventListener('dragstart', function (this: any, e) {
                 rowBeingDragged = {position: this.dataset.position, id: this.dataset.id};
-                vueComponent.dragSourcePlayerNumber = ~~rowBeingDragged.position;
             });
 
             row.addEventListener('dragend', function (this: any, e) {
@@ -239,8 +236,6 @@ export default class TeamComponent extends Vue {
                     r.classList.remove('dragdrophighlightbottomborder');
                     r.classList.remove('dragdrophighlighttopborder');
                 });
-
-                vueComponent.dragSourcePlayerNumber = null;
             });
 
             row.addEventListener('dragover', function (this: any, e) {
@@ -295,7 +290,7 @@ export default class TeamComponent extends Vue {
                         nextNumberHasPlayer: iteratorRowPlayerNumber < vueComponent.maxPlayers && rowsHavePlayers[iteratorRowPlayerNumber + 1],
                         isDropTarget: iteratorRowPlayerNumber === dropTargetPlayerNumber,
                         isImmediatelyAboveDropTarget: iteratorRowPlayerNumber === dropTargetPlayerNumber - 1,
-                        isAboveDragSource: iteratorRowPlayerNumber < vueComponent.dragSourcePlayerNumber - 1,
+                        isAboveDragSource: vueComponent.dragSourcePlayerNumber !== false && iteratorRowPlayerNumber < vueComponent.dragSourcePlayerNumber - 1,
                         isBelowDragSource: iteratorRowPlayerNumber > vueComponent.dragSourcePlayerNumber,
                         isTopRow: iteratorRowPlayerNumber === 1,
                     };
