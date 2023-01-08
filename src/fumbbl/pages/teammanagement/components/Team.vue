@@ -1,7 +1,7 @@
 <template>
     <div class="team" v-if="team !== null">
         <div class="teamheader">
-            <img class="rosterlogo" src="https://fumbbl.com/i/486246" alt="Roster logo">
+            <img class="rosterlogo" src="https://fumbbl.com/i/486276" alt="Roster logo">
             <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
             <div><input v-if="teamMode === 'CREATE'"></div>
             <div align="center" style="margin-top: 0.5em;">
