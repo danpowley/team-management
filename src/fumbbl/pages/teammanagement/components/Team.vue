@@ -5,7 +5,7 @@
             <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
             <div><input v-if="teamMode === 'CREATE'"></div>
             <div align="center" style="margin-top: 0.5em;">
-                <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] Chaos Chosen
+                <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] {{ team.roster.name }}
             </div>
         </div>
         <div v-if="teamMode === 'CREATE'" class="createteamstats">
