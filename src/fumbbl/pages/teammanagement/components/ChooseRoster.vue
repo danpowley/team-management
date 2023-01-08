@@ -2,7 +2,7 @@
     <div class="chooseroster">
         <div class="heading">Select Roster</div>
         <div class="availablerosters">
-            <div v-for="roster in rosters" :key="roster.id" class="selectroster" @click="raiseChosenRoster(roster.id)">
+            <div v-for="roster in rosters" :key="roster.id" class="selectroster" @click="raiseRosterChosen(roster.id)">
                 <img :src="'https://fumbbl.com/i/' + roster.logos[128]">
                 <div class="rostername">{{ roster.name }}</div>
             </div>
@@ -25,8 +25,8 @@ import Component from 'vue-class-component';
     }
 })
 export default class ChooseRosterComponent extends Vue {
-    public raiseChosenRoster(rosterId: number) {
-        this.$emit('chosen-roster', rosterId);
+    public raiseRosterChosen(rosterId: number) {
+        this.$emit('roster-chosen', rosterId);
     }
 }
 </script>

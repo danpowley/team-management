@@ -34,151 +34,37 @@
       }
     }
   }
-  .newteam {
-    .chooseroster {
-      .heading {
-        font-size: 200%;
-        line-height: 200%;
-        text-align: center;
-      }
-      .availablerosters {
-        .selectroster {
-          position: relative;
-          display: inline-block;
-          width: 191px;
-          height: 191px;
-          cursor: pointer;
-          &:hover {
-            background-color: @OldLace;
-          }
-          img {
-            position: absolute;
-            width: 128px;
-            height: 128px;
-            left: 32px;
-            top: 10px;
-          }
-          .rostername {
-            position: absolute;
-            top: 150px;
-            width: 100%;
-            font-size: 150%;
-            text-align: center;
-            white-space: nowrap;
-          }
-        }
-      }
+  .chooseroster {
+    .heading {
+      font-size: 200%;
+      line-height: 200%;
+      text-align: center;
     }
-
-    .quickstart {
-      .rostername {
-        font-size: 200%;
-        line-height: 200%;
-      }
-      .rosterinfo {
-        margin-bottom: 20px;
-      }
-      .quickstarthelp {
-        margin-bottom: 20px;
-      }
-      .subheading {
-        font-size: 150%;
-        line-height: 150%;
-      }
-      .playertable {
-        margin-bottom: 30px;
-        td.positionquantity {
-          width: 65px;
-          select {
-            width: 60px;
-          }
-        }
-        td.positiontitle {
-          width: 250px;
-        }
-        td.positionstat {
-          width: 30px;
-        }
-        td.positionskills {
-          font-size: 90%;
-          font-style: oblique;
-        }
-        td.positioncost {
-          width: 50px;
-        }
-      }
-      .fiftyfifty {
-        display: flex;
-        column-gap: 30px;
-        .theleft {
-          width: 50%;
-        }
-        .theright {
-          width: 50%;
-        }
-      }
-      .stafftable {
-        width: 100%;
-        td.staffquantity {
-          width: 65px;
-          select {
-            width: 60px;
-          }
-        }
-        td.staffcost {
-          width: 50px;
-        }
-      }
-      .calculatedteam {
-        .calculatedcelllabel {
-          display: inline-block;
-          width: 120px;
-          border: solid @Eggshell 1px;
-          padding: 4px 4px 4px 0;
-        }
-        .calculatedcell {
-          display: inline-block;
-          width: 80px;
+    .availablerosters {
+      .selectroster {
+        position: relative;
+        display: inline-block;
+        width: 191px;
+        height: 191px;
+        cursor: pointer;
+        &:hover {
           background-color: @OldLace;
-          border: solid @Jet 1px;
-          padding: 4px;
         }
-        .maximumcell {
-          display: inline-block;
-          border: solid @Eggshell 1px;
-          padding: 4px;
-          margin-left: 5px;
+        img {
+          position: absolute;
+          width: 128px;
+          height: 128px;
+          left: 32px;
+          top: 10px;
         }
-        .costs {
-          font-size: 130%;
-          margin-bottom: 10px;
-          .teamvalue {
-          }
+        .rostername {
+          position: absolute;
+          top: 150px;
+          width: 100%;
+          font-size: 150%;
+          text-align: center;
+          white-space: nowrap;
         }
-        .players {
-          font-size: 130%;
-          margin-bottom: 10px;
-          .playercount {
-          }
-        }
-        .errors {
-          background-color: @OldLace;
-          border: solid @Jet 1px;
-          padding: 5px;
-          .errorheading {
-            font-weight: bold;
-            margin-bottom: 5px;
-          }
-          .error {
-            margin-bottom: 2px;
-          }
-        }
-      }
-    }
-    .nextbutton {
-      margin-top: 30px;
-      button {
-        font-size: 120%;
       }
     }
   }
