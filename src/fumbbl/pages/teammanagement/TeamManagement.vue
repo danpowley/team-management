@@ -12,7 +12,9 @@
         <team v-if="mode === 'TEAM'"
             :team="team"
             @add-player="handleAddPlayer"
+            @delete-player="handleDeletePlayer"
             @drag-drop-player="handleDragDropPlayer"
+            @reset-create-team="handleResetCreateTeam"
         ></team>
     </div>
 </template>
@@ -192,12 +194,8 @@ export default class TeamManagement extends Vue {
         return result.data;
     }
 
-    private async createPlayer(playerNumber: number): Promise<any> {
-        // get the first position we can get our hands on, fix later
-        let positionObject = null;
-        for (const positionId of Object.keys(this.team.positionsLookup)) {
-            positionObject = this.team.positionsLookup[positionId];
-        }
+    private async createPlayer(playerNumber: number, positionId: number): Promise<any> {
+        let positionObject = this.team.positionsLookup[positionId];
 
         const result = await Axios.post('http://localhost:3000/api/name/generate/default');
         const playerName = result.data;
@@ -252,8 +250,20 @@ export default class TeamManagement extends Vue {
         sourcePlayer.number = dragDropData.target.playerNumber;
     }
 
-    public async handleAddPlayer(playerNumber: number) {
-        this.team.players.push(await this.createPlayer(playerNumber));
+    public async handleAddPlayer(playerNumber: number, positionId: number) {
+        this.team.players.push(await this.createPlayer(playerNumber, positionId));
+    }
+
+    public handleDeletePlayer(playerNumber: number) {
+        const index = this.team.players.findIndex((player) => player.number === playerNumber);
+        if (index !== -1) {
+            this.team.players.splice(index, 1);
+        }
+    }
+
+    private handleResetCreateTeam() {
+        this.team.players = [];
+        // need to reset more here too
     }
 }
 </script>

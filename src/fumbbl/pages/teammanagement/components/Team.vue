@@ -3,10 +3,14 @@
         <div class="teamheader">
             <img class="rosterlogo" src="https://fumbbl.com/i/486246" alt="Roster logo">
             <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
-            <div><input></div>
+            <div><input v-if="teamMode === 'CREATE'"></div>
             <div align="center" style="margin-top: 0.5em;">
                 <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] Chaos Chosen
             </div>
+        </div>
+        <div v-if="teamMode === 'CREATE'" class="newteamstats">
+            {{ team.players.length }} players ({{ team.ruleset.startPlayers }} required) ::: {{ teamCost/1000 }}k (Max {{ team.ruleset.startTreasury/1000 }}k)
+            <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
         </div>
         <table class="infotable teamtable">
             <thead>
@@ -23,35 +27,29 @@
                 <th>Skills</th>
                 <th>Inj</th>
                 <th>G</th>
-                <template v-if="editMode === false">
-                    <th>Cp</th>
-                    <th>Td</th>
-                    <th>It</th>
-                    <th>Cs</th>
-                    <th>Mvp</th>
-                </template>
-                <template v-else>
-                    <th colspan="5" class="editcontrolscolumn">
-                        Edit
-                    </th>
-                </template>
+                <th>Cp</th>
+                <th>Td</th>
+                <th>It</th>
+                <th>Cs</th>
+                <th>Mvp</th>
                 <th>SPP</th>
                 <th>Cost</th>
             </tr>
             </thead>
             <player v-for="(player, playerNumber) in playersInPositions" :key="playerNumber"
-                :editMode="editMode"
+                :team-mode="teamMode"
                 :playerNumber="~~playerNumber"
                 :player="player"
+                :roster="team.roster"
                 :position="player ? getPosition(player.positionId) : null"
                 :drag-source-player-number="dragSourcePlayerNumber"
                 :drop-target-player-number="dropTargetPlayerNumber"
                 :player-numbers-with-player-below="playerNumbersWithPlayerBelow"
                 @add-player="handleAddPlayer"
+                @delete-player="handleDeletePlayer"
                 @make-player-draggable="handleMakePlayerDraggable"
             ></player>
         </table>
-        <a @click.prevent="editMode = !editMode">Edit mode toggle</a>
     </div>
 </template>
 
@@ -81,7 +79,7 @@ import PlayerComponent from "./Player.vue";
     }
 })
 export default class TeamComponent extends Vue {
-    public editMode: boolean = false;
+    private teamMode: 'CREATE' | 'POST_GAME' | 'READY' = 'CREATE';
     public positionsLookup: any = null;
     public playersInPositions: any = null;
 
@@ -103,6 +101,23 @@ export default class TeamComponent extends Vue {
 
     public get maxPlayers(): number {
         return Object.keys(this.playersInPositions).length;
+    }
+
+    private get teamCost(): number {
+        let playerCost = 0;
+        for (const player of this.$props.team.players) {
+            const position = this.$props.team.positionsLookup[player.positionId];
+            playerCost += ~~position.cost;
+        }
+
+        return playerCost;
+
+        // return playerCost +
+        //     (this.rerolls * this.roster.rerollCost) +
+        //     (this.assistantCoaches * this.assistantCoachesCost) +
+        //     (this.cheerleaders * this.cheerleadersCost) +
+        //     (this.apothecary && this.roster.apothecary === 'Yes' ? this.apothecaryCost : 0) +
+        //     (this.dedicatedFans * this.dedicatedFansCost);
     }
 
     public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
@@ -193,8 +208,16 @@ export default class TeamComponent extends Vue {
         return this.$props.team.positionsLookup[positionId];
     }
 
-    public handleAddPlayer(playerNumber: number) {
-        this.$emit('add-player', playerNumber);
+    private resetCreateTeam() {
+        this.$emit('reset-create-team');
+    }
+
+    public handleAddPlayer(playerNumber: number, positionId: number) {
+        this.$emit('add-player', playerNumber, positionId);
+    }
+
+    public handleDeletePlayer(playerNumber: number) {
+        this.$emit('delete-player', playerNumber);
     }
 }
 </script>

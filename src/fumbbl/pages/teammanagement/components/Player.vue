@@ -80,7 +80,7 @@
                 <td>
                     {{ position.stats.AV }}+
                 </td>
-                <td>
+                <td class="skills">
                     <div class="positionskills">
                         {{ position.skills.join(', ') }}
                     </div>
@@ -94,30 +94,26 @@
                 <td>
                     ?
                 </td>
-                <template v-if="editMode === false">
-                    <td>
-                        {{ player.record.completions }}
-                    </td>
-                    <td>
-                        {{ player.record.touchdowns }}
-                    </td>
-                    <td>
-                        {{ player.record.interceptions }}
-                    </td>
-                    <td>
-                        {{ player.record.casualties }}
-                    </td>
-                    <td>
-                        {{ player.record.mvps }}
-                    </td>
-                </template>
-                <template v-else>
-                    <td colspan="5">
-                        <div>
-                            <a href="#">edit</a> <a href="#">delete</a>
-                        </div>
-                    </td>
-                </template>
+                <td colspan="5" :class="{revealonhover: showEditAndDeletePlayer}">
+                    <div>
+                        <a href="#">Edit</a>&nbsp;&nbsp;&nbsp;<a href="#" @click.prevent="deletePlayer()">Delete</a>
+                    </div>
+                </td>
+                <td :class="{hideonhover: showEditAndDeletePlayer}">
+                    {{ player.record.completions }}
+                </td>
+                <td :class="{hideonhover: showEditAndDeletePlayer}">
+                    {{ player.record.touchdowns }}
+                </td>
+                <td :class="{hideonhover: showEditAndDeletePlayer}">
+                    {{ player.record.interceptions }}
+                </td>
+                <td :class="{hideonhover: showEditAndDeletePlayer}">
+                    {{ player.record.casualties }}
+                </td>
+                <td :class="{hideonhover: showEditAndDeletePlayer}">
+                    {{ player.record.mvps }}
+                </td>
                 <td>
                     {{ player.record.spp }}
                 </td>
@@ -126,8 +122,16 @@
                 </td>
             </template>
             <template v-else>
-                <td colspan="17">
-                    No player here - <a href="#" @click.prevent="addPlayer()">Add player</a>
+                <td colspan="17" class="emptyplayer">
+                    <div class="emptyplayeractive">
+                        <div class="buypositionlabel">Buy: </div>
+                        <div v-for="position in positionsAvailableToAdd" :key="position.id" class="positiontoadd">
+                            <a @click.prevent="addPlayer(position.id)" href="#">{{ position.name }}</a> ({{ position.cost/1000 }}k)
+                        </div>
+                    </div>
+                    <div class="emptyplayerinactive">
+                        Empty
+                    </div>
                 </td>
             </template>
         </tr>
@@ -147,8 +151,8 @@ import Component from 'vue-class-component';
     components: {
     },
     props: {
-        editMode: {
-            type: Boolean,
+        teamMode: {
+            type: String,
             required: true,
         },
         playerNumber: {
@@ -159,6 +163,10 @@ import Component from 'vue-class-component';
             validator: function (player) {
                 return typeof player === 'object' || player === null;
             }
+        },
+        roster: {
+            type: Object,
+            required: true,
         },
         position: {
             validator: function (position) {
@@ -184,6 +192,23 @@ import Component from 'vue-class-component';
     }
 })
 export default class TeamComponent extends Vue {
+    private get showEditAndDeletePlayer(): boolean {
+        return this.$props.teamMode === 'CREATE' || this.$props.teamMode === 'POST_GAME'
+    }
+
+    private get positionsAvailableToAdd(): any[] {
+        // also update according to treasury to spend
+        return this.$props.roster.positions.filter((position) => {
+            return true;
+        }).map((position) => {
+            return {
+                id: ~~position.id,
+                name: position.title,
+                cost: position.cost,
+            }
+        });
+    }
+
     public getSeperatorClasses() {
         const draggingDownward = this.$props.dropTargetPlayerNumber > this.$props.dragSourcePlayerNumber;
         const ourPlayerNumberIsTheDropTarget = this.$props.playerNumber === this.$props.dropTargetPlayerNumber;
@@ -218,8 +243,12 @@ export default class TeamComponent extends Vue {
         return this.$props.playerNumbersWithPlayerBelow.includes(~~this.$props.playerNumber);
     }
 
-    public addPlayer() {
-        this.$emit('add-player', this.$props.playerNumber);
+    public addPlayer(positionId: number) {
+        this.$emit('add-player', this.$props.playerNumber, positionId);
+    }
+
+    public deletePlayer() {
+        this.$emit('delete-player', this.$props.playerNumber);
     }
 
     public makePlayerDraggable(playerNumber: number, playerId: string) {

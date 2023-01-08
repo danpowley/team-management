@@ -114,6 +114,9 @@
           width: 20px;
           font-size: 20px;
         }
+        &.skills {
+          width: 250px;
+        }
       }
       .playername {
         font-size: 15px;
@@ -210,9 +213,6 @@
               }
             }
           }
-          td {
-            border-top: solid transparent 1px; // border used here to allow thicker bottom border during drag/drop
-          }
           &.dragdrophighlightbottomborder {
             td {
               border-bottom: solid @brightGreen 2px;
@@ -229,6 +229,40 @@
           }
           .droptargetindicator {
             display: none;
+          }
+          td.emptyplayer {
+            .emptyplayeractive {
+              display: none;
+            }
+            .emptyplayerinactive {
+              color: @Quicksilver;
+            }
+            &:hover {
+              .emptyplayeractive {
+                display: flex;
+                flex-wrap: wrap;
+                .buypositionlabel {
+                  margin-right: 20px;
+                }
+                .positiontoadd {
+                  margin-right: 20px;
+                }
+              }
+              .emptyplayerinactive {
+                display: none;
+              }
+            }
+          }
+          .revealonhover {
+            display: none;
+          }
+          &:hover {
+            .revealonhover {
+              display: table-cell;
+            }
+            .hideonhover {
+              display: none;
+            }
           }
         }
       }
