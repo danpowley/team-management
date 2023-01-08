@@ -113,9 +113,15 @@
         width: 33%;
         text-align: right;
       }
-      .currentplayercount, .currentteamcost {
+
+      .currentplayercount, .currentplayercountlabel, .currentteamcost, .currentteamcostlabel {
         display: inline-block;
         padding: 2px;
+        border: solid transparent 1px;
+        text-align: center;
+      }
+
+      .currentplayercount, .currentteamcost {
         background-color: @Eggshell;
         border: solid @Forest 1px;
         text-align: center;

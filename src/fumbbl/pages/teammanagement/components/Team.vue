@@ -10,10 +10,10 @@
         </div>
         <div v-if="teamMode === 'CREATE'" class="createteamstats">
             <div class="playerinfo">
-                <div class="currentplayercount">{{ team.players.length }}</div> Players ({{ team.ruleset.startPlayers }} required)
+                <div class="currentplayercount">{{ team.players.length }}</div> <div class="currentplayercountlabel">Players ({{ team.ruleset.startPlayers }} required)</div>
             </div>
             <div class="costinfo">
-                <div class="currentteamcost">{{ teamCost/1000 }}k</div> (Max {{ team.ruleset.startTreasury/1000 }}k)
+                <div class="currentteamcost">{{ teamCost/1000 }}k</div> <div class="currentteamcostlabel">(Max {{ team.ruleset.startTreasury/1000 }}k)</div>
             </div>
             <div class="actions">
                 <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
