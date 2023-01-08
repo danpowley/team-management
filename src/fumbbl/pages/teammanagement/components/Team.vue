@@ -46,8 +46,9 @@
                 :position="player ? getPosition(player.positionId) : null"
                 :drag-source-player-number="dragSourcePlayerNumber"
                 :drop-target-player-number="dropTargetPlayerNumber"
-                :has-player-below="hasPlayerBelow(playerNumber)"
+                :player-numbers-with-player-below="playerNumbersWithPlayerBelow"
                 @add-player="handleAddPlayer"
+                @make-player-draggable="handleMakePlayerDraggable"
             ></player>
         </table>
         <a @click.prevent="editMode = !editMode">Edit mode toggle</a>
@@ -85,6 +86,8 @@ export default class TeamComponent extends Vue {
     public playersInPositions: any = null;
     public playerIconStyles: any = null;
 
+    public playerNumbersWithPlayerBelow: number[] = [];
+
     public dragSourcePlayerNumber: number | false = false;
     public dragSourcePlayerId: string = ''; // deal with new id string
     public dropTargetPlayerNumber: number | false = false;
@@ -100,14 +103,7 @@ export default class TeamComponent extends Vue {
         return Object.keys(this.playersInPositions).length;
     }
 
-    public hasPlayerBelow(playerNumber: number): boolean {
-        if (playerNumber < this.maxPlayers) {
-            return this.playersInPositions[playerNumber + 1] !== null;
-        }
-        return false;
-    }
-
-    public makePlayerDraggable(playerNumber: number | false, playerId: string) {
+    public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
         this.dragSourcePlayerNumber = playerNumber;
         this.dragSourcePlayerId = playerId;
     }
@@ -123,9 +119,20 @@ export default class TeamComponent extends Vue {
             playersInPositions[~~player.number] = player;
         }
 
+        const playerNumbersWithPlayerBelow = [];
+        for (const playerNumber of Object.keys(playersInPositions)) {
+            if (~~playerNumber < this.$props.team.ruleset.maxPlayers) {
+                if (playersInPositions[~~playerNumber + 1] !== null) {
+                    playerNumbersWithPlayerBelow.push(~~playerNumber);
+                }
+            }
+        }
+
         this.playersInPositions = playersInPositions;
+        this.playerNumbersWithPlayerBelow = playerNumbersWithPlayerBelow;
     }
 
+    // this will more happen one at a time as players are bought
     public async refreshPlayerIconStyles() {
         const positionIcons = {};
         for (const position of this.$props.team.roster.positions) {
@@ -146,9 +153,7 @@ export default class TeamComponent extends Vue {
         let rowsGroupedByTbody = document.querySelectorAll('.teamtable tbody');
         rowsGroupedByTbody.forEach(function (tbody) {
             tbody.addEventListener('dragend', function (this: any, e) {
-                vueComponent.makePlayerDraggable(false, '');
-                vueComponent.dropTargetPlayerNumber = false;
-                vueComponent.dropTargetPlayerId = '';
+                vueComponent.endDragDrop();
             });
 
             tbody.addEventListener('dragover', function (this: any, e) {
@@ -189,6 +194,13 @@ export default class TeamComponent extends Vue {
             });
         });
 
+    }
+
+    public endDragDrop() {
+        this.dragSourcePlayerNumber = false;
+        this.dragSourcePlayerId = '';
+        this.dropTargetPlayerNumber = false;
+        this.dropTargetPlayerId = '';
     }
 
     public async getIconData(positionIconId: number): Promise<any> {
@@ -236,7 +248,6 @@ export default class TeamComponent extends Vue {
     }
 
     public getPosition(positionId: number) {
-        console.log(1, '2', positionId, this.$props.team.positionsLookup);
         return this.$props.team.positionsLookup[positionId];
     }
 

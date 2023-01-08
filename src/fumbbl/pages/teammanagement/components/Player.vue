@@ -9,7 +9,7 @@
         :data-position="playerNumber"
         :data-id="player ? player.id : ''"
     >
-        <template v-if="~~playerNumber !== dragSourcePlayerNumber && ~~playerNumber === dropTargetPlayerNumber && ~~playerNumber === 1">
+        <template v-if="~~playerNumber === 1 && hasPlayer && ~~playerNumber !== dragSourcePlayerNumber && ~~playerNumber === dropTargetPlayerNumber">
             <tr class="seperator active">
                 <td colspan="19">
                     <div class="line"></div>
@@ -131,7 +131,7 @@
                 </td>
             </template>
         </tr>
-        <tr class="seperator" :class="getSeperatorClasses(~~playerNumber)">
+        <tr class="seperator" :class="getSeperatorClasses()">
             <td colspan="19">
                 <div class="line"></div>
             </td>
@@ -175,10 +175,10 @@ import Component from 'vue-class-component';
                 return typeof dropTargetPlayerNumber === 'number' || dropTargetPlayerNumber === false;
             }
         },
-        hasPlayerBelow: {
-            type: Boolean,
+        playerNumbersWithPlayerBelow: {
+            type: Array,
             required: true,
-        }
+        },
     },
     watch: {
     }
@@ -186,24 +186,23 @@ import Component from 'vue-class-component';
 export default class TeamComponent extends Vue {
     public playerIconStyles = null; // fix this
 
-    public getSeperatorClasses(playerNumber: number) {
+    public getSeperatorClasses() {
         const draggingDownward = this.$props.dropTargetPlayerNumber > this.$props.dragSourcePlayerNumber;
-        const ourPlayerNumberIsTheDropTarget = playerNumber === this.$props.dropTargetPlayerNumber;
-        const hasPlayer = this.$props.player !== null;
+        const ourPlayerNumberIsTheDropTarget = this.$props.playerNumber === this.$props.dropTargetPlayerNumber;
         if (
             draggingDownward &&
             ourPlayerNumberIsTheDropTarget &&
-            hasPlayer
+            this.hasPlayer
         ) {
             return { active: true };
         }
 
         const draggingUpward = this.$props.dropTargetPlayerNumber < this.$props.dragSourcePlayerNumber;
-        const ourPlayerNumberIsImmediatelyAboveDropTarget = this.$props.dropTargetPlayerNumber !== false && playerNumber === this.$props.dropTargetPlayerNumber - 1;
+        const ourPlayerNumberIsImmediatelyAboveDropTarget = this.$props.dropTargetPlayerNumber !== false && this.$props.playerNumber === this.$props.dropTargetPlayerNumber - 1;
         if (
             draggingUpward &&
             ourPlayerNumberIsImmediatelyAboveDropTarget &&
-            this.$props.hasPlayerBelow
+            this.hasPlayerBelow
         ) {
             return { active: true };
         }
@@ -213,8 +212,20 @@ export default class TeamComponent extends Vue {
         };
     }
 
+    public get hasPlayer() {
+        return this.$props.player !== null;
+    }
+
+    public get hasPlayerBelow() {
+        return this.$props.playerNumbersWithPlayerBelow.includes(~~this.$props.playerNumber);
+    }
+
     public addPlayer() {
         this.$emit('add-player', this.$props.playerNumber);
+    }
+
+    public makePlayerDraggable(playerNumber: number, playerId: string) {
+        this.$emit('make-player-draggable', playerNumber, playerId);
     }
 }
 </script>
