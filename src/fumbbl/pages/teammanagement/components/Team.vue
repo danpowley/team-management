@@ -1,10 +1,8 @@
 <template>
     <div class="team" v-if="team !== null">
-        <div>{{team}}</div>
-        <a @click.prevent="editMode = !editMode">Edit mode toggle</a>
         <div class="teamheader">
-            <img class="rosterlogo" src="https://fumbbl.com/i/486246">
-            <img class="divisionlogo" src="https://fumbbl.com/i/677766">
+            <img class="rosterlogo" src="https://fumbbl.com/i/486246" alt="Roster logo">
+            <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
             <div><input></div>
             <div align="center" style="margin-top: 0.5em;">
                 <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] Chaos Chosen
@@ -180,6 +178,7 @@
                 </tr>
             </tbody>
         </table>
+        <a @click.prevent="editMode = !editMode">Edit mode toggle</a>
     </div>
 </template>
 
