@@ -34,10 +34,9 @@ import DemoSetupComponent from "./components/DemoSetup.vue";
 })
 export default class TeamManagement extends Vue {
     public mode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
-
     public newTeamRuleset: any | null = null;
-
     public team: any = null;
+    public positionsIconData: any = null;
 
     async mounted() {
     }
@@ -130,7 +129,62 @@ export default class TeamManagement extends Vue {
 
         this.team = team;
 
+        await this.refreshPositionIconData();
+
         this.mode = 'TEAM';
+    }
+
+    public async refreshPositionIconData() {
+        const positionsIconData = {};
+        for (const position of this.team.roster.positions) {
+            positionsIconData[position.id] = {iconId: position.icon, iconData: await this.getIconData(position.icon)};
+        }
+
+        this.positionsIconData = positionsIconData;
+    }
+
+    public async getIconData(positionIconId: number): Promise<any> {
+        const imageDimensions = (imageUrl): Promise<{width: number, height: number}> =>
+            new Promise((resolve, reject) => {
+                const img = new Image()
+
+                img.onload = () => {
+                    const { naturalWidth: width, naturalHeight: height } = img;
+                    resolve({ width, height });
+                }
+
+                img.onerror = () => {
+                    reject('There was some problem with the image.');
+                }
+
+                img.src = imageUrl;
+            }
+        );
+
+        try {
+            const dimensions = await imageDimensions(`https://fumbbl.com/i/${positionIconId}`);
+            const iconSize = dimensions.width / 4;
+            let counter = 0;
+            const iconRowVersionPositions = [];
+            while (counter < dimensions.height) {
+                iconRowVersionPositions.push(-1 * counter);
+                counter += iconSize;
+            }
+            return {
+                size: iconSize,
+                iconRowVersionPositions: iconRowVersionPositions,
+            };
+        } catch(error) {
+            return 30;
+        }
+    }
+
+    private getPlayerIconStyle(positionIconInfo: any): string {
+        const iconSize = positionIconInfo.iconData.size;
+
+        const iconVersionPosition = positionIconInfo.iconData.iconRowVersionPositions[Math.floor(Math.random() * positionIconInfo.iconData.iconRowVersionPositions.length)]
+
+        return `width: ${iconSize}px; height: ${iconSize}px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconInfo.iconId}") repeat scroll 0px ${iconVersionPosition}px;'"`;
     }
 
     private async getRoster(rosterId: number) {
@@ -165,6 +219,7 @@ export default class TeamManagement extends Vue {
             injuries: 'x,y,z',
             skills: ['skill1', 'skill2'],
             gender: 'Female',
+            iconStyle: await this.getPlayerIconStyle(this.positionsIconData[positionObject.id]),
         };
     }
 
@@ -202,6 +257,3 @@ export default class TeamManagement extends Vue {
     }
 }
 </script>
-
-<style scoped>
-</style>

@@ -57,8 +57,8 @@
             </td>
             <template v-if="player !== null">
                 <td>
-                    <div v-if="playerIconStyles !== null" class="iconouter">
-                        <div class="iconinner" :style="playerIconStyles[player.id]"></div>
+                    <div class="iconouter">
+                        <div class="iconinner" :style="player.iconStyle"></div>
                     </div>
                 </td>
                 <td>
@@ -184,8 +184,6 @@ import Component from 'vue-class-component';
     }
 })
 export default class TeamComponent extends Vue {
-    public playerIconStyles = null; // fix this
-
     public getSeperatorClasses() {
         const draggingDownward = this.$props.dropTargetPlayerNumber > this.$props.dragSourcePlayerNumber;
         const ourPlayerNumberIsTheDropTarget = this.$props.playerNumber === this.$props.dropTargetPlayerNumber;

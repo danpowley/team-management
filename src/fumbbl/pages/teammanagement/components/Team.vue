@@ -84,7 +84,6 @@ export default class TeamComponent extends Vue {
     public editMode: boolean = false;
     public positionsLookup: any = null;
     public playersInPositions: any = null;
-    public playerIconStyles: any = null;
 
     public playerNumbersWithPlayerBelow: number[] = [];
 
@@ -95,8 +94,11 @@ export default class TeamComponent extends Vue {
 
     async mounted() {
         this.refreshPlayersInPositions();
-        await this.refreshPlayerIconStyles();
-        this.setupDragDrop(); // how will this behave as new ones are added???
+
+        // HACK: artificial delay needed for setting up drag and drop to be ready.
+        setTimeout(() => {
+            this.setupDragDrop();
+        }, 1000);
     }
 
     public get maxPlayers(): number {
@@ -130,22 +132,6 @@ export default class TeamComponent extends Vue {
 
         this.playersInPositions = playersInPositions;
         this.playerNumbersWithPlayerBelow = playerNumbersWithPlayerBelow;
-    }
-
-    // this will more happen one at a time as players are bought
-    public async refreshPlayerIconStyles() {
-        const positionIcons = {};
-        for (const position of this.$props.team.roster.positions) {
-            positionIcons[position.id] = {iconId: position.icon, iconData: await this.getIconData(position.icon)};
-        }
-
-        const playerIconStyles = {};
-        for (const player of this.$props.team.players) {
-            const playerIconStyle = this.getPlayerIconStyle(positionIcons[player.positionId]);
-            playerIconStyles[player.id] = playerIconStyle;
-        }
-
-        this.playerIconStyles = playerIconStyles;
     }
 
     public setupDragDrop() {
@@ -201,50 +187,6 @@ export default class TeamComponent extends Vue {
         this.dragSourcePlayerId = '';
         this.dropTargetPlayerNumber = false;
         this.dropTargetPlayerId = '';
-    }
-
-    public async getIconData(positionIconId: number): Promise<any> {
-        const imageDimensions = (imageUrl): Promise<{width: number, height: number}> =>
-            new Promise((resolve, reject) => {
-                const img = new Image()
-
-                img.onload = () => {
-                    const { naturalWidth: width, naturalHeight: height } = img;
-                    resolve({ width, height });
-                }
-
-                img.onerror = () => {
-                    reject('There was some problem with the image.');
-                }
-
-                img.src = imageUrl;
-            }
-        );
-
-        try {
-            const dimensions = await imageDimensions(`https://fumbbl.com/i/${positionIconId}`);
-            const iconSize = dimensions.width / 4;
-            let counter = 0;
-            const iconRowVersionPositions = [];
-            while (counter < dimensions.height) {
-                iconRowVersionPositions.push(-1 * counter);
-                counter += iconSize;
-            }
-            return {
-                size: iconSize,
-                iconRowVersionPositions: iconRowVersionPositions,
-            };
-        } catch(error) {
-            return 30;
-        }
-    }
-
-    public getPlayerIconStyle(positionIconInfo: any): string {
-        const iconSize = positionIconInfo.iconData.size;
-
-        const iconVersionPosition = positionIconInfo.iconData.iconRowVersionPositions[Math.floor(Math.random() * positionIconInfo.iconData.iconRowVersionPositions.length)]
-
-        return `width: ${iconSize}px; height: ${iconSize}px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconInfo.iconId}") repeat scroll 0px ${iconVersionPosition}px;'"`;
     }
 
     public getPosition(positionId: number) {
