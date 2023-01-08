@@ -124,7 +124,7 @@
             <template v-else>
                 <td colspan="17" class="emptyplayer">
                     <div class="emptyplayeractive">
-                        <div class="buypositionlabel">Buy: </div>
+                        <div class="buypositionlabel">Buy: <span v-if="positionsAvailableToAdd.length === 0">Insufficient treasury to buy any players.</span></div>
                         <div v-for="position in positionsAvailableToAdd" :key="position.id" class="positiontoadd">
                             <a @click.prevent="addPlayer(position.id)" href="#">{{ position.name }}</a> ({{ position.cost/1000 }}k)
                         </div>
@@ -187,6 +187,14 @@ import Component from 'vue-class-component';
             type: Array,
             required: true,
         },
+        teamCreationBudgetRemaining: {
+            type: Number,
+            required: true,
+        },
+        positionsAvailableToAdd: {
+            type: Array,
+            required: true,
+        },
     },
     watch: {
     }
@@ -194,19 +202,6 @@ import Component from 'vue-class-component';
 export default class TeamComponent extends Vue {
     private get showEditAndDeletePlayer(): boolean {
         return this.$props.teamMode === 'CREATE' || this.$props.teamMode === 'POST_GAME'
-    }
-
-    private get positionsAvailableToAdd(): any[] {
-        // also update according to treasury to spend
-        return this.$props.roster.positions.filter((position) => {
-            return true;
-        }).map((position) => {
-            return {
-                id: ~~position.id,
-                name: position.title,
-                cost: position.cost,
-            }
-        });
     }
 
     public getSeperatorClasses() {

@@ -52,6 +52,8 @@
                 :drag-source-player-number="dragSourcePlayerNumber"
                 :drop-target-player-number="dropTargetPlayerNumber"
                 :player-numbers-with-player-below="playerNumbersWithPlayerBelow"
+                :team-creation-budget-remaining="teamCreationBudgetRemaining"
+                :positions-available-to-add="positionsAvailableToAdd"
                 @add-player="handleAddPlayer"
                 @delete-player="handleDeletePlayer"
                 @make-player-draggable="handleMakePlayerDraggable"
@@ -125,6 +127,39 @@ export default class TeamComponent extends Vue {
         //     (this.cheerleaders * this.cheerleadersCost) +
         //     (this.apothecary && this.roster.apothecary === 'Yes' ? this.apothecaryCost : 0) +
         //     (this.dedicatedFans * this.dedicatedFansCost);
+    }
+
+    private get teamCreationBudgetRemaining(): number {
+        return this.$props.team.ruleset.startTreasury - this.teamCost;
+    }
+
+    private get positionsAvailableToAdd(): any[] {
+        const rosterPositionData = {};
+        for (const position of this.$props.team.roster.positions) {
+            rosterPositionData[position.id] = {
+                id: ~~position.id,
+                quantityAllowed: ~~position.quantity,
+                quantityHired: 0,
+            };
+        }
+
+        for (const player of this.$props.team.players) {
+            rosterPositionData[player.positionId].quantityHired++;
+        }
+
+        return this.$props.team.roster.positions.filter((position) => {
+            const positionData = rosterPositionData[position.id];
+            if (positionData.quantityHired >= positionData.quantityAllowed) {
+                return false;
+            }
+            return ~~position.cost < this.teamCreationBudgetRemaining;
+        }).map((position) => {
+            return {
+                id: ~~position.id,
+                name: position.title,
+                cost: ~~position.cost,
+            }
+        });
     }
 
     public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
