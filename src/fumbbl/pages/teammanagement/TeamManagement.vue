@@ -11,6 +11,7 @@
 
         <team v-if="mode === 'TEAM'"
             :team="team"
+            @add-player="handleAddPlayer"
             @drag-drop-player="handleDragDropPlayer"
         ></team>
     </div>
@@ -137,6 +138,36 @@ export default class TeamManagement extends Vue {
         return result.data;
     }
 
+    private async createPlayer(playerNumber: number): Promise<any> {
+        // get the first position we can get our hands on, fix later
+        let positionObject = null;
+        for (const positionId of Object.keys(this.team.positionsLookup)) {
+            positionObject = this.team.positionsLookup[positionId];
+        }
+
+        const result = await Axios.post('http://localhost:3000/api/name/generate/default');
+        const playerName = result.data;
+
+        return {
+            id: 'NEW--' + playerNumber,
+            number: playerNumber,
+            name: playerName,
+            position: positionObject.title,
+            positionId: positionObject.id,
+            record: {
+                completions: 0,
+                touchdowns: 0,
+                interceptions: 0,
+                casualties: 0,
+                mvps: 0,
+                spp: 0,
+            },
+            injuries: 'x,y,z',
+            skills: ['skill1', 'skill2'],
+            gender: 'Female',
+        };
+    }
+
     public handleDragDropPlayer(dragDropData: any) {
         if (dragDropData.source.playerNumber === dragDropData.target.playerNumber) {
             return;
@@ -164,6 +195,10 @@ export default class TeamManagement extends Vue {
             }
         }
         sourcePlayer.number = dragDropData.target.playerNumber;
+    }
+
+    public async handleAddPlayer(playerNumber: number) {
+        this.team.players.push(await this.createPlayer(playerNumber));
     }
 }
 </script>
