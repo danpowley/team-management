@@ -8,9 +8,16 @@
                 <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] Chaos Chosen
             </div>
         </div>
-        <div v-if="teamMode === 'CREATE'" class="newteamstats">
-            {{ team.players.length }} players ({{ team.ruleset.startPlayers }} required) ::: {{ teamCost/1000 }}k (Max {{ team.ruleset.startTreasury/1000 }}k)
-            <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
+        <div v-if="teamMode === 'CREATE'" class="createteamstats">
+            <div class="playerinfo">
+                <div class="currentplayercount">{{ team.players.length }}</div> Players ({{ team.ruleset.startPlayers }} required)
+            </div>
+            <div class="costinfo">
+                <div class="currentteamcost">{{ teamCost/1000 }}k</div> (Max {{ team.ruleset.startTreasury/1000 }}k)
+            </div>
+            <div class="actions">
+                <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
+            </div>
         </div>
         <table class="infotable teamtable">
             <thead>

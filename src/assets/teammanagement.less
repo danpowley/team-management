@@ -90,6 +90,37 @@
         height: 128px;
       }
     }
+    .createteamstats {
+      background-color: @OldLace;
+      border-bottom: solid 1px @lightGrey;
+      padding: 10px;
+      display: flex;
+      margin-bottom: 10px;
+      .playerinfo {
+        width: 33%;
+        .currentplayercount {
+          width: 30px;
+        }
+      }
+      .costinfo {
+        width: 33%;
+        text-align: center;
+        .currentteamcost {
+          width: 80px;
+        }
+      }
+      .actions {
+        width: 33%;
+        text-align: right;
+      }
+      .currentplayercount, .currentteamcost {
+        display: inline-block;
+        padding: 2px;
+        background-color: @Eggshell;
+        border: solid @Forest 1px;
+        text-align: center;
+      }
+    }
     .teamtable {
       width: 100%;
       .iconouter {
