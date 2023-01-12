@@ -15,25 +15,6 @@
 @lightGrey: #ddd;
 
 .teammanagement {
-  .infotable {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-collapse: separate !important;
-    border-spacing: 0;
-    border: solid @Eggshell 1px;
-    thead {
-      th {
-        background-color: @Forest;
-        color: @White;
-      }
-    }
-    tbody {
-      td {
-        background-color: @OldLace;
-        vertical-align: middle;
-      }
-    }
-  }
   .chooseroster {
     .heading {
       font-size: 200%;
@@ -127,139 +108,115 @@
         text-align: center;
       }
     }
-    .teamtable {
-      width: 100%;
-      .iconouter {
-        display: grid;
-        place-items: center;
-        width: 30px;
-        height: 100%;
-        .iconinner {
-          image-rendering: pixelated;
-          display: inline-block;
-          vertical-align: baseline;
+
+    .playerrows {
+      // shared widths (we are emulating a table feel to a large extent)
+      .playerrowsheader, .playerrow {
+        // common settings to keep header and body "cells" in sync
+        .cell {
+          padding: 3px;
+          &.draghandle {
+            width: 25px;
+          }
+          &.playernumber {
+            width: 30px;
+          }
+          &.playericon {
+            width: 45px;
+          }
+          &.playerdetails {
+            margin-right: 20px;
+            width: 200px;
+          }
+          &.statma, &.statst, &.statag, &.statpa, &.statav {
+            width: 25px;
+          }
+          &.skills {
+            margin-left: 20px;
+            width: 300px;
+          }
+          &.injuries {
+            width: 60px;
+          }
+          &.spp {
+            width: 75px;
+          }
+          &.cost {
+            width: 55px;
+          }
         }
       }
-      th.editcontrolscolumn {
-        width: 150px;
+      .playerrowsheader {
+        display: flex;
+        background-color: @Forest;
+        color: @White;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
       }
-      td {
-        &.draghandle {
-          width: 30px;
-        }
-        &.playernumber {
-          width: 20px;
-          font-size: 20px;
-        }
-        &.skills {
-          width: 250px;
-        }
-      }
-      .playername {
-        font-size: 15px;
-        white-space: nowrap;
-      }
-      .playerposition {
-        font-size: 10px;
-      }
-      .positionskills {
-        font-size: 10px;
-        font-style: oblique;
-      }
-      .playerskills {
-      }
-      tbody {
+      .playerrow {
+        background-color: @OldLace;
         &.playerinrow {
           .draghandle {
             cursor: move;
           }
         }
-        &.dragsource {
-          td {
-            background-color: @Eggshell !important;
-            border-top: solid @Eggshell 1px; // keep the fake border in sync
+        .seperator {
+          margin: 0 5px;
+          padding: 0;
+          &.normal {
+            .line {
+              border-bottom: solid @Forest 1px;
+              height: 2px;
+            }
+          }
+          &.active {
+            background-color: @White;
+            .line {
+              background-color: @Carmine;
+              height: 2px;
+            }
+          }
+          &.spacer {
+            .line {
+              background-color: @OldLace;
+              height: 2px;
+            }
           }
         }
         &.dragsource {
-          .normalplayernumber {
-            display: none;
-          }
-          .draggingnowindicator {
-            display: block;
-          }
-          .spacer {
-            td {
-              .line {
-                background-color: @Eggshell !important;
+          .main {
+            background-color: @Eggshell;
+            .playernumber {
+              .normalplayernumber {
+                display: none;
               }
+              .draggingnowindicator {
+                display: block;
+              }
+            }
+          }
+          .seperator {
+            .line {
+              background-color: @Eggshell;
             }
           }
         }
         &.droptarget {
-          tr.main {
-            td {
-              background-color: @White;
-              .droptargetindicator {
-                display: block;
-                font-size: 20px;
-              }
+          background-color: @White;
+          .main {
+            .droptargetindicator {
+              display: block;
+              font-size: 20px;
             }
           }
           .spacer {
-            td {
-              .line {
-                background-color: @White !important;
-              }
+            .line {
+              background-color: @White;
             }
           }
         }
-        tr {
-          &.seperator {
-            padding: 0;
-            margin: 0;
-            td {
-              padding: 0;
-              margin: 0;
-            }
-            .line {
-              margin: 0 5px;
-              padding: 0;
-              height: 0;
-            }
-            &.normal {
-              .line {
-                border-bottom: solid @Forest 1px;
-                height: 2px;
-              }
-            }
-            &.active {
-              td {
-                background-color: @White;
-                .line {
-                  background-color: @Carmine;
-                  height: 2px;
-                }
-              }
-            }
-            &.spacer {
-              td {
-                .line {
-                  background-color: @OldLace;
-                  height: 2px;
-                }
-              }
-            }
-          }
-          &.dragdrophighlightbottomborder {
-            td {
-              border-bottom: solid @brightGreen 2px;
-              border-top-width: 0; // clear fake top border to avoid screen stutter
-            }
-          }
-          &.dragdrophighlighttopborder {
-            td {
-              border-top: solid @brightGreen 2px;
-            }
+        .main {
+          .emptyplayer {
           }
           .draggingnowindicator {
             display: none;
@@ -267,38 +224,36 @@
           .droptargetindicator {
             display: none;
           }
-          td.emptyplayer {
-            .emptyplayeractive {
-              display: none;
-            }
-            .emptyplayerinactive {
-              color: @Quicksilver;
-            }
-            &:hover {
-              .emptyplayeractive {
-                display: flex;
-                flex-wrap: wrap;
-                .buypositionlabel {
-                  margin-right: 20px;
-                }
-                .positiontoadd {
-                  margin-right: 20px;
-                }
-              }
-              .emptyplayerinactive {
-                display: none;
+          display: flex;
+          .playernumber {
+            font-size: 20px;
+          }
+          .playericon {
+            .iconouter {
+              display: grid;
+              place-items: center;
+              width: 30px;
+              height: 100%;
+              .iconinner {
+                image-rendering: pixelated;
+                display: inline-block;
+                vertical-align: baseline;
               }
             }
           }
-          .revealonhover {
-            display: none;
-          }
-          &:hover {
-            .revealonhover {
-              display: table-cell;
+          .playerdetails {
+            .playername {
+              font-size: 15px;
+              white-space: nowrap;
             }
-            .hideonhover {
-              display: none;
+            .playerposition {
+              font-size: 10px;
+            }
+          }
+          .skills {
+            .positionskills {
+              font-size: 10px;
+              font-style: oblique;
             }
           }
         }

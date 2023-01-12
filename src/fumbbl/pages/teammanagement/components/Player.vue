@@ -1,5 +1,5 @@
 <template>
-    <tbody class="player"
+    <div class="playerrow"
         :draggable="playerNumber == dragSourcePlayerNumber"
         :class="{
             playerinrow: player !== null,
@@ -10,22 +10,14 @@
         :data-id="player ? player.id : ''"
     >
         <template v-if="~~playerNumber === 1 && hasPlayer && ~~playerNumber !== dragSourcePlayerNumber && ~~playerNumber === dropTargetPlayerNumber">
-            <tr class="seperator active">
-                <td colspan="19">
-                    <div class="line"></div>
-                </td>
-            </tr>
+            <div class="seperator active"><div class="line"></div></div>
         </template>
         <template v-else>
-            <tr class="seperator spacer">
-                <td colspan="19">
-                    <div class="line"></div>
-                </td>
-            </tr>
+            <div class="seperator spacer"><div class="line"></div></div>
         </template>
-        <tr class="main">
+        <div class="main">
             <template v-if="player !== null">
-                <td class="draghandle" @mousedown="makePlayerDraggable(~~playerNumber, player.id)" @mouseup="makePlayerDraggable(false, '')">
+                <div class="cell draghandle" @mousedown="makePlayerDraggable(~~playerNumber, player.id)" @mouseup="makePlayerDraggable(false, '')">
                     <template v-if="dragSourcePlayerNumber === false || dragSourcePlayerNumber === ~~playerNumber">
                         <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
@@ -42,105 +34,98 @@
                     <template v-else>
                         <div class="droptargetindicator">&#8982;</div>
                     </template>
-                </td>
+                </div>
             </template>
             <template v-else>
-                <td class="draghandle">
+                <div class="cell draghandle">
                     <div class="droptargetindicator">&#8982;</div>
-                </td>
+                </div>
             </template>
-            <td class="playernumber">
+            <div class="cell playernumber">
                 <span class="normalplayernumber">
                     {{ playerNumber }}
                 </span>
                 <div class="draggingnowindicator">&#8597;</div>
-            </td>
+            </div>
             <template v-if="player !== null">
-                <td>
+                <div class="cell playericon">
                     <div class="iconouter">
                         <div class="iconinner" :style="player.iconStyle"></div>
                     </div>
-                </td>
-                <td>
+                </div>
+                <div class="cell playerdetails">
                     <div class="playername">{{ player.name }}</div>
                     <div class="playerposition">{{ player.position }}</div>
-                </td>
-                <td>
+                </div>
+                <div class="cell statma">
                     {{ position.stats.MA }}
-                </td>
-                <td>
+                </div>
+                <div class="cell statst">
                     {{ position.stats.ST }}
-                </td>
-                <td>
+                </div>
+                <div class="cell statag">
                     {{ position.stats.AG }}+
-                </td>
-                <td>
+                </div>
+                <div  class="cell statpa">
                     {{ position.stats.PA }}+
-                </td>
-                <td>
+                </div>
+                <div class="cell statav">
                     {{ position.stats.AV }}+
-                </td>
-                <td class="skills">
+                </div>
+                <div class="cell skills">
                     <div class="positionskills">
                         {{ position.skills.join(', ') }}
                     </div>
                     <div class="playerskills">
                         {{ player.skills.join(', ') }}
                     </div>
-                </td>
-                <td>
+                </div>
+                <div class="cell injuries">
                     {{ player.injuries }}
-                </td>
-                <td>
-                    ?
-                </td>
-                <td colspan="5" :class="{revealonhover: showEditAndDeletePlayer}">
-                    <div>
-                        <a href="#">Edit</a>&nbsp;&nbsp;&nbsp;<a href="#" @click.prevent="deletePlayer()">Delete</a>
-                    </div>
-                </td>
-                <td :class="{hideonhover: showEditAndDeletePlayer}">
-                    {{ player.record.completions }}
-                </td>
-                <td :class="{hideonhover: showEditAndDeletePlayer}">
-                    {{ player.record.touchdowns }}
-                </td>
-                <td :class="{hideonhover: showEditAndDeletePlayer}">
-                    {{ player.record.interceptions }}
-                </td>
-                <td :class="{hideonhover: showEditAndDeletePlayer}">
-                    {{ player.record.casualties }}
-                </td>
-                <td :class="{hideonhover: showEditAndDeletePlayer}">
-                    {{ player.record.mvps }}
-                </td>
-                <td>
+                </div>
+                <div class="cell spp">
                     {{ player.record.spp }}
-                </td>
-                <td>
-                    {{ position.cost }}
-                </td>
+                </div>
+                <div class="cell cost">
+                    {{ position.cost/1000 }}k
+                </div>
             </template>
             <template v-else>
-                <td colspan="17" class="emptyplayer">
-                    <div class="emptyplayeractive">
-                        <div class="buypositionlabel">Buy: <span v-if="positionsAvailableToAdd.length === 0">Insufficient treasury to buy any players.</span></div>
-                        <div v-for="position in positionsAvailableToAdd" :key="position.id" class="positiontoadd">
-                            <a @click.prevent="addPlayer(position.id)" href="#">{{ position.name }}</a> ({{ position.cost/1000 }}k)
-                        </div>
+                <div class="emptyplayer">
+                    <div>
+                        Buy:
+                        <span v-for="position in positionsAvailableToAdd" :key="position.id">
+                            <a @click.prevent="addPlayer(position.id)" href="#">{{ position.name }}</a> ({{ position.cost/1000 }}k) | 
+                        </span>
                     </div>
-                    <div class="emptyplayerinactive">
-                        Empty
-                    </div>
-                </td>
+                </div>
             </template>
-        </tr>
-        <tr class="seperator" :class="getSeperatorClasses()">
-            <td colspan="19">
-                <div class="line"></div>
-            </td>
-        </tr>
-    </tbody>
+        </div>
+        <div style="display: none;">
+            TODO: Player foldout
+            <div v-if="player !== null">
+                <div>
+                    ? (games played)
+                </div>
+                <div>
+                    {{ player.record.completions }}
+                </div>
+                <div>
+                    {{ player.record.touchdowns }}
+                </div>
+                <div>
+                    {{ player.record.interceptions }}
+                </div>
+                <div>
+                    {{ player.record.casualties }}
+                </div>
+                <div>
+                    {{ player.record.mvps }}
+                </div>
+            </div>
+        </div>
+        <div class="seperator" :class="getSeperatorClasses()"><div class="line"></div></div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -200,10 +185,6 @@ import Component from 'vue-class-component';
     }
 })
 export default class TeamComponent extends Vue {
-    private get showEditAndDeletePlayer(): boolean {
-        return this.$props.teamMode === 'CREATE' || this.$props.teamMode === 'POST_GAME'
-    }
-
     public getSeperatorClasses() {
         const draggingDownward = this.$props.dropTargetPlayerNumber > this.$props.dragSourcePlayerNumber;
         const ourPlayerNumberIsTheDropTarget = this.$props.playerNumber === this.$props.dropTargetPlayerNumber;

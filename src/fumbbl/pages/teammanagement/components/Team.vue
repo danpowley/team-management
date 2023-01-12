@@ -19,30 +19,22 @@
                 <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
             </div>
         </div>
-        <table class="infotable teamtable">
-            <thead>
-            <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th>Player</th>
-                <th>Ma</th>
-                <th>St</th>
-                <th>Ag</th>
-                <th>Pa</th>
-                <th>Av</th>
-                <th>Skills</th>
-                <th>Inj</th>
-                <th>G</th>
-                <th>Cp</th>
-                <th>Td</th>
-                <th>It</th>
-                <th>Cs</th>
-                <th>Mvp</th>
-                <th>SPP</th>
-                <th>Cost</th>
-            </tr>
-            </thead>
+        <div class="playerrows">
+            <div class="playerrowsheader">
+                <div class="cell draghandle">.</div>
+                <div class="cell playernumber">.</div>
+                <div class="cell playericon">.</div>
+                <div class="cell playerdetails">Player</div>
+                <div class="cell statma">Ma</div>
+                <div class="cell statst">St</div>
+                <div class="cell statag">Ag</div>
+                <div class="cell statpa">Pa</div>
+                <div class="cell statav">Av</div>
+                <div class="cell skills">Skills</div>
+                <div class="cell injuries">Inj</div>
+                <div class="cell spp">SPP</div>
+                <div class="cell cost">Cost</div>
+            </div>
             <player v-for="(player, playerNumber) in playersInPositions" :key="playerNumber"
                 :team-mode="teamMode"
                 :playerNumber="~~playerNumber"
@@ -58,7 +50,7 @@
                 @delete-player="handleDeletePlayer"
                 @make-player-draggable="handleMakePlayerDraggable"
             ></player>
-        </table>
+        </div>
     </div>
 </template>
 
@@ -193,7 +185,7 @@ export default class TeamComponent extends Vue {
 
     public setupDragDrop() {
         const vueComponent = this;
-        let rowsGroupedByTbody = document.querySelectorAll('.teamtable tbody');
+        let rowsGroupedByTbody = document.querySelectorAll('.playerrow');
         rowsGroupedByTbody.forEach(function (tbody) {
             tbody.addEventListener('dragend', function (this: any, e) {
                 vueComponent.endDragDrop();
