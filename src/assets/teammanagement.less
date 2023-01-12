@@ -217,6 +217,7 @@
         }
         .main {
           .emptyplayer {
+            margin: auto 0;
           }
           .draggingnowindicator {
             display: none;
@@ -253,14 +254,32 @@
           padding-left: 50px;
           &.active {
             display: block;
+            margin: 20px 20px 20px 0;
             max-height: 300px; // any value that is larger than needed (too large and it delays the animation)
             transition: max-height 0.5s ease-in;
+          }
+
+          .buyingpositionals {
+            border-collapse: collapse;
+            td, th {
+              border: solid @Quicksilver 1px;
+              vertical-align: middle;
+            }
+            th {
+              font-weight: bold;
+            }
+            .positionname {
+              width: 250px;
+            }
+            .skills {
+              width: 250px;
+            }
           }
         }
         .iconouter {
           display: grid;
           place-items: center;
-          width: 30px;
+          width: 35px;
           height: 100%;
           .iconinner {
             image-rendering: pixelated;

@@ -94,14 +94,38 @@
             </template>
             <template v-else>
                 <div class="emptyplayer">
-                    <a href="#" @click.prevent="foldOutToggle()">Buy player</a>
+                    <template v-if="!foldOut">
+                        <a href="#" @click.prevent="foldOutToggle()">Buy player</a>
+                    </template>
+                    <template v-else>
+                        <span>Choose position to buy.</span> <a href="#" @click.prevent="foldOutToggle()">Cancel</a>
+                    </template>
                 </div>
             </template>
         </div>
         <div class="foldout" :class="{active: foldOut}">
             <div v-if="player === null">
-                <table>
-                    <tr v-for="(positionData, positionId) in rosterPositionData" :key="positionId">
+                <table class="buyingpositionals">
+                    <thead>
+                        <th></th>
+                        <th>Buy?</th>
+                        <th>Cost</th>
+                        <th class="positionname">Position</th>
+                        <th>Quant.</th>
+                        <th>Ma</th>
+                        <th>St</th>
+                        <th>Ag</th>
+                        <th>Pa</th>
+                        <th>Av</th>
+                        <th>Skills</th>
+                    </thead>
+                    <tbody>
+                    <tr v-for="positionData in sortedRosterPositionData" :key="positionData.id">
+                        <td>
+                            <div class="iconouter">
+                                <div class="iconinner" :style="getIconStyle(positionData.id, null)"></div>
+                            </div>
+                        </td>
                         <td>
                             <template v-if="positionData.quantityHired < positionData.quantityAllowed">
                                 <a
@@ -114,15 +138,16 @@
                             </template>
                         </td>
                         <td>{{ positionData.cost/1000 }}k</td>
-                        <td>
-                            <div class="iconouter">
-                                <div class="iconinner" :style="getIconStyle(positionData.id, null)"></div>
-                            </div>
-                        </td>
                         <td>{{ positionData.name }}</td>
                         <td>0-{{ positionData.quantityAllowed }}{{ positionData.quantityHired > 0 ? ` (${positionData.quantityHired}*)` : '' }}</td>
-                        <td>stats and skills</td>
+                        <td>{{ positionData.stats.MA }}</td>
+                        <td>{{ positionData.stats.ST }}</td>
+                        <td>{{ positionData.stats.AG }}</td>
+                        <td>{{ positionData.stats.PA }}</td>
+                        <td>{{ positionData.stats.AV }}</td>
+                        <td class="skills">{{ positionData.skills.join(', ') }}</td>
                     </tr>
+                    </tbody>
                 </table>
             </div>
             <div v-else>
@@ -283,6 +308,15 @@ export default class TeamComponent extends Vue {
         const iconVersionPosition = positionIconInfo.iconData.iconRowVersionPositions[iconRowVersionPosition];
 
         return `width: ${iconSize}px; height: ${iconSize}px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconInfo.iconId}") repeat scroll 0px ${iconVersionPosition}px;'"`;
+    }
+
+    private get sortedRosterPositionData(): any[] {
+        return Object.values(this.$props.rosterPositionData).sort((a: any, b: any) => {
+            if (a.cost === b.cost) {
+                return 0;
+            }
+            return a.cost > b.cost ? -1 : 1;
+        });
     }
 }
 </script>

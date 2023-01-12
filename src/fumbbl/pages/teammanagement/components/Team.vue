@@ -136,9 +136,11 @@ export default class TeamComponent extends Vue {
             rosterPositionData[position.id] = {
                 id: ~~position.id,
                 name: position.title,
+                cost: ~~position.cost,
+                skills: position.skills,
+                stats: position.stats,
                 quantityAllowed: ~~position.quantity,
                 quantityHired: 0,
-                cost: ~~position.cost,
                 canAfford: ~~position.cost < this.teamCreationBudgetRemaining,
             };
         }
