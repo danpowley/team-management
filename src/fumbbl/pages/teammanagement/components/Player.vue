@@ -54,7 +54,9 @@
                     </div>
                 </div>
                 <div class="cell playerdetails">
-                    <div class="playername">{{ player.name }}</div>
+                    <div class="playername">
+                        <a href="#" @click="foldOutToggle()">{{ player.name }}</a>
+                    </div>
                     <div class="playerposition">{{ player.position }}</div>
                 </div>
                 <div class="cell statma">
@@ -92,17 +94,17 @@
             </template>
             <template v-else>
                 <div class="emptyplayer">
-                    <div>
-                        Buy:
-                        <span v-for="position in positionsAvailableToAdd" :key="position.id">
-                            <a @click.prevent="addPlayer(position.id)" href="#">{{ position.name }}</a> ({{ position.cost/1000 }}k) | 
-                        </span>
-                    </div>
+                    <a href="#" @click="foldOutToggle()">Buy player</a>
                 </div>
             </template>
         </div>
-        <div style="display: none;">
-            TODO: Player foldout
+        <div class="foldout" :class="{active: foldOut}">
+            <div>
+                Buy:
+                <span v-for="position in positionsAvailableToAdd" :key="position.id">
+                    <a @click.prevent="addPlayer(position.id)" href="#">{{ position.name }}</a> ({{ position.cost/1000 }}k) | 
+                </span>
+            </div>
             <div v-if="player !== null">
                 <div>
                     ? (games played)
@@ -185,6 +187,8 @@ import Component from 'vue-class-component';
     }
 })
 export default class TeamComponent extends Vue {
+    public foldOut: boolean = false;
+
     public getSeperatorClasses() {
         const draggingDownward = this.$props.dropTargetPlayerNumber > this.$props.dragSourcePlayerNumber;
         const ourPlayerNumberIsTheDropTarget = this.$props.playerNumber === this.$props.dropTargetPlayerNumber;
@@ -221,6 +225,11 @@ export default class TeamComponent extends Vue {
 
     public addPlayer(positionId: number) {
         this.$emit('add-player', this.$props.playerNumber, positionId);
+        this.foldOut = false;
+    }
+
+    private foldOutToggle() {
+        this.foldOut = ! this.foldOut;
     }
 
     public deletePlayer() {
