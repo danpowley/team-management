@@ -50,12 +50,12 @@
             <template v-if="player !== null">
                 <div class="cell playericon">
                     <div class="iconouter">
-                        <div class="iconinner" :style="player.iconStyle"></div>
+                        <div class="iconinner" :style="playerIconStyle"></div>
                     </div>
                 </div>
                 <div class="cell playerdetails">
                     <div class="playername">
-                        <a href="#" @click="foldOutToggle()">{{ player.name }}</a>
+                        <a href="#" @click.prevent="foldOutToggle()">{{ player.name }}</a>
                     </div>
                     <div class="playerposition">{{ player.position }}</div>
                 </div>
@@ -94,18 +94,39 @@
             </template>
             <template v-else>
                 <div class="emptyplayer">
-                    <a href="#" @click="foldOutToggle()">Buy player</a>
+                    <a href="#" @click.prevent="foldOutToggle()">Buy player</a>
                 </div>
             </template>
         </div>
         <div class="foldout" :class="{active: foldOut}">
-            <div>
-                Buy:
-                <span v-for="position in positionsAvailableToAdd" :key="position.id">
-                    <a @click.prevent="addPlayer(position.id)" href="#">{{ position.name }}</a> ({{ position.cost/1000 }}k) | 
-                </span>
+            <div v-if="player === null">
+                <table>
+                    <tr v-for="(positionData, positionId) in rosterPositionData" :key="positionId">
+                        <td>
+                            <template v-if="positionData.quantityHired < positionData.quantityAllowed">
+                                <a
+                                    @click.prevent="addPlayer(positionData.id)"
+                                    href="#" :title="!positionData.canAfford ? 'Insufficient treasury' : ''"
+                                >Buy<template v-if="!positionData.canAfford"> &#9888;</template></a>
+                            </template>
+                            <template v-else>
+                                n/a
+                            </template>
+                        </td>
+                        <td>{{ positionData.cost/1000 }}k</td>
+                        <td>
+                            <div class="iconouter">
+                                <div class="iconinner" :style="getIconStyle(positionData.id, null)"></div>
+                            </div>
+                        </td>
+                        <td>{{ positionData.name }}</td>
+                        <td>0-{{ positionData.quantityAllowed }}{{ positionData.quantityHired > 0 ? ` (${positionData.quantityHired}*)` : '' }}</td>
+                        <td>stats and skills</td>
+                    </tr>
+                </table>
             </div>
-            <div v-if="player !== null">
+            <div v-else>
+                <a href="#" @click.prevent="deletePlayer()">Remove</a>
                 <div>
                     ? (games played)
                 </div>
@@ -178,8 +199,12 @@ import Component from 'vue-class-component';
             type: Number,
             required: true,
         },
-        positionsAvailableToAdd: {
-            type: Array,
+        rosterPositionData: {
+            type: Object,
+            required: true,
+        },
+        positionsIconData: {
+            type: Object,
             required: true,
         },
     },
@@ -187,6 +212,7 @@ import Component from 'vue-class-component';
     }
 })
 export default class TeamComponent extends Vue {
+    readonly cssFoldoutTransitionDurationMs = 500;
     public foldOut: boolean = false;
 
     public getSeperatorClasses() {
@@ -223,21 +249,40 @@ export default class TeamComponent extends Vue {
         return this.$props.playerNumbersWithPlayerBelow.includes(~~this.$props.playerNumber);
     }
 
-    public addPlayer(positionId: number) {
-        this.$emit('add-player', this.$props.playerNumber, positionId);
-        this.foldOut = false;
-    }
-
     private foldOutToggle() {
         this.foldOut = ! this.foldOut;
     }
 
+    public addPlayer(positionId: number) {
+        this.foldOut = false;
+        setTimeout(() => {this.$emit('add-player', this.$props.playerNumber, positionId);}, this.cssFoldoutTransitionDurationMs);
+    }
+
     public deletePlayer() {
-        this.$emit('delete-player', this.$props.playerNumber);
+        this.foldOut = false;
+        setTimeout(() => {this.$emit('delete-player', this.$props.playerNumber)}, this.cssFoldoutTransitionDurationMs);
     }
 
     public makePlayerDraggable(playerNumber: number, playerId: string) {
         this.$emit('make-player-draggable', playerNumber, playerId);
+    }
+
+    private get playerIconStyle(): string {
+        return this.getIconStyle(this.$props.player.positionId, this.$props.player.iconRowVersionPosition);
+    }
+
+    private getIconStyle(positionId: number, iconRowVersionPosition: number | null): string {
+        const positionIconInfo = this.$props.positionsIconData[positionId];
+
+        if (iconRowVersionPosition === null) {
+            iconRowVersionPosition = 0;
+        }
+
+        const iconSize = positionIconInfo.iconData.size;
+
+        const iconVersionPosition = positionIconInfo.iconData.iconRowVersionPositions[iconRowVersionPosition];
+
+        return `width: ${iconSize}px; height: ${iconSize}px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconInfo.iconId}") repeat scroll 0px ${iconVersionPosition}px;'"`;
     }
 }
 </script>

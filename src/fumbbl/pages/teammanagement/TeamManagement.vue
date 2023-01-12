@@ -11,6 +11,7 @@
 
         <team v-if="mode === 'TEAM'"
             :team="team"
+            :positions-icon-data="positionsIconData"
             @add-player="handleAddPlayer"
             @delete-player="handleDeletePlayer"
             @drag-drop-player="handleDragDropPlayer"
@@ -181,12 +182,8 @@ export default class TeamManagement extends Vue {
         }
     }
 
-    private getPlayerIconStyle(positionIconInfo: any): string {
-        const iconSize = positionIconInfo.iconData.size;
-
-        const iconVersionPosition = positionIconInfo.iconData.iconRowVersionPositions[Math.floor(Math.random() * positionIconInfo.iconData.iconRowVersionPositions.length)]
-
-        return `width: ${iconSize}px; height: ${iconSize}px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconInfo.iconId}") repeat scroll 0px ${iconVersionPosition}px;'"`;
+    private getRandomIconRowVersionPosition(positionIconInfo: any): number {
+        return Math.floor(Math.random() * positionIconInfo.iconData.iconRowVersionPositions.length);
     }
 
     private async getRoster(rosterId: number) {
@@ -217,7 +214,7 @@ export default class TeamManagement extends Vue {
             injuries: 'x,y,z',
             skills: ['skill1', 'skill2'],
             gender: 'Female',
-            iconStyle: await this.getPlayerIconStyle(this.positionsIconData[positionObject.id]),
+            iconRowVersionPosition: this.getRandomIconRowVersionPosition(this.positionsIconData[positionObject.id]),
         };
     }
 

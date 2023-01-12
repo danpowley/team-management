@@ -229,17 +229,6 @@
             font-size: 20px;
           }
           .playericon {
-            .iconouter {
-              display: grid;
-              place-items: center;
-              width: 30px;
-              height: 100%;
-              .iconinner {
-                image-rendering: pixelated;
-                display: inline-block;
-                vertical-align: baseline;
-              }
-            }
           }
           .playerdetails {
             .playername {
@@ -261,10 +250,22 @@
           max-height: 0;
           overflow: hidden;
           transition: max-height 0.5s ease-out;
+          padding-left: 50px;
           &.active {
             display: block;
             max-height: 300px; // any value that is larger than needed (too large and it delays the animation)
             transition: max-height 0.5s ease-in;
+          }
+        }
+        .iconouter {
+          display: grid;
+          place-items: center;
+          width: 30px;
+          height: 100%;
+          .iconinner {
+            image-rendering: pixelated;
+            display: inline-block;
+            vertical-align: baseline;
           }
         }
       }

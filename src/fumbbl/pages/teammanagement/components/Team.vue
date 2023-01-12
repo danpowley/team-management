@@ -45,7 +45,8 @@
                 :drop-target-player-number="dropTargetPlayerNumber"
                 :player-numbers-with-player-below="playerNumbersWithPlayerBelow"
                 :team-creation-budget-remaining="teamCreationBudgetRemaining"
-                :positions-available-to-add="positionsAvailableToAdd"
+                :roster-position-data="rosterPositionData"
+                :positions-icon-data="positionsIconData"
                 @add-player="handleAddPlayer"
                 @delete-player="handleDeletePlayer"
                 @make-player-draggable="handleMakePlayerDraggable"
@@ -65,6 +66,10 @@ import PlayerComponent from "./Player.vue";
     },
     props: {
         team: {
+            type: Object,
+            required: true,
+        },
+        positionsIconData: {
             type: Object,
             required: true,
         },
@@ -125,13 +130,16 @@ export default class TeamComponent extends Vue {
         return this.$props.team.ruleset.startTreasury - this.teamCost;
     }
 
-    private get positionsAvailableToAdd(): any[] {
+    private get rosterPositionData(): any {
         const rosterPositionData = {};
         for (const position of this.$props.team.roster.positions) {
             rosterPositionData[position.id] = {
                 id: ~~position.id,
+                name: position.title,
                 quantityAllowed: ~~position.quantity,
                 quantityHired: 0,
+                cost: ~~position.cost,
+                canAfford: ~~position.cost < this.teamCreationBudgetRemaining,
             };
         }
 
@@ -139,19 +147,7 @@ export default class TeamComponent extends Vue {
             rosterPositionData[player.positionId].quantityHired++;
         }
 
-        return this.$props.team.roster.positions.filter((position) => {
-            const positionData = rosterPositionData[position.id];
-            if (positionData.quantityHired >= positionData.quantityAllowed) {
-                return false;
-            }
-            return ~~position.cost < this.teamCreationBudgetRemaining;
-        }).map((position) => {
-            return {
-                id: ~~position.id,
-                name: position.title,
-                cost: ~~position.cost,
-            }
-        });
+        return rosterPositionData;
     }
 
     public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
