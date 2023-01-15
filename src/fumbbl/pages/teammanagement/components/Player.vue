@@ -241,7 +241,7 @@ import Component from 'vue-class-component';
     watch: {
     }
 })
-export default class TeamComponent extends Vue {
+export default class PlayerComponent extends Vue {
     readonly delayForFoldoutAnimations = 600;
     private foldOut: boolean = false;
     private showBuyDialogTemporarily: boolean = false;
