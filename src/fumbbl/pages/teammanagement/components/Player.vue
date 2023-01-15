@@ -97,6 +97,9 @@
                     <template v-if="showBuyDialogTemporarily">
                         Please wait, buying player...
                     </template>
+                    <template v-else-if="showPlayerInfoFoldoutTemporarily">
+                        Please wait, removing player...
+                    </template>
                     <template v-else-if="foldOut">
                         <span>Choose position to buy.</span> <a href="#" @click.prevent="foldOutToggle()">Cancel</a>
                     </template>
@@ -107,7 +110,7 @@
             </template>
         </div>
         <div class="foldout" :class="{active: foldOut}">
-            <div v-if="player === null || showBuyDialogTemporarily" class="buyingplayer">
+            <div v-if="(player === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily" class="buyingplayer">
                 <table class="buyingpositionals">
                     <thead>
                         <th></th>
@@ -153,25 +156,26 @@
                     </tbody>
                 </table>
             </div>
-            <div v-else>
+            <div v-if="(player !== null || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily" class="playerinfofoldout">
                 <a href="#" @click.prevent="deletePlayer()">Remove</a>
+                <div>TODO: no idea yet how this will look...</div>
                 <div>
                     ? (games played)
                 </div>
                 <div>
-                    {{ player.record.completions }}
+                    Completions: {{ player ? player.record.completions : '0' }}
                 </div>
                 <div>
-                    {{ player.record.touchdowns }}
+                    Touchdowns: {{ player ? player.record.touchdowns : '0' }}
                 </div>
                 <div>
-                    {{ player.record.interceptions }}
+                    Interceptions: {{ player ? player.record.interceptions : '0' }}
                 </div>
                 <div>
-                    {{ player.record.casualties }}
+                    Casualties: {{ player ? player.record.casualties : '0' }}
                 </div>
                 <div>
-                    {{ player.record.mvps }}
+                    MVPs: {{ player ? player.record.mvps : '0' }}
                 </div>
             </div>
         </div>
@@ -240,9 +244,10 @@ import Component from 'vue-class-component';
     }
 })
 export default class TeamComponent extends Vue {
-    readonly cssFoldoutTransitionDurationMs = 600;
+    readonly delayForFoldoutAnimations = 600;
     private foldOut: boolean = false;
     private showBuyDialogTemporarily: boolean = false;
+    private showPlayerInfoFoldoutTemporarily: boolean = false;
 
     public getSeperatorClasses() {
         const draggingDownward = this.$props.dropTargetPlayerNumber > this.$props.dragSourcePlayerNumber;
@@ -285,15 +290,19 @@ export default class TeamComponent extends Vue {
     public addPlayer(positionId: number) {
         // prevent UI from updating until after the animation has updated.
         this.showBuyDialogTemporarily = true;
-        setTimeout(() => {this.showBuyDialogTemporarily = false;}, this.cssFoldoutTransitionDurationMs);
+        setTimeout(() => {this.showBuyDialogTemporarily = false;}, this.delayForFoldoutAnimations);
 
         this.foldOut = false;
         this.$emit('add-player', this.$props.playerNumber, positionId);
     }
 
     public deletePlayer() {
+        this.showPlayerInfoFoldoutTemporarily = true;
+        setTimeout(() => {this.showPlayerInfoFoldoutTemporarily = false;}, this.delayForFoldoutAnimations);
+
         this.foldOut = false;
-        setTimeout(() => {this.$emit('delete-player', this.$props.playerNumber)}, this.cssFoldoutTransitionDurationMs);
+        console.log('fold out set to false', this.foldOut);
+        this.$emit('delete-player', this.$props.playerNumber);
     }
 
     public makePlayerDraggable(playerNumber: number, playerId: string) {
