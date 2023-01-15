@@ -48,10 +48,8 @@
                 <div class="draggingnowindicator">&#8597;</div>
             </div>
             <template v-if="player !== null && ! showBuyDialogTemporarily">
-                <div class="cell playericon">
-                    <div class="iconouter">
-                        <div class="iconinner" :style="playerIconStyle"></div>
-                    </div>
+                <div class="cell playericoncontainer">
+                    <div class="iconusingbackground" :style="playerIconStyle"></div>
                 </div>
                 <div class="cell playerdetails">
                     <div class="playername">
@@ -128,9 +126,7 @@
                     <tbody>
                     <tr v-for="positionData in sortedRosterPositionData" :key="positionData.id">
                         <td>
-                            <div class="iconouter">
-                                <div class="iconinner" :style="getIconStyle(positionData.id, null)"></div>
-                            </div>
+                            <div class="iconusingbackground" :style="getIconStyle(positionData.id, null)"></div>
                         </td>
                         <td>
                             <template v-if="positionData.quantityHired < positionData.quantityAllowed">

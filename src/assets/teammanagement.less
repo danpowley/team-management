@@ -115,13 +115,14 @@
         // common settings to keep header and body "cells" in sync
         .cell {
           padding: 3px;
+          margin: auto 0;
           &.draghandle {
             width: 25px;
           }
           &.playernumber {
             width: 30px;
           }
-          &.playericon {
+          &.playericoncontainer {
             width: 45px;
           }
           &.playerdetails {
@@ -216,6 +217,7 @@
           }
         }
         .main {
+          min-height: 38px;
           .emptyplayer {
             margin: auto 0;
           }
@@ -258,7 +260,7 @@
             transition: max-height 0.3s ease-in;
           }
           .buyingplayer {
-            margin: 20px 20px 20px 0;
+            margin: 5px 20px 20px 0;
             .buyingpositionals {
               border-collapse: collapse;
               td, th {
@@ -277,16 +279,8 @@
             }
           }
         }
-        .iconouter {
-          display: grid;
-          place-items: center;
-          width: 35px;
-          height: 100%;
-          .iconinner {
-            image-rendering: pixelated;
-            display: inline-block;
-            vertical-align: baseline;
-          }
+        .iconusingbackground {
+          image-rendering: pixelated;
         }
       }
     }
