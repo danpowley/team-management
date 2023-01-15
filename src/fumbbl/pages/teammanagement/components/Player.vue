@@ -152,25 +152,28 @@
                 </table>
             </div>
             <div v-if="(player !== null || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily" class="playerinfofoldout">
-                <a href="#" @click.prevent="deletePlayer()">Remove</a>
-                <div>TODO: no idea yet how this will look...</div>
-                <div>
-                    ? (games played)
+                <div class="playerinfosection playeredit">
+                    <a href="#" @click.prevent="deletePlayer()" style="float: right;">Remove player</a>
+                    <div class="title">Edit</div>
+                    <p>Todo: decide what can be edited here.</p>
+                    <ul>
+                        <li>Name</li>
+                        <li>Gender</li>
+                        <li>Profile (after creation?)</li>
+                        <li>Player card image</li>
+                    </ul>
                 </div>
-                <div>
-                    Completions: {{ player ? player.record.completions : '0' }}
-                </div>
-                <div>
-                    Touchdowns: {{ player ? player.record.touchdowns : '0' }}
-                </div>
-                <div>
-                    Interceptions: {{ player ? player.record.interceptions : '0' }}
-                </div>
-                <div>
-                    Casualties: {{ player ? player.record.casualties : '0' }}
-                </div>
-                <div>
-                    MVPs: {{ player ? player.record.mvps : '0' }}
+                <div class="playerinfosection playerdetails">
+                    <div class="title">Details</div>
+                    <p>Todo: decide what to display here.</p>
+                    <ul>
+                        <li>Games played: [data unavailable]</li>
+                        <li>Completions: {{ player ? player.record.completions : '0' }}</li>
+                        <li>Touchdowns: {{ player ? player.record.touchdowns : '0' }}</li>
+                        <li>Interceptions: {{ player ? player.record.interceptions : '0' }}</li>
+                        <li>Casualties: {{ player ? player.record.casualties : '0' }}</li>
+                        <li>MVPs: {{ player ? player.record.mvps : '0' }}</li>
+                    </ul>
                 </div>
             </div>
         </div>
