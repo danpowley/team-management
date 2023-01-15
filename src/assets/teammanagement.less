@@ -250,29 +250,30 @@
         .foldout {
           max-height: 0;
           overflow: hidden;
-          transition: max-height 0.5s ease-out;
+          transition: max-height 0.3s ease-out;
           padding-left: 50px;
           &.active {
             display: block;
-            margin: 20px 20px 20px 0;
             max-height: 300px; // any value that is larger than needed (too large and it delays the animation)
-            transition: max-height 0.5s ease-in;
+            transition: max-height 0.3s ease-in;
           }
-
-          .buyingpositionals {
-            border-collapse: collapse;
-            td, th {
-              border: solid @Quicksilver 1px;
-              vertical-align: middle;
-            }
-            th {
-              font-weight: bold;
-            }
-            .positionname {
-              width: 250px;
-            }
-            .skills {
-              width: 250px;
+          .buyingplayer {
+            margin: 20px 20px 20px 0;
+            .buyingpositionals {
+              border-collapse: collapse;
+              td, th {
+                border: solid @Quicksilver 1px;
+                vertical-align: middle;
+              }
+              th {
+                font-weight: bold;
+              }
+              .positionname {
+                width: 250px;
+              }
+              .skills {
+                width: 250px;
+              }
             }
           }
         }

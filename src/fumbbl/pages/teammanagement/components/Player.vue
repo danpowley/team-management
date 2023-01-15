@@ -47,7 +47,7 @@
                 </span>
                 <div class="draggingnowindicator">&#8597;</div>
             </div>
-            <template v-if="player !== null">
+            <template v-if="player !== null && ! showBuyDialogTemporarily">
                 <div class="cell playericon">
                     <div class="iconouter">
                         <div class="iconinner" :style="playerIconStyle"></div>
@@ -94,17 +94,20 @@
             </template>
             <template v-else>
                 <div class="emptyplayer">
-                    <template v-if="!foldOut">
-                        <a href="#" @click.prevent="foldOutToggle()">Buy player</a>
+                    <template v-if="showBuyDialogTemporarily">
+                        Please wait, buying player...
+                    </template>
+                    <template v-else-if="foldOut">
+                        <span>Choose position to buy.</span> <a href="#" @click.prevent="foldOutToggle()">Cancel</a>
                     </template>
                     <template v-else>
-                        <span>Choose position to buy.</span> <a href="#" @click.prevent="foldOutToggle()">Cancel</a>
+                        <a href="#" @click.prevent="foldOutToggle()">Buy player</a>
                     </template>
                 </div>
             </template>
         </div>
         <div class="foldout" :class="{active: foldOut}">
-            <div v-if="player === null">
+            <div v-if="player === null || showBuyDialogTemporarily" class="buyingplayer">
                 <table class="buyingpositionals">
                     <thead>
                         <th></th>
@@ -237,8 +240,9 @@ import Component from 'vue-class-component';
     }
 })
 export default class TeamComponent extends Vue {
-    readonly cssFoldoutTransitionDurationMs = 500;
-    public foldOut: boolean = false;
+    readonly cssFoldoutTransitionDurationMs = 600;
+    private foldOut: boolean = false;
+    private showBuyDialogTemporarily: boolean = false;
 
     public getSeperatorClasses() {
         const draggingDownward = this.$props.dropTargetPlayerNumber > this.$props.dragSourcePlayerNumber;
@@ -279,8 +283,12 @@ export default class TeamComponent extends Vue {
     }
 
     public addPlayer(positionId: number) {
+        // prevent UI from updating until after the animation has updated.
+        this.showBuyDialogTemporarily = true;
+        setTimeout(() => {this.showBuyDialogTemporarily = false;}, this.cssFoldoutTransitionDurationMs);
+
         this.foldOut = false;
-        setTimeout(() => {this.$emit('add-player', this.$props.playerNumber, positionId);}, this.cssFoldoutTransitionDurationMs);
+        this.$emit('add-player', this.$props.playerNumber, positionId);
     }
 
     public deletePlayer() {
