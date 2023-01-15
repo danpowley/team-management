@@ -253,7 +253,7 @@
           max-height: 0;
           overflow: hidden;
           transition: max-height 0.3s ease-out;
-          padding-left: 50px;
+          padding-left: 55px;
           &.active {
             display: block;
             max-height: 300px; // any value that is larger than needed (too large and it delays the animation)
@@ -262,10 +262,13 @@
           .buyingplayer {
             margin: 5px 20px 20px 0;
             .buyingpositionals {
+              width: 880px;
               border-collapse: collapse;
+              border: solid @Quicksilver 1px;
               td, th {
-                border: solid @Quicksilver 1px;
+                border-bottom: solid @Quicksilver 1px;
                 vertical-align: middle;
+                background-color: @White;
               }
               th {
                 font-weight: bold;
@@ -274,7 +277,7 @@
                 width: 250px;
               }
               .skills {
-                width: 250px;
+                width: 300px;
               }
             }
           }

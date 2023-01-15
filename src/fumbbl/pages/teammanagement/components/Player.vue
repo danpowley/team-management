@@ -111,10 +111,9 @@
             <div v-if="(player === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily" class="buyingplayer">
                 <table class="buyingpositionals">
                     <thead>
-                        <th></th>
                         <th>Buy?</th>
                         <th>Cost</th>
-                        <th class="positionname">Position</th>
+                        <th colspan="2">Position</th>
                         <th>Quant.</th>
                         <th>Ma</th>
                         <th>St</th>
@@ -125,9 +124,6 @@
                     </thead>
                     <tbody>
                     <tr v-for="positionData in sortedRosterPositionData" :key="positionData.id">
-                        <td>
-                            <div class="iconusingbackground" :style="getIconStyle(positionData.id, null)"></div>
-                        </td>
                         <td>
                             <template v-if="positionData.quantityHired < positionData.quantityAllowed">
                                 <a
@@ -140,7 +136,10 @@
                             </template>
                         </td>
                         <td>{{ positionData.cost/1000 }}k</td>
-                        <td>{{ positionData.name }}</td>
+                        <td>
+                            <div class="iconusingbackground" :style="getIconStyle(positionData.id, null)"></div>
+                        </td>
+                        <td class="positionname">{{ positionData.name }}</td>
                         <td>0-{{ positionData.quantityAllowed }}{{ positionData.quantityHired > 0 ? ` (${positionData.quantityHired}*)` : '' }}</td>
                         <td>{{ positionData.stats.MA }}</td>
                         <td>{{ positionData.stats.ST }}</td>
