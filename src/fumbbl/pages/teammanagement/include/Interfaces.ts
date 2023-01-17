@@ -1,0 +1,1 @@
+export type PlayerRowFoldOutMode = 'BUY' | 'MORE' | 'CLOSED';

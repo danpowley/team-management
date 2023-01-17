@@ -41,6 +41,8 @@
                 :player="player"
                 :roster="team.roster"
                 :position="player ? getPosition(player.positionId) : null"
+                :is-fold-out-buy="isFoldOutBuy(playerNumber)"
+                :is-fold-out-more="isFoldOutMore(playerNumber)"
                 :drag-source-player-number="dragSourcePlayerNumber"
                 :drop-target-player-number="dropTargetPlayerNumber"
                 :player-numbers-with-player-below="playerNumbersWithPlayerBelow"
@@ -50,6 +52,7 @@
                 @add-player="handleAddPlayer"
                 @delete-player="handleDeletePlayer"
                 @make-player-draggable="handleMakePlayerDraggable"
+                @fold-out="handleFoldOut"
             ></player>
         </div>
     </div>
@@ -58,6 +61,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
+import { PlayerRowFoldOutMode } from "../include/Interfaces";
 import PlayerComponent from "./Player.vue";
 
 @Component({
@@ -73,6 +77,10 @@ import PlayerComponent from "./Player.vue";
             type: Object,
             required: true,
         },
+        foldOuts: {
+            type: Object,
+            required: true,
+        }
     },
     watch: {
         team: {
@@ -150,6 +158,14 @@ export default class TeamComponent extends Vue {
         }
 
         return rosterPositionData;
+    }
+
+    private isFoldOutBuy(playerNumber: number): boolean {
+        return this.$props.foldOuts.buy.includes(~~playerNumber);
+    }
+
+    private isFoldOutMore(playerNumber: number): boolean {
+        return this.$props.foldOuts.more.includes(~~playerNumber);
     }
 
     public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
@@ -250,6 +266,10 @@ export default class TeamComponent extends Vue {
 
     public handleDeletePlayer(playerNumber: number) {
         this.$emit('delete-player', playerNumber);
+    }
+
+    private handleFoldOut(playerNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
+        this.$emit('fold-out', playerNumber, playerRowFoldOutMode, multipleOpenMode);
     }
 }
 </script>

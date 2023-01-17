@@ -258,48 +258,62 @@
             display: block;
             transition: max-height 0.3s ease-in;
           }
-          .buyingplayer {
-            margin: 5px 20px 20px 0;
-            .buyingpositionals {
-              width: 880px;
-              border-collapse: collapse;
-              border: solid @Quicksilver 1px;
-              td, th {
-                border-bottom: solid @Quicksilver 1px;
-                vertical-align: middle;
-                background-color: @White;
-              }
-              th {
-                font-weight: bold;
-              }
-              .buylink {
-                width: 65px;
-              }
-              .positionname {
-                width: 250px;
-              }
-              .skills {
-                width: 300px;
+          &.foldoutbuy {
+            &.active {
+              // max height for this fold out depends on available positional quantity, so it is set in style attribute in template
+            }
+            .buyingplayer {
+              margin: 5px 20px 20px 0;
+              .buyingpositionals {
+                width: 880px;
+                border-collapse: collapse;
+                border: solid @Quicksilver 1px;
+                td, th {
+                  border-bottom: solid @Quicksilver 1px;
+                  vertical-align: middle;
+                  background-color: @White;
+                }
+                th {
+                  font-weight: bold;
+                }
+                .buylink {
+                  width: 65px;
+                }
+                .positionname {
+                  width: 250px;
+                }
+                .quantityallowed {
+                  width: 65px;
+                }
+                .skills {
+                  width: 300px;
+                }
               }
             }
           }
-          .playerinfofoldout {
-            margin: 5px 20px 20px 0;
-            display: flex;
-            column-gap: 20px;
-            .playerinfosection {
-              padding: 10px;
-              background-color: @White;
-              border: solid @Quicksilver 1px;
+          &.foldoutmore {
+            &.active {
+              // max height needed to make css transitions work
+              max-height: 300px;
             }
-            .title {
-              font-weight: bold;
-            }
-            .playeredit {
-              width: 50%;
-            }
-            .playerdetails {
-              width: 50%;
+            .playerinfofoldout {
+              margin: 5px 20px 20px 0;
+              display: flex;
+              column-gap: 20px;
+              .playerinfosection {
+                padding: 10px;
+                background-color: @White;
+                border: solid @Quicksilver 1px;
+              }
+              .title {
+                font-weight: bold;
+              }
+              .playeredit {
+                width: 50%;
+              }
+              .playerdetails {
+                width: 50%;
+              }
             }
           }
         }

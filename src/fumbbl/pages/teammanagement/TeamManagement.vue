@@ -12,10 +12,12 @@
         <team v-if="mode === 'TEAM'"
             :team="team"
             :positions-icon-data="positionsIconData"
+            :fold-outs="foldOuts"
             @add-player="handleAddPlayer"
             @delete-player="handleDeletePlayer"
             @drag-drop-player="handleDragDropPlayer"
             @reset-create-team="handleResetCreateTeam"
+            @fold-out="handleFoldOut"
         ></team>
     </div>
 </template>
@@ -27,6 +29,7 @@ import Component from "vue-class-component";
 import ChooseRosterComponent from "./components/ChooseRoster.vue";
 import TeamComponent from "./components/Team.vue";
 import DemoSetupComponent from "./components/DemoSetup.vue";
+import { PlayerRowFoldOutMode } from "./include/Interfaces";
 
 @Component({
     components: {
@@ -40,6 +43,7 @@ export default class TeamManagement extends Vue {
     public newTeamRuleset: any | null = null;
     public team: any = null;
     public positionsIconData: any = null;
+    public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
 
     async mounted() {
     }
@@ -261,6 +265,36 @@ export default class TeamManagement extends Vue {
     private handleResetCreateTeam() {
         this.team.players = [];
         // need to reset more here too
+    }
+
+    private handleFoldOut(playerNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
+        if (playerRowFoldOutMode === 'CLOSED') {
+            this.closeFoldOutForPlayerNumber(playerNumber);
+        } else if (! multipleOpenMode) {
+            this.foldOuts.buy = [];
+            this.foldOuts.more = [];
+        }
+
+        if (playerRowFoldOutMode === 'BUY') {
+            if (! this.foldOuts.buy.includes(playerNumber)) {
+                this.foldOuts.buy.push(playerNumber);
+            }
+        } else if (playerRowFoldOutMode === 'MORE') {
+            if (! this.foldOuts.more.includes(playerNumber)) {
+                this.foldOuts.more.push(playerNumber);
+            }
+        }
+    }
+
+    private closeFoldOutForPlayerNumber(playerNumber: number) {
+        const buyIndex = this.foldOuts.buy.findIndex((playerNumberToCheck) => playerNumberToCheck === playerNumber);
+        if (buyIndex !== -1) {
+            this.foldOuts.buy.splice(buyIndex, 1);
+        }
+        const moreIndex = this.foldOuts.more.findIndex((playerNumberToCheck) => playerNumberToCheck === playerNumber);
+        if (moreIndex !== -1) {
+            this.foldOuts.more.splice(moreIndex, 1);
+        }
     }
 }
 </script>

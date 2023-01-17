@@ -53,7 +53,7 @@
                 </div>
                 <div class="cell playerdetails">
                     <div class="playername">
-                        <a href="#" @click.prevent="foldOutToggle()">{{ player.name }}</a>
+                        <a href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)">{{ player.name }}</a>
                     </div>
                     <div class="playerposition">{{ player.position }}</div>
                 </div>
@@ -98,16 +98,16 @@
                     <template v-else-if="showPlayerInfoFoldoutTemporarily">
                         Please wait, removing player...
                     </template>
-                    <template v-else-if="foldOut">
-                        <span>Choose position to buy.</span> <a href="#" @click.prevent="foldOutToggle()">Cancel</a>
+                    <template v-else-if="isFoldOutBuy">
+                        <span>Choose position to buy.</span> <a href="#" @click.prevent="performFoldOut('CLOSED')">Cancel</a>
                     </template>
                     <template v-else>
-                        <a href="#" @click.prevent="foldOutToggle()">Buy player</a>
+                        <a href="#" @click.prevent="performFoldOut('BUY')">Buy player</a>
                     </template>
                 </div>
             </template>
         </div>
-        <div class="foldout" :class="{active: foldOut}" :style="{maxHeight: foldOut ? `${roster.positions.length * 65}px` : '0'}">
+        <div class="foldout foldoutbuy" :class="{active: isFoldOutBuy}" :style="{maxHeight: isFoldOutBuy ? `${roster.positions.length * 65}px` : '0'}">
             <div v-if="(player === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily" class="buyingplayer">
                 <table class="buyingpositionals">
                     <thead>
@@ -140,7 +140,7 @@
                             <div class="iconusingbackground" :style="getIconStyle(positionData.id, null)"></div>
                         </td>
                         <td class="positionname">{{ positionData.name }}</td>
-                        <td>0-{{ positionData.quantityAllowed }}{{ positionData.quantityHired > 0 ? ` (${positionData.quantityHired}*)` : '' }}</td>
+                        <td class="quantityallowed">0-{{ positionData.quantityAllowed }}{{ positionData.quantityHired > 0 ? ` (${positionData.quantityHired}*)` : '' }}</td>
                         <td>{{ positionData.stats.MA }}</td>
                         <td>{{ positionData.stats.ST }}</td>
                         <td>{{ positionData.stats.AG }}</td>
@@ -151,6 +151,8 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
             <div v-if="(player !== null || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily" class="playerinfofoldout">
                 <div class="playerinfosection playeredit">
                     <a href="#" @click.prevent="deletePlayer()" style="float: right;">Remove player</a>
@@ -184,6 +186,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
+import { PlayerRowFoldOutMode } from "../include/Interfaces";
 
 @Component({
     components: {
@@ -210,6 +213,14 @@ import Component from 'vue-class-component';
             validator: function (position) {
                 return typeof position === 'object' || position === null;
             }
+        },
+        isFoldOutBuy: {
+            type: Boolean,
+            required: true,
+        },
+        isFoldOutMore: {
+            type: Boolean,
+            required: true,
         },
         dragSourcePlayerNumber: {
             validator: function (dragSourcePlayerNumber) {
@@ -288,12 +299,12 @@ export default class PlayerComponent extends Vue {
         return this.$props.playerNumbersWithPlayerBelow.includes(~~this.$props.playerNumber);
     }
 
-    private foldOutToggle() {
-        this.setFoldOut(! this.foldOut);
+    private performFoldOut(playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode = false) {
+        this.$emit('fold-out', this.$props.playerNumber, playerRowFoldOutMode, multipleOpenMode);
+        this.enableSmartScroll();
     }
 
-    private setFoldOut(foldOutValue) {
-        this.foldOut = foldOutValue;
+    private enableSmartScroll() {
         this.clearIntervalIdsScrollDuringCssTransition();
         const onlyRunUntil = Date.now() + 1000;
         const intervalId = setInterval(() => {
@@ -323,12 +334,20 @@ export default class PlayerComponent extends Vue {
         this.intervalIdsScrollDuringCssTransition = [];
     }
 
+    private toggleFoldOutMore(multipleOpenMode: boolean) {
+        if (this.$props.isFoldOutMore) {
+            this.performFoldOut('CLOSED', multipleOpenMode);
+        } else {
+            this.performFoldOut('MORE', multipleOpenMode);
+        }
+    }
+
     public addPlayer(positionId: number) {
         // prevent UI from updating until after the animation has updated.
         this.showBuyDialogTemporarily = true;
         setTimeout(() => {this.showBuyDialogTemporarily = false;}, this.delayForFoldoutAnimations);
 
-        this.setFoldOut(false);
+        this.performFoldOut('CLOSED');
         this.$emit('add-player', this.$props.playerNumber, positionId);
     }
 
@@ -336,7 +355,7 @@ export default class PlayerComponent extends Vue {
         this.showPlayerInfoFoldoutTemporarily = true;
         setTimeout(() => {this.showPlayerInfoFoldoutTemporarily = false;}, this.delayForFoldoutAnimations);
 
-        this.setFoldOut(false);
+        this.performFoldOut('CLOSED');
         this.$emit('delete-player', this.$props.playerNumber);
     }
 
