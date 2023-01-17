@@ -124,7 +124,7 @@
                     </thead>
                     <tbody>
                     <tr v-for="positionData in sortedRosterPositionData" :key="positionData.id">
-                        <td>
+                        <td class="buylink">
                             <template v-if="positionData.quantityHired < positionData.quantityAllowed">
                                 <a
                                     @click.prevent="addPlayer(positionData.id)"
