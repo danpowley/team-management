@@ -1,5 +1,6 @@
 <template>
-    <div class="playerrow"
+    <div :id="playerRowElementId"
+        class="playerrow"
         :draggable="playerNumber == dragSourcePlayerNumber"
         :class="{
             playerinrow: player !== null,
@@ -243,9 +244,14 @@ import Component from 'vue-class-component';
 })
 export default class PlayerComponent extends Vue {
     readonly delayForFoldoutAnimations = 600;
+    private playerRowElementId = null;
     private foldOut: boolean = false;
     private showBuyDialogTemporarily: boolean = false;
     private showPlayerInfoFoldoutTemporarily: boolean = false;
+
+    private mounted() {
+        this.playerRowElementId = `playerrow${this.$props.playerNumber}`;
+    }
 
     public getSeperatorClasses() {
         const draggingDownward = this.$props.dropTargetPlayerNumber > this.$props.dragSourcePlayerNumber;
@@ -282,7 +288,29 @@ export default class PlayerComponent extends Vue {
     }
 
     private foldOutToggle() {
-        this.foldOut = ! this.foldOut;
+        this.setFoldOut(! this.foldOut);
+    }
+
+    private setFoldOut(foldOutValue) {
+        this.foldOut = foldOutValue;
+        setTimeout(() => {
+            const playerRowElement = document.getElementById(this.playerRowElementId)
+            this.scrollIntoViewIfNeeded(playerRowElement);
+        }, 500);
+    }
+
+    private scrollIntoViewIfNeeded(target: HTMLElement) {
+        // When the bottom of the player row is lower than the visible screen,
+        // align the end of the player row with the end of the visible screen.
+        if (target.getBoundingClientRect().bottom > window.innerHeight) {
+            target.scrollIntoView({behavior: 'smooth', block: 'end'});
+        }
+
+        // When the top of the playerrow is above the top of the visible screen,
+        // position the playerrow at the start of the visible screen.
+        if (target.getBoundingClientRect().top < 0) {
+            target.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
     }
 
     public addPlayer(positionId: number) {
@@ -290,7 +318,7 @@ export default class PlayerComponent extends Vue {
         this.showBuyDialogTemporarily = true;
         setTimeout(() => {this.showBuyDialogTemporarily = false;}, this.delayForFoldoutAnimations);
 
-        this.foldOut = false;
+        this.setFoldOut(false);
         this.$emit('add-player', this.$props.playerNumber, positionId);
     }
 
@@ -298,8 +326,7 @@ export default class PlayerComponent extends Vue {
         this.showPlayerInfoFoldoutTemporarily = true;
         setTimeout(() => {this.showPlayerInfoFoldoutTemporarily = false;}, this.delayForFoldoutAnimations);
 
-        this.foldOut = false;
-        console.log('fold out set to false', this.foldOut);
+        this.setFoldOut(false);
         this.$emit('delete-player', this.$props.playerNumber);
     }
 
