@@ -327,7 +327,7 @@ export default class PlayerComponent extends Vue {
 
             // when top of player row extends above start of screen
             if (this.$el.getBoundingClientRect().top < 0) {
-                this.$el.scrollIntoView({behavior: 'smooth', block: 'start'});
+                this.$el.scrollIntoView({behavior: 'smooth', block: 'center'});
             }
         });
         this.intervalIdsScrollDuringCssTransition.push(intervalId);
