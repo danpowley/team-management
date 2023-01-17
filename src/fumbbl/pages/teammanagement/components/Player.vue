@@ -107,7 +107,7 @@
                 </div>
             </template>
         </div>
-        <div class="foldout" :class="{active: foldOut}" :style="{maxHeight: foldOut ? `${roster.positions.length * 55}px` : '0'}">
+        <div class="foldout" :class="{active: foldOut}" :style="{maxHeight: foldOut ? `${roster.positions.length * 65}px` : '0'}">
             <div v-if="(player === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily" class="buyingplayer">
                 <table class="buyingpositionals">
                     <thead>
