@@ -1,6 +1,5 @@
 <template>
-    <div :id="playerRowElementId"
-        class="playerrow"
+    <div class="playerrow"
         :draggable="playerNumber == dragSourcePlayerNumber"
         :class="{
             playerinrow: player !== null,
@@ -244,13 +243,15 @@ import Component from 'vue-class-component';
 })
 export default class PlayerComponent extends Vue {
     readonly delayForFoldoutAnimations = 600;
-    private playerRowElementId = null;
     private foldOut: boolean = false;
     private showBuyDialogTemporarily: boolean = false;
     private showPlayerInfoFoldoutTemporarily: boolean = false;
+    private intervalIdsScrollDuringCssTransition: number[] = [];
 
     private mounted() {
-        this.playerRowElementId = `playerrow${this.$props.playerNumber}`;
+        this.$el.getElementsByClassName('foldout')[0].addEventListener('transitionend', () => {
+            this.clearIntervalIdsScrollDuringCssTransition();
+        });
     }
 
     public getSeperatorClasses() {
@@ -293,24 +294,33 @@ export default class PlayerComponent extends Vue {
 
     private setFoldOut(foldOutValue) {
         this.foldOut = foldOutValue;
-        setTimeout(() => {
-            const playerRowElement = document.getElementById(this.playerRowElementId)
-            this.scrollIntoViewIfNeeded(playerRowElement);
-        }, 500);
+        this.clearIntervalIdsScrollDuringCssTransition();
+        const onlyRunUntil = Date.now() + 1000;
+        const intervalId = setInterval(() => {
+            // prevent running indefinitely on a cancelled transition
+            if (Date.now() > onlyRunUntil) {
+                this.clearIntervalIdsScrollDuringCssTransition();
+                return;
+            }
+
+            // when bottom of player row extends past end of screen
+            if (this.$el.getBoundingClientRect().bottom > window.innerHeight) {
+                this.$el.scrollIntoView({behavior: 'smooth', block: 'end'});
+            }
+
+            // when top of player row extends above start of screen
+            if (this.$el.getBoundingClientRect().top < 0) {
+                this.$el.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
+        });
+        this.intervalIdsScrollDuringCssTransition.push(intervalId);
     }
 
-    private scrollIntoViewIfNeeded(target: HTMLElement) {
-        // When the bottom of the player row is lower than the visible screen,
-        // align the end of the player row with the end of the visible screen.
-        if (target.getBoundingClientRect().bottom > window.innerHeight) {
-            target.scrollIntoView({behavior: 'smooth', block: 'end'});
+    private clearIntervalIdsScrollDuringCssTransition() {
+        for (const intervalId of this.intervalIdsScrollDuringCssTransition) {
+            clearInterval(intervalId);
         }
-
-        // When the top of the playerrow is above the top of the visible screen,
-        // position the playerrow at the start of the visible screen.
-        if (target.getBoundingClientRect().top < 0) {
-            target.scrollIntoView({behavior: 'smooth', block: 'start'});
-        }
+        this.intervalIdsScrollDuringCssTransition = [];
     }
 
     public addPlayer(positionId: number) {
