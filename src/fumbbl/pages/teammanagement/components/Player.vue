@@ -17,7 +17,7 @@
         </template>
         <div class="main">
             <template v-if="player !== null">
-                <div class="cell draghandle" @mousedown="makePlayerDraggable(~~playerNumber, player.id)" @mouseup="makePlayerDraggable(false, '')">
+                <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable(~~playerNumber, player.id)" @mouseup="makePlayerDraggable(false, '')">
                     <template v-if="dragSourcePlayerNumber === false || dragSourcePlayerNumber === ~~playerNumber">
                         <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
@@ -34,6 +34,8 @@
                     <template v-else>
                         <div class="droptargetindicator">&#8982;</div>
                     </template>
+                </div>
+                <div v-else class="cell draghandledisabled">
                 </div>
             </template>
             <template v-else>
@@ -219,6 +221,10 @@ import { PlayerRowFoldOutMode } from "../include/Interfaces";
             required: true,
         },
         isFoldOutMore: {
+            type: Boolean,
+            required: true,
+        },
+        allFoldOutsClosed: {
             type: Boolean,
             required: true,
         },

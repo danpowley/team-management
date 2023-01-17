@@ -43,6 +43,7 @@
                 :position="player ? getPosition(player.positionId) : null"
                 :is-fold-out-buy="isFoldOutBuy(playerNumber)"
                 :is-fold-out-more="isFoldOutMore(playerNumber)"
+                :all-fold-outs-closed="allFoldOutsClosed"
                 :drag-source-player-number="dragSourcePlayerNumber"
                 :drop-target-player-number="dropTargetPlayerNumber"
                 :player-numbers-with-player-below="playerNumbersWithPlayerBelow"
@@ -166,6 +167,10 @@ export default class TeamComponent extends Vue {
 
     private isFoldOutMore(playerNumber: number): boolean {
         return this.$props.foldOuts.more.includes(~~playerNumber);
+    }
+
+    private get allFoldOutsClosed(): boolean {
+        return this.$props.foldOuts.buy.length === 0 && this.$props.foldOuts.more.length === 0;
     }
 
     public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
