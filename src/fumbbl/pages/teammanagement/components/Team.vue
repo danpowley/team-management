@@ -56,6 +56,10 @@
                 @fold-out="handleFoldOut"
             ></player>
         </div>
+        <div class="playerrowsfooter">
+            <div class="playercount">{{ team.players.length - mngPlayerCount }} players (+{{ mngPlayerCount }} players missing next game)</div>
+            <div class="favouredof">Favoured of [placeholder]</div>
+        </div>
     </div>
 </template>
 
@@ -159,6 +163,12 @@ export default class TeamComponent extends Vue {
         }
 
         return rosterPositionData;
+    }
+
+    private get mngPlayerCount(): number {
+        return this.$props.team.players.filter((player) => {
+            return player.injuries.split(',').includes('m');
+        }).length;
     }
 
     private isFoldOutBuy(playerNumber: number): boolean {
