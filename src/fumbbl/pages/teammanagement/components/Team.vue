@@ -146,6 +146,16 @@
                 </div>
             </div>
         </div>
+        <div class="teamrecord">
+            <div class="teamstats">
+                <div class="gamesplayed">Games Played:	{{ gamesPlayedStatDisplay }}</div>
+                <div class="tddiff">TD Diff: {{ tdDiffStatDisplay }}</div>
+                <div class="casdiff">Cas Diff: {{ casDiffStatDisplay }}</div>
+            </div>
+            <div class="lastopponent">
+                Last Opponent: <a href="#" :data-id="lastPlayedTeamData.id">{{ lastPlayedTeamData.name }}</a>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -255,6 +265,25 @@ export default class TeamComponent extends Vue {
         return this.$props.team.players.filter((player) => {
             return player.injuries.split(',').includes('m');
         }).length;
+    }
+
+    private get gamesPlayedStatDisplay(): string {
+        return '0 (0/0/0)'; // todo
+    }
+
+    private get tdDiffStatDisplay(): string {
+        return '0 (0 - 0)'; // todo
+    }
+
+    private get casDiffStatDisplay(): string {
+        return '0 (0/0/0 - 0/0/0)'; // todo
+    }
+
+    private get lastPlayedTeamData(): {id: number, name: string} {
+        return {
+            id: 10000000000,
+            name: 'Todo United',
+        };
     }
 
     private isFoldOutBuy(playerNumber: number): boolean {
