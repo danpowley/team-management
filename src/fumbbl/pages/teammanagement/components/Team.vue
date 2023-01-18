@@ -60,7 +60,7 @@
             <div class="playercount">{{ team.players.length - mngPlayerCount }} players (+{{ mngPlayerCount }} players missing next game)</div>
             <div class="favouredof">Todo (Favoured of)</div>
         </div>
-        <div class="teammanagement">
+        <div class="teammanagement" :class="{newteam: teamMode === 'CREATE'}">
             <div class="teammanagementrow">
                 <div class="title left">
                     Coach:
@@ -69,10 +69,15 @@
                     <a href="#">Bob</a>
                 </div>
                 <div class="title right">
-                    Re-Rolls ({{ (team.roster.rerollCost * 2)/1000 }}k):
+                    Re-Rolls ({{ rerollCostForMode/1000 }}k):
                 </div>
                 <div class="info right">
-                    {{ team.rerolls }}
+                    <div class="data">
+                        {{ team.rerolls }}
+                    </div>
+                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                        <template v-if="addRemovePermissions.rerolls.add">(<a href="#" @click.prevent="addReroll()">Add</a>)</template><template v-if="addRemovePermissions.rerolls.remove">(<a href="#" @click.prevent="removeReroll()">Remove</a>)</template>
+                    </div>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -86,7 +91,12 @@
                     Dedicated Fans:
                 </div>
                 <div class="info right">
-                    {{ team.dedicatedFans }}
+                    <div class="data">
+                        {{ team.dedicatedFans }}
+                    </div>
+                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                        <template v-if="addRemovePermissions.dedicatedFans.add">(<a href="#" @click.prevent="addDedicatedFans()">Add</a>)</template><template v-if="addRemovePermissions.dedicatedFans.remove">(<a href="#" @click.prevent="removeDedicatedFans()">Remove</a>)</template>
+                    </div>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -100,7 +110,12 @@
                     Assistant Coaches:
                 </div>
                 <div class="info right">
-                    {{ team.assistantCoaches }}
+                    <div class="data">
+                        {{ team.assistantCoaches }}
+                    </div>
+                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                        <template v-if="addRemovePermissions.assistantCoaches.add">(<a href="#" @click.prevent="addAssistantCoaches()">Add</a>)</template><template v-if="addRemovePermissions.assistantCoaches.remove">(<a href="#" @click.prevent="removeAssistantCoaches()">Remove</a>)</template>
+                    </div>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -114,7 +129,12 @@
                     Cheerleaders:
                 </div>
                 <div class="info right">
-                    {{ team.cheerleaders }}
+                    <div class="data">
+                        {{ team.cheerleaders }}
+                    </div>
+                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                        <template v-if="addRemovePermissions.cheerleaders.add">(<a href="#" @click.prevent="addCheerleaders()">Add</a>)</template><template v-if="addRemovePermissions.cheerleaders.remove">(<a href="#" @click.prevent="removeCheerleaders()">Remove</a>)</template>
+                    </div>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -128,7 +148,12 @@
                     Apothecary:
                 </div>
                 <div class="info right">
-                    {{ team.apothecary ? 'Yes' : 'No' }}
+                    <div class="data">
+                        {{ team.apothecary ? 'Yes' : 'No' }}
+                    </div>
+                    <div v-if="teamMode === 'CREATE' && team.roster.apothecary === 'Yes'" class="newteamcontrols">
+                        <template v-if="addRemovePermissions.apothecary.add">(<a href="#" @click.prevent="addApothecary()">Add</a>)</template><template v-if="addRemovePermissions.apothecary.remove">(<a href="#" @click.prevent="removeApothecary()">Remove</a>)</template>
+                    </div>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -142,7 +167,12 @@
                     Current Re-draft Budget:
                 </div>
                 <div class="info right">
-                    todo
+                    <div class=data>
+                        todo
+                    </div>
+                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                        <!-- deliberately empty -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -206,6 +236,8 @@ export default class TeamComponent extends Vue {
     public dropTargetPlayerId: string = '';
 
     async mounted() {
+        this.teamMode = 'CREATE';
+
         this.refreshPlayersInPositions();
 
         // HACK: artificial delay needed for setting up drag and drop to be ready.
@@ -225,14 +257,17 @@ export default class TeamComponent extends Vue {
             playerCost += ~~position.cost;
         }
 
-        return playerCost;
+        const dedicatedFansCost = 10000;
+        const assistantCoachesCost = 10000;
+        const cheerleadersCost = 10000;
+        const apothecaryCost = 50000;
 
-        // return playerCost +
-        //     (this.rerolls * this.roster.rerollCost) +
-        //     (this.assistantCoaches * this.assistantCoachesCost) +
-        //     (this.cheerleaders * this.cheerleadersCost) +
-        //     (this.apothecary && this.roster.apothecary === 'Yes' ? this.apothecaryCost : 0) +
-        //     (this.dedicatedFans * this.dedicatedFansCost);
+        return playerCost +
+            (this.$props.team.rerolls * ~~this.$props.team.roster.rerollCost) +
+            (this.$props.team.assistantCoaches * assistantCoachesCost) +
+            (this.$props.team.cheerleaders * cheerleadersCost) +
+            (this.$props.team.apothecary && this.$props.team.roster.apothecary === 'Yes' ? apothecaryCost : 0) +
+            ((this.$props.team.dedicatedFans - this.$props.team.ruleset.minStartFans) * dedicatedFansCost);
     }
 
     private get teamCreationBudgetRemaining(): number {
@@ -286,6 +321,31 @@ export default class TeamComponent extends Vue {
         };
     }
 
+    private get addRemovePermissions(): any {
+        return {
+            rerolls: {
+                add: this.$props.team.rerolls < this.$props.team.ruleset.maxRerolls,
+                remove: this.$props.team.rerolls > 0,
+            },
+            dedicatedFans: {
+                add: this.$props.team.dedicatedFans < this.$props.team.ruleset.maxStartFans,
+                remove: this.$props.team.dedicatedFans > this.$props.team.ruleset.minStartFans,
+            },
+            assistantCoaches: {
+                add: this.$props.team.assistantCoaches < this.$props.team.ruleset.maxAssistantCoaches,
+                remove: this.$props.team.assistantCoaches > 0,
+            },
+            cheerleaders: {
+                add: this.$props.team.cheerleaders < this.$props.team.ruleset.maxCheerleaders,
+                remove: this.$props.team.cheerleaders > 0,
+            },
+            apothecary: {
+                add: this.$props.team.apothecary === false,
+                remove: this.$props.team.apothecary === true,
+            },
+        }
+    }
+
     private isFoldOutBuy(playerNumber: number): boolean {
         return this.$props.foldOuts.buy.includes(~~playerNumber);
     }
@@ -296,6 +356,14 @@ export default class TeamComponent extends Vue {
 
     private get allFoldOutsClosed(): boolean {
         return this.$props.foldOuts.buy.length === 0 && this.$props.foldOuts.more.length === 0;
+    }
+
+    private get rerollCostForMode(): number {
+        if (this.teamMode === 'CREATE') {
+            return this.$props.team.roster.rerollCost;
+        } else {
+            return this.$props.team.roster.rerollCost * 2;
+        }
     }
 
     public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
@@ -388,6 +456,46 @@ export default class TeamComponent extends Vue {
 
     private resetCreateTeam() {
         this.$emit('reset-create-team');
+    }
+
+    private addReroll() {
+        this.$emit('add-reroll');
+    }
+
+    private removeReroll() {
+        this.$emit('remove-reroll');
+    }
+
+    private addDedicatedFans() {
+        this.$emit('add-dedicated-fans');
+    }
+
+    private removeDedicatedFans() {
+        this.$emit('remove-dedicated-fans');
+    }
+
+    private addAssistantCoaches() {
+        this.$emit('add-assistant-coaches');
+    }
+
+    private removeAssistantCoaches() {
+        this.$emit('remove-assistant-coaches');
+    }
+
+    private addCheerleaders() {
+        this.$emit('add-cheerleaders');
+    }
+
+    private removeCheerleaders() {
+        this.$emit('remove-cheerleaders');
+    }
+
+    private addApothecary() {
+        this.$emit('add-apothecary');
+    }
+
+    private removeApothecary() {
+        this.$emit('remove-apothecary');
     }
 
     public handleAddPlayer(playerNumber: number, positionId: number) {

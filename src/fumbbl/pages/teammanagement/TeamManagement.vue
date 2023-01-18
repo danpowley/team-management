@@ -18,6 +18,16 @@
             @drag-drop-player="handleDragDropPlayer"
             @reset-create-team="handleResetCreateTeam"
             @fold-out="handleFoldOut"
+            @add-reroll="handleAddReroll"
+            @remove-reroll="handleRemoveReroll"
+            @add-dedicated-fans="handleAddDedicatedFans"
+            @remove-dedicated-fans="handleRemoveDedicatedFans"
+            @add-assistant-coaches="handleAddAssistantCoaches"
+            @remove-assistant-coaches="handleRemoveAssistantCoaches"
+            @add-cheerleaders="handleAddCheerleaders"
+            @remove-cheerleaders="handleRemoveCheerleaders"
+            @add-apothecary="handleAddApothecary"
+            @remove-apothecary="handleRemoveApothecary"
         ></team>
     </div>
 </template>
@@ -44,6 +54,10 @@ export default class TeamManagement extends Vue {
     public team: any = null;
     public positionsIconData: any = null;
     public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
+
+    readonly maxRerolls = 8;
+    readonly maxAssistantCoaches = 6;
+    readonly maxCheerleaders = 12;
 
     async mounted() {
     }
@@ -88,6 +102,9 @@ export default class TeamManagement extends Vue {
             startFans: result.data.options.teamSettings.startFans,
             minStartFans: result.data.options.teamSettings.minStartFans,
             maxStartFans: result.data.options.teamSettings.maxStartFans,
+            maxRerolls: this.maxRerolls,
+            maxAssistantCoaches: this.maxAssistantCoaches,
+            maxCheerleaders: this.maxCheerleaders,
             rosters: rosters,
         };
 
@@ -125,7 +142,7 @@ export default class TeamManagement extends Vue {
         const team = {
             players: [],
             rerolls: 0,
-            dedicatedFans: 0,
+            dedicatedFans: this.newTeamRuleset.minStartFans,
             assistantCoaches: 0,
             cheerleaders: 0,
             apothecary: false,
@@ -294,6 +311,66 @@ export default class TeamManagement extends Vue {
         const moreIndex = this.foldOuts.more.findIndex((playerNumberToCheck) => playerNumberToCheck === playerNumber);
         if (moreIndex !== -1) {
             this.foldOuts.more.splice(moreIndex, 1);
+        }
+    }
+
+    private handleAddReroll() {
+        if (this.team.rerolls < 8) {
+            this.team.rerolls++;
+        }
+    }
+
+    private handleRemoveReroll() {
+        if (this.team.rerolls > 0) {
+            this.team.rerolls--;
+        }
+    }
+
+    private handleAddDedicatedFans() {
+        if (this.team.dedicatedFans < this.team.ruleset.maxStartFans) {
+            this.team.dedicatedFans++;
+        }
+    }
+
+    private handleRemoveDedicatedFans() {
+        if (this.team.dedicatedFans > this.team.ruleset.minStartFans) {
+            this.team.dedicatedFans--;
+        }
+    }
+
+    private handleAddAssistantCoaches() {
+        if (this.team.assistantCoaches < this.team.ruleset.maxAssistantCoaches) {
+            this.team.assistantCoaches++;
+        }
+    }
+
+    private handleRemoveAssistantCoaches() {
+        if (this.team.assistantCoaches > 0) {
+            this.team.assistantCoaches--;
+        }
+    }
+
+    private handleAddCheerleaders() {
+        if (this.team.cheerleaders < this.team.ruleset.maxCheerleaders) {
+            this.team.cheerleaders++;
+        }
+    }
+
+    private handleRemoveCheerleaders() {
+        if (this.team.cheerleaders > 0) {
+            this.team.cheerleaders--;
+        }
+    }
+
+    private handleAddApothecary() {
+        if (this.team.roster.apothecary === 'Yes' && this.team.apothecary === false) {
+            this.team.apothecary = true;
+        }
+    }
+
+    private handleRemoveApothecary() {
+        if (this.team.roster.apothecary === 'Yes' && this.team.apothecary === true) {
+            this.team.apothecary = false;
         }
     }
 }
