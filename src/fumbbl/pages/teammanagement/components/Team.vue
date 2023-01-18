@@ -24,7 +24,7 @@
                 <div class="cell draghandle"></div>
                 <div class="cell playernumber"></div>
                 <div class="cell playericoncontainer"></div>
-                <div class="cell playerdetails">Player</div>
+                <div class="cell playerdetails"></div>
                 <div class="cell statma">Ma</div>
                 <div class="cell statst">St</div>
                 <div class="cell statag">Ag</div>

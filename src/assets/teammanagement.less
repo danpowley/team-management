@@ -120,10 +120,10 @@
           padding: 3px;
           margin: auto 0;
           &.draghandle, &.draghandledisabled {
-            width: 25px;
+            width: 10px;
           }
           &.playernumber {
-            width: 30px;
+            width: 35px;
           }
           &.playericoncontainer {
             width: 45px;
@@ -232,8 +232,11 @@
           display: flex;
           .playernumber {
             font-size: 20px;
+            text-align: center;
           }
-          .playericon {
+          .playericoncontainer {
+            display: flex;
+            justify-content: center;
           }
           .playerdetails {
             .playername {
@@ -290,6 +293,10 @@
                 .skills {
                   width: 300px;
                 }
+              }
+              .positioniconcontainer {
+                display: flex;
+                justify-content: center;
               }
             }
           }

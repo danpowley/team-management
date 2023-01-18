@@ -139,7 +139,9 @@
                         </td>
                         <td>{{ positionData.cost/1000 }}k</td>
                         <td>
-                            <div class="iconusingbackground" :style="getIconStyle(positionData.id, null)"></div>
+                            <div class="positioniconcontainer">
+                                <div class="iconusingbackground" :style="getIconStyle(positionData.id, null)"></div>
+                            </div>
                         </td>
                         <td class="positionname">{{ positionData.name }}</td>
                         <td class="quantityallowed">0-{{ positionData.quantityAllowed }}{{ positionData.quantityHired > 0 ? ` (${positionData.quantityHired}*)` : '' }}</td>
