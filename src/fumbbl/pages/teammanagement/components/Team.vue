@@ -58,7 +58,93 @@
         </div>
         <div class="playerrowsfooter">
             <div class="playercount">{{ team.players.length - mngPlayerCount }} players (+{{ mngPlayerCount }} players missing next game)</div>
-            <div class="favouredof">Favoured of [placeholder]</div>
+            <div class="favouredof">Todo (Favoured of)</div>
+        </div>
+        <div class="teammanagement">
+            <div class="teammanagementrow">
+                <div class="title left">
+                    Coach:
+                </div>
+                <div class="info left">
+                    <a href="#">Bob</a>
+                </div>
+                <div class="title right">
+                    Re-Rolls ({{ (team.roster.rerollCost * 2)/1000 }}k):
+                </div>
+                <div class="info right">
+                    {{ team.rerolls }}
+                </div>
+            </div>
+            <div class="teammanagementrow">
+                <div class="title left">
+                    Roster:
+                </div>
+                <div class="info left">
+                    {{ team.roster.name }}
+                </div>
+                <div class="title right">
+                    Dedicated Fans:
+                </div>
+                <div class="info right">
+                    {{ team.dedicatedFans }}
+                </div>
+            </div>
+            <div class="teammanagementrow">
+                <div class="title left">
+                    Current Team Value:
+                </div>
+                <div class="info left">
+                    todo
+                </div>
+                <div class="title right">
+                    Assistant Coaches:
+                </div>
+                <div class="info right">
+                    {{ team.assistantCoaches }}
+                </div>
+            </div>
+            <div class="teammanagementrow">
+                <div class="title left">
+                    Treasury:
+                </div>
+                <div class="info left">
+                    todo
+                </div>
+                <div class="title right">
+                    Cheerleaders:
+                </div>
+                <div class="info right">
+                    {{ team.cheerleaders }}
+                </div>
+            </div>
+            <div class="teammanagementrow">
+                <div class="title left">
+                    Team Value:
+                </div>
+                <div class="info left">
+                    todo
+                </div>
+                <div class="title right">
+                    Apothecary:
+                </div>
+                <div class="info right">
+                    {{ team.apothecary ? 'Yes' : 'No' }}
+                </div>
+            </div>
+            <div class="teammanagementrow">
+                <div class="title left">
+                    Games this Season:
+                </div>
+                <div class="info left">
+                    todo
+                </div>
+                <div class="title right">
+                    Current Re-draft Budget:
+                </div>
+                <div class="info right">
+                    todo
+                </div>
+            </div>
         </div>
     </div>
 </template>
