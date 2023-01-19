@@ -3,7 +3,7 @@
         <div class="heading">Select Roster</div>
         <div class="availablerosters">
             <div v-for="basicRoster in basicRosters" :key="basicRoster.id" class="selectroster" @click="raiseRosterChosen(basicRoster.id)">
-                <img :src="'https://fumbbl.com/i/' + basicRoster.logos[128]">
+                <img :src="'https://fumbbl.com/i/' + basicRoster.getLogoImageId(logoImageSize)">
                 <div class="rostername">{{ basicRoster.name }}</div>
             </div>
         </div>
@@ -14,6 +14,7 @@
 import Vue from "vue";
 import Axios from "axios";
 import Component from 'vue-class-component';
+import BasicRoster from "../include/BasicRoster";
 
 @Component({
     components: {
@@ -26,7 +27,10 @@ import Component from 'vue-class-component';
     }
 })
 export default class ChooseRosterComponent extends Vue {
-    private basicRosters: any[] = [];
+    readonly useInefficientRealLogos = false;
+    readonly logoImageSize = 128;
+    private basicRosters: BasicRoster[] = [];
+
 
     async mounted() {
         await this.prepareBasicRosters();
@@ -35,18 +39,21 @@ export default class ChooseRosterComponent extends Vue {
     private async prepareBasicRosters() {
         const rosterLogos = await this.getRosterLogosVeryInefficiently();
 
-        const basicRosters = [];
+        const basicRosters: BasicRoster[] = [];
         for (const roster of this.$props.rawBasicRosters) {
             if (roster.value.startsWith('_')) {
                 continue;
             }
             const rosterId = ~~roster.id;
-            basicRosters.push({
-                id: rosterId,
-                name: roster.value,
-                tier: roster.tier,
-                logos: rosterLogos[rosterId],
-            });
+
+            const basicRoster = new BasicRoster(
+                ~~rosterId,
+                roster.value,
+                roster.tier,
+                rosterLogos[rosterId],
+            );
+
+            basicRosters.push(basicRoster);
         }
 
         basicRosters.sort((a, b) => {
@@ -60,10 +67,9 @@ export default class ChooseRosterComponent extends Vue {
     }
 
     private async getRosterLogosVeryInefficiently(): Promise<any> {
-        const realLogos = false;
         const rosterLogos = {};
         for (const roster of this.$props.rawBasicRosters) {
-            if (realLogos) {
+            if (this.useInefficientRealLogos) {
                 console.log('INEFFICIENT: loading logo data for ', roster.id);
                 const result = await Axios.post('http://localhost:3000/api/roster/get/' + roster.id);
                 rosterLogos[roster.id] = result.data.logos;
