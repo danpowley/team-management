@@ -5,7 +5,7 @@
         ></demosetup>
 
         <chooseroster v-if="mode === 'CHOOSE_ROSTER'"
-            :rosters="newTeamRuleset.rosters"
+            :raw-basic-rosters="basicRostersForRuleset"
             @roster-chosen="handleRosterChosen"
         ></chooseroster>
 
@@ -50,6 +50,7 @@ import { PlayerRowFoldOutMode } from "./include/Interfaces";
 })
 export default class TeamManagement extends Vue {
     public mode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
+    private basicRostersForRuleset: any[] = [];
     public newTeamRuleset: any | null = null;
     public team: any = null;
     public positionsIconData: any = null;
@@ -63,37 +64,16 @@ export default class TeamManagement extends Vue {
     }
 
     public async handleRulesetChosen(rulesetId: number) {
-        this.newTeamRuleset = await this.getRosterDetailsForRuleset(rulesetId);
+        await this.setupRulesetAndBasicRostersForRuleset(rulesetId);
         this.mode = 'CHOOSE_ROSTER';
     }
 
-    private async getRosterDetailsForRuleset(rulesetId: number) {
+    private async setupRulesetAndBasicRostersForRuleset(rulesetId: number) {
         const result = await Axios.post('http://localhost:3000/api/ruleset/get/' + rulesetId);
 
-        const rosterLogos = await this.getRosterLogosVeryInefficiently(result.data.rosters);
+        this.basicRostersForRuleset = result.data.rosters;
 
-        const rosters = [];
-        for (const roster of result.data.rosters) {
-            if (roster.value.startsWith('_')) {
-                continue;
-            }
-            const rosterId = ~~roster.id;
-            rosters.push({
-                id: rosterId,
-                name: roster.value,
-                tier: roster.tier,
-                logos: rosterLogos[rosterId],
-            });
-        }
-
-        rosters.sort((a, b) => {
-            if (a.name === b.name) {
-                return 0;
-            }
-            return a.name > b.name ? 1 : -1;
-        });
-
-        return {
+        this.newTeamRuleset =  {
             id: result.data.id,
             name: result.data.name,
             startTreasury: result.data.options.teamSettings.startTreasury,
@@ -105,7 +85,6 @@ export default class TeamManagement extends Vue {
             maxRerolls: this.maxRerolls,
             maxAssistantCoaches: this.maxAssistantCoaches,
             maxCheerleaders: this.maxCheerleaders,
-            rosters: rosters,
         };
 
         // https://fumbbl.com/api/ruleset/get/4
@@ -114,21 +93,6 @@ export default class TeamManagement extends Vue {
         // data.options.teamSettings.sppLimits": "6,16,31,51,76,176"
         // data.options.teamSettings.predeterminedSkills": "0:6N2D8S|0:3N|0:2N2D|0:3N3D|0:6N2D"
         // data.options.teamSettings.skillsPerPlayer
-    }
-
-    private async getRosterLogosVeryInefficiently(rosters: any[]): Promise<any> {
-        const realLogos = false;
-        const rosterLogos = {};
-        for (const roster of rosters) {
-            if (realLogos) {
-                console.log('INEFFICIENT: loading logo data for ', roster.id);
-                const result = await Axios.post('http://localhost:3000/api/roster/get/' + roster.id);
-                rosterLogos[roster.id] = result.data.logos;
-            } else {
-                rosterLogos[roster.id] = {128: 486276};
-            }
-        }
-        return rosterLogos;
     }
 
     public async handleRosterChosen(rosterId: number) {
