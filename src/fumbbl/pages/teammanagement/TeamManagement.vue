@@ -11,7 +11,7 @@
 
         <team v-if="mode === 'TEAM'"
             :team="team"
-            :positions-icon-data="positionsIconData"
+            :roster-icon-manager="rosterIconManager"
             :fold-outs="foldOuts"
             @add-player="handleAddPlayer"
             @delete-player="handleDeletePlayer"
@@ -40,6 +40,7 @@ import ChooseRosterComponent from "./components/ChooseRoster.vue";
 import TeamComponent from "./components/Team.vue";
 import DemoSetupComponent from "./components/DemoSetup.vue";
 import { PlayerRowFoldOutMode } from "./include/Interfaces";
+import RosterIconManager from "./include/RosterIconManager";
 
 @Component({
     components: {
@@ -53,7 +54,7 @@ export default class TeamManagement extends Vue {
     private basicRostersForRuleset: any[] = [];
     public newTeamRuleset: any | null = null;
     public team: any = null;
-    public positionsIconData: any = null;
+    public rosterIconManager: RosterIconManager | null = null;
     public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
 
     readonly maxRerolls = 8;
@@ -117,58 +118,19 @@ export default class TeamManagement extends Vue {
 
         this.team = team;
 
-        await this.refreshPositionIconData();
+        await this.setupRosterIconManager();
 
         this.mode = 'TEAM';
     }
 
-    public async refreshPositionIconData() {
-        const positionsIconData = {};
-        for (const position of this.team.roster.positions) {
-            positionsIconData[position.id] = {iconId: position.icon, iconData: await this.getIconData(position.icon)};
-        }
+    public async setupRosterIconManager() {
+        const positionIconData = this.team.roster.positions.map((position: any) => {
+            return {positionId: position.id, positionIcon: position.icon};
+        });
+        const rosterIconManager = new RosterIconManager();
+        await rosterIconManager.prepareIconData(positionIconData);
 
-        this.positionsIconData = positionsIconData;
-    }
-
-    public async getIconData(positionIconId: number): Promise<any> {
-        const imageDimensions = (imageUrl): Promise<{width: number, height: number}> =>
-            new Promise((resolve, reject) => {
-                const img = new Image()
-
-                img.onload = () => {
-                    const { naturalWidth: width, naturalHeight: height } = img;
-                    resolve({ width, height });
-                }
-
-                img.onerror = () => {
-                    reject('There was some problem with the image.');
-                }
-
-                img.src = imageUrl;
-            }
-        );
-
-        try {
-            const dimensions = await imageDimensions(`https://fumbbl.com/i/${positionIconId}`);
-            const iconSize = dimensions.width / 4;
-            let counter = 0;
-            const iconRowVersionPositions = [];
-            while (counter < dimensions.height) {
-                iconRowVersionPositions.push(-1 * counter);
-                counter += iconSize;
-            }
-            return {
-                size: iconSize,
-                iconRowVersionPositions: iconRowVersionPositions,
-            };
-        } catch(error) {
-            return 30;
-        }
-    }
-
-    private getRandomIconRowVersionPosition(positionIconInfo: any): number {
-        return Math.floor(Math.random() * positionIconInfo.iconData.iconRowVersionPositions.length);
+        this.rosterIconManager = rosterIconManager;
     }
 
     private async getRoster(rosterId: number) {
@@ -199,7 +161,7 @@ export default class TeamManagement extends Vue {
             injuries: 'x,y,z',
             skills: ['skill1', 'skill2'],
             gender: 'Female',
-            iconRowVersionPosition: this.getRandomIconRowVersionPosition(this.positionsIconData[positionObject.id]),
+            iconRowVersionPosition: this.rosterIconManager.getRandomIconRowVersionPosition(positionObject.id),
         };
     }
 

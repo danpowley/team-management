@@ -49,7 +49,7 @@
                 :player-numbers-with-player-below="playerNumbersWithPlayerBelow"
                 :team-creation-budget-remaining="teamCreationBudgetRemaining"
                 :roster-position-data="rosterPositionData"
-                :positions-icon-data="positionsIconData"
+                :roster-icon-manager="rosterIconManager"
                 @add-player="handleAddPlayer"
                 @delete-player="handleDeletePlayer"
                 @make-player-draggable="handleMakePlayerDraggable"
@@ -204,7 +204,7 @@ import PlayerComponent from "./Player.vue";
             type: Object,
             required: true,
         },
-        positionsIconData: {
+        rosterIconManager: {
             type: Object,
             required: true,
         },

@@ -51,7 +51,7 @@
             </div>
             <template v-if="player !== null && ! showBuyDialogTemporarily">
                 <div class="cell playericoncontainer">
-                    <div class="iconusingbackground" :style="playerIconStyle"></div>
+                    <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(player.positionId, player.iconRowVersionPosition)"></div>
                 </div>
                 <div class="cell playerdetails">
                     <div class="playername">
@@ -140,7 +140,7 @@
                         <td>{{ positionData.cost/1000 }}k</td>
                         <td>
                             <div class="positioniconcontainer">
-                                <div class="iconusingbackground" :style="getIconStyle(positionData.id, null)"></div>
+                                <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(positionData.id, null)"></div>
                             </div>
                         </td>
                         <td class="positionname">{{ positionData.name }}</td>
@@ -252,7 +252,7 @@ import { PlayerRowFoldOutMode } from "../include/Interfaces";
             type: Object,
             required: true,
         },
-        positionsIconData: {
+        rosterIconManager: {
             type: Object,
             required: true,
         },
@@ -369,24 +369,6 @@ export default class PlayerComponent extends Vue {
 
     public makePlayerDraggable(playerNumber: number, playerId: string) {
         this.$emit('make-player-draggable', playerNumber, playerId);
-    }
-
-    private get playerIconStyle(): string {
-        return this.getIconStyle(this.$props.player.positionId, this.$props.player.iconRowVersionPosition);
-    }
-
-    private getIconStyle(positionId: number, iconRowVersionPosition: number | null): string {
-        const positionIconInfo = this.$props.positionsIconData[positionId];
-
-        if (iconRowVersionPosition === null) {
-            iconRowVersionPosition = 0;
-        }
-
-        const iconSize = positionIconInfo.iconData.size;
-
-        const iconVersionPosition = positionIconInfo.iconData.iconRowVersionPositions[iconRowVersionPosition];
-
-        return `width: ${iconSize}px; height: ${iconSize}px; background: rgba(0, 0, 0, 0) url("https://fumbbl.com/i/${positionIconInfo.iconId}") repeat scroll 0px ${iconVersionPosition}px;'"`;
     }
 
     private get sortedRosterPositionData(): any[] {
