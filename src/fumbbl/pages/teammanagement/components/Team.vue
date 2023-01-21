@@ -5,15 +5,15 @@
             <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
             <div><input v-if="teamMode === 'CREATE'"></div>
             <div align="center" style="margin-top: 0.5em;">
-                <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] {{ team.roster.name }}
+                <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] {{ teamManagementSettings.rosterName }}
             </div>
         </div>
         <div v-if="teamMode === 'CREATE'" class="createteamstats">
             <div class="playerinfo">
-                <div class="currentplayercount">{{ team.players.length }}</div> <div class="currentplayercountlabel">Players ({{ team.ruleset.startPlayers }} required)</div>
+                <div class="currentplayercount">{{ team.players.length }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required)</div>
             </div>
             <div class="costinfo">
-                <div class="currentteamcost">{{ teamCost/1000 }}k</div> <div class="currentteamcostlabel">(Max {{ team.ruleset.startTreasury/1000 }}k)</div>
+                <div class="currentteamcost">{{ teamCost/1000 }}k</div> <div class="currentteamcostlabel">(Max {{ teamManagementSettings.startTreasury/1000 }}k)</div>
             </div>
             <div class="actions">
                 <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
@@ -40,7 +40,7 @@
                 :playerNumber="~~playerNumber"
                 :player="player"
                 :roster="team.roster"
-                :position="player ? getPosition(player.positionId) : null"
+                :position="player ? teamManagementSettings.getPosition(player.positionId) : null"
                 :is-fold-out-buy="isFoldOutBuy(playerNumber)"
                 :is-fold-out-more="isFoldOutMore(playerNumber)"
                 :all-fold-outs-closed="allFoldOutsClosed"
@@ -85,7 +85,7 @@
                     Roster:
                 </div>
                 <div class="info left">
-                    {{ team.roster.name }}
+                    {{ teamManagementSettings.rosterName }}
                 </div>
                 <div class="title right">
                     Dedicated Fans:
@@ -151,7 +151,7 @@
                     <div class="data">
                         {{ team.apothecary ? 'Yes' : 'No' }}
                     </div>
-                    <div v-if="teamMode === 'CREATE' && team.roster.apothecary === 'Yes'" class="newteamcontrols">
+                    <div v-if="teamMode === 'CREATE' && teamManagementSettings.apothecaryAllowed" class="newteamcontrols">
                         <template v-if="addRemovePermissions.apothecary.add">(<a href="#" @click.prevent="addApothecary()">Add</a>)</template><template v-if="addRemovePermissions.apothecary.remove">(<a href="#" @click.prevent="removeApothecary()">Remove</a>)</template>
                     </div>
                 </div>
@@ -192,7 +192,8 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { PlayerRowFoldOutMode } from "../include/Interfaces";
+import { PlayerRowFoldOutMode, PositionTeamStatus } from "../include/Interfaces";
+import TeamManagementSettings from "../include/TeamManagementSettings";
 import PlayerComponent from "./Player.vue";
 
 @Component({
@@ -200,6 +201,14 @@ import PlayerComponent from "./Player.vue";
         'player': PlayerComponent,
     },
     props: {
+        teamManagementSettings: {
+            type: Object,
+            required: true,
+        },
+        addRemovePermissions: {
+            type: Object,
+            required: true,
+        },
         team: {
             type: Object,
             required: true,
@@ -225,7 +234,6 @@ import PlayerComponent from "./Player.vue";
 })
 export default class TeamComponent extends Vue {
     private teamMode: 'CREATE' | 'POST_GAME' | 'READY' = 'CREATE';
-    public positionsLookup: any = null;
     public playersInPositions: any = null;
 
     public playerNumbersWithPlayerBelow: number[] = [];
@@ -246,51 +254,27 @@ export default class TeamComponent extends Vue {
         }, 1000);
     }
 
-    public get maxPlayers(): number {
-        return Object.keys(this.playersInPositions).length;
-    }
-
     private get teamCost(): number {
-        let playerCost = 0;
-        for (const player of this.$props.team.players) {
-            const position = this.$props.team.positionsLookup[player.positionId];
-            playerCost += ~~position.cost;
-        }
-
-        const dedicatedFansCost = 10000;
-        const assistantCoachesCost = 10000;
-        const cheerleadersCost = 10000;
-        const apothecaryCost = 50000;
-
-        return playerCost +
-            (this.$props.team.rerolls * ~~this.$props.team.roster.rerollCost) +
-            (this.$props.team.assistantCoaches * assistantCoachesCost) +
-            (this.$props.team.cheerleaders * cheerleadersCost) +
-            (this.$props.team.apothecary && this.$props.team.roster.apothecary === 'Yes' ? apothecaryCost : 0) +
-            ((this.$props.team.dedicatedFans - this.$props.team.ruleset.minStartFans) * dedicatedFansCost);
+        return this.$props.teamManagementSettings.calculateTeamCost(this.$props.team);
     }
 
     private get teamCreationBudgetRemaining(): number {
-        return this.$props.team.ruleset.startTreasury - this.teamCost;
+        return this.$props.teamManagementSettings.getRemainingBudget(this.teamCost);
     }
 
     private get rosterPositionData(): any {
-        const rosterPositionData = {};
-        for (const position of this.$props.team.roster.positions) {
-            rosterPositionData[position.id] = {
-                id: ~~position.id,
-                name: position.title,
-                cost: ~~position.cost,
-                skills: position.skills,
-                stats: position.stats,
-                quantityAllowed: ~~position.quantity,
+        const rosterPositionData: PositionTeamStatus[] = [];
+        for (const position of this.$props.teamManagementSettings.positions) {
+            rosterPositionData.push({
+                id: position.id,
                 quantityHired: 0,
-                canAfford: ~~position.cost < this.teamCreationBudgetRemaining,
-            };
+                canAfford: position.cost < this.teamCreationBudgetRemaining,
+                settings: this.$props.teamManagementSettings.getPosition(position.id),
+            } as PositionTeamStatus);
         }
 
-        for (const player of this.$props.team.players) {
-            rosterPositionData[player.positionId].quantityHired++;
+        for (const positionTeamStatus of rosterPositionData) {
+            positionTeamStatus.quantityHired += this.$props.team.players.filter(player => player.positionId === positionTeamStatus.id).length;
         }
 
         return rosterPositionData;
@@ -321,31 +305,6 @@ export default class TeamComponent extends Vue {
         };
     }
 
-    private get addRemovePermissions(): any {
-        return {
-            rerolls: {
-                add: this.$props.team.rerolls < this.$props.team.ruleset.maxRerolls,
-                remove: this.$props.team.rerolls > 0,
-            },
-            dedicatedFans: {
-                add: this.$props.team.dedicatedFans < this.$props.team.ruleset.maxStartFans,
-                remove: this.$props.team.dedicatedFans > this.$props.team.ruleset.minStartFans,
-            },
-            assistantCoaches: {
-                add: this.$props.team.assistantCoaches < this.$props.team.ruleset.maxAssistantCoaches,
-                remove: this.$props.team.assistantCoaches > 0,
-            },
-            cheerleaders: {
-                add: this.$props.team.cheerleaders < this.$props.team.ruleset.maxCheerleaders,
-                remove: this.$props.team.cheerleaders > 0,
-            },
-            apothecary: {
-                add: this.$props.team.apothecary === false,
-                remove: this.$props.team.apothecary === true,
-            },
-        }
-    }
-
     private isFoldOutBuy(playerNumber: number): boolean {
         return this.$props.foldOuts.buy.includes(~~playerNumber);
     }
@@ -360,9 +319,9 @@ export default class TeamComponent extends Vue {
 
     private get rerollCostForMode(): number {
         if (this.teamMode === 'CREATE') {
-            return this.$props.team.roster.rerollCost;
+            return this.$props.teamManagementSettings.rerollCostOnCreate;
         } else {
-            return this.$props.team.roster.rerollCost * 2;
+            return this.$props.teamManagementSettings.rerollCostFull;
         }
     }
 
@@ -374,7 +333,9 @@ export default class TeamComponent extends Vue {
     public refreshPlayersInPositions() {
         const playersInPositions = {};
 
-        for (let step = 1; step <= this.$props.team.ruleset.maxPlayers; step++) {
+        const maxPlayers = this.$props.teamManagementSettings.maxPlayers;
+
+        for (let step = 1; step <= maxPlayers; step++) {
             playersInPositions[step] = null;
         }
 
@@ -384,7 +345,7 @@ export default class TeamComponent extends Vue {
 
         const playerNumbersWithPlayerBelow = [];
         for (const playerNumber of Object.keys(playersInPositions)) {
-            if (~~playerNumber < this.$props.team.ruleset.maxPlayers) {
+            if (~~playerNumber < maxPlayers) {
                 if (playersInPositions[~~playerNumber + 1] !== null) {
                     playerNumbersWithPlayerBelow.push(~~playerNumber);
                 }
@@ -448,10 +409,6 @@ export default class TeamComponent extends Vue {
         this.dragSourcePlayerId = '';
         this.dropTargetPlayerNumber = false;
         this.dropTargetPlayerId = '';
-    }
-
-    public getPosition(positionId: number) {
-        return this.$props.team.positionsLookup[positionId];
     }
 
     private resetCreateTeam() {

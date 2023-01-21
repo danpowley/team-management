@@ -1,0 +1,106 @@
+import { AddRemovePermissions, Position, SetupTeamManagementSettings } from "./Interfaces";
+
+export default class TeamManagementSettings {
+    private settings: SetupTeamManagementSettings;
+
+    constructor(settings: SetupTeamManagementSettings) {
+        this.settings = settings;
+    }
+
+    public get rosterName() {
+        return this.settings.roster.name;
+    }
+
+    public get maxPlayers() {
+        return this.settings.players.max;
+    }
+
+    public get startPlayers() {
+        return this.settings.players.start;
+    }
+
+    public get startTreasury() {
+        return this.settings.treasury.start;
+    }
+
+    public get minStartFans() {
+        return this.settings.dedicatedFans.minStart;
+    }
+
+    public get rerollCostOnCreate(): number {
+        return this.settings.rerolls.cost;
+    }
+
+    public get rerollCostFull(): number {
+        return this.settings.rerolls.cost * 2;
+    }
+
+    public get apothecaryAllowed(): boolean {
+        return this.settings.sidelineStaff.apothecary.allowed;
+    }
+
+    public get positions(): Position[] {
+        return this.settings.players.positions;
+    }
+
+    public getPosition(positionId: number): Position {
+        for (const position of this.settings.players.positions) {
+            if (position.id === positionId) {
+                return position;
+            }
+        }
+        throw Error(`Position not found ${positionId}`);
+    }
+
+    public calculateTeamCost(team: any): number {
+        const positionCostsLookup = this.getPositionCostsLookup();
+        let playerCost = 0;
+        for (const player of team.players) {
+            playerCost += positionCostsLookup[player.positionId];
+        }
+
+        return playerCost +
+            (team.rerolls * this.settings.rerolls.cost) +
+            (team.assistantCoaches * this.settings.sidelineStaff.assistantCoaches.cost) +
+            (team.cheerleaders * this.settings.sidelineStaff.cheerleaders.cost) +
+            (team.apothecary && this.settings.sidelineStaff.apothecary ? this.settings.sidelineStaff.apothecary.cost : 0) +
+            ((team.dedicatedFans - this.settings.dedicatedFans.minStart) * this.settings.dedicatedFans.cost);
+    }
+
+    private getPositionCostsLookup(): any {
+        const positionCostsLookup = {};
+        for (const position of this.settings.players.positions) {
+            positionCostsLookup[position.id] = position.cost;
+        }
+        return positionCostsLookup;
+    }
+
+    public getRemainingBudget(teamCost: number): number {
+        return this.settings.treasury.start - teamCost;
+    }
+
+    public getAddRemovePermissions(team: any): AddRemovePermissions {
+        return {
+            rerolls: {
+                add: team.rerolls < this.settings.rerolls.max,
+                remove: team.rerolls > 0,
+            },
+            dedicatedFans: {
+                add: team.dedicatedFans < this.settings.dedicatedFans.maxStart,
+                remove: team.dedicatedFans > this.settings.dedicatedFans.minStart,
+            },
+            assistantCoaches: {
+                add: team.assistantCoaches < this.settings.sidelineStaff.assistantCoaches.max,
+                remove: team.assistantCoaches > 0,
+            },
+            cheerleaders: {
+                add: team.cheerleaders < this.settings.sidelineStaff.cheerleaders.max,
+                remove: team.cheerleaders > 0,
+            },
+            apothecary: {
+                add: this.settings.sidelineStaff.apothecary.allowed && team.apothecary === false,
+                remove: this.settings.sidelineStaff.apothecary.allowed && team.apothecary === true,
+            },
+        }
+    }
+}

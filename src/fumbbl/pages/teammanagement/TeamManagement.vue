@@ -10,6 +10,8 @@
         ></chooseroster>
 
         <team v-if="mode === 'TEAM'"
+            :team-management-settings="teamManagementSettings"
+            :add-remove-permissions="addRemovePermissions"
             :team="team"
             :roster-icon-manager="rosterIconManager"
             :fold-outs="foldOuts"
@@ -39,8 +41,9 @@ import Component from "vue-class-component";
 import ChooseRosterComponent from "./components/ChooseRoster.vue";
 import TeamComponent from "./components/Team.vue";
 import DemoSetupComponent from "./components/DemoSetup.vue";
-import { PlayerRowFoldOutMode } from "./include/Interfaces";
+import { AddRemovePermissions, PlayerRowFoldOutMode, Position, PositionStats, SetupTeamManagementSettings } from "./include/Interfaces";
 import RosterIconManager from "./include/RosterIconManager";
+import TeamManagementSettings from "./include/TeamManagementSettings";
 
 @Component({
     components: {
@@ -51,17 +54,18 @@ import RosterIconManager from "./include/RosterIconManager";
 })
 export default class TeamManagement extends Vue {
     public mode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
+    private rawApiRuleset: any;
+    private teamManagementSettings: TeamManagementSettings;
     private basicRostersForRuleset: any[] = [];
-    public newTeamRuleset: any | null = null;
     public team: any = null;
-    public rosterIconManager: RosterIconManager | null = null;
+    private rosterIconManager: RosterIconManager | null = null;
     public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
 
-    readonly maxRerolls = 8;
-    readonly maxAssistantCoaches = 6;
-    readonly maxCheerleaders = 12;
-
     async mounted() {
+    }
+
+    private get addRemovePermissions(): AddRemovePermissions {
+        return this.teamManagementSettings.getAddRemovePermissions(this.team);
     }
 
     public async handleRulesetChosen(rulesetId: number) {
@@ -72,59 +76,23 @@ export default class TeamManagement extends Vue {
     private async setupRulesetAndBasicRostersForRuleset(rulesetId: number) {
         const result = await Axios.post('http://localhost:3000/api/ruleset/get/' + rulesetId);
 
+        this.rawApiRuleset = result.data;
+
         this.basicRostersForRuleset = result.data.rosters;
-
-        this.newTeamRuleset =  {
-            id: result.data.id,
-            name: result.data.name,
-            startTreasury: result.data.options.teamSettings.startTreasury,
-            startPlayers: result.data.options.teamSettings.startPlayers,
-            maxPlayers: result.data.options.teamSettings.maxPlayers,
-            startFans: result.data.options.teamSettings.startFans,
-            minStartFans: result.data.options.teamSettings.minStartFans,
-            maxStartFans: result.data.options.teamSettings.maxStartFans,
-            maxRerolls: this.maxRerolls,
-            maxAssistantCoaches: this.maxAssistantCoaches,
-            maxCheerleaders: this.maxCheerleaders,
-        };
-
-        // https://fumbbl.com/api/ruleset/get/4
-        // data.options.teamSettings.teamProgression
-        // data.options.teamSettings.skillProgressionType
-        // data.options.teamSettings.sppLimits": "6,16,31,51,76,176"
-        // data.options.teamSettings.predeterminedSkills": "0:6N2D8S|0:3N|0:2N2D|0:3N3D|0:6N2D"
-        // data.options.teamSettings.skillsPerPlayer
     }
 
     public async handleRosterChosen(rosterId: number) {
         const roster = await this.getRoster(rosterId);
 
-        const positionsLookup = {};
-        for (const position of roster.positions) {
-            positionsLookup[position.id] = position;
-        }
-
-        const team = {
-            players: [],
-            rerolls: 0,
-            dedicatedFans: this.newTeamRuleset.minStartFans,
-            assistantCoaches: 0,
-            cheerleaders: 0,
-            apothecary: false,
-            ruleset: this.newTeamRuleset,
-            roster: roster,
-            positionsLookup: positionsLookup,
-        };
-
-        this.team = team;
-
-        await this.setupRosterIconManager();
+        await this.setupRosterIconManager(roster.positions);
+        this.setupTeamManagementSettings(roster);
+        this.setupNewTeam();
 
         this.mode = 'TEAM';
     }
 
-    public async setupRosterIconManager() {
-        const positionIconData = this.team.roster.positions.map((position: any) => {
+    public async setupRosterIconManager(positions: any[]) {
+        const positionIconData = positions.map((position: any) => {
             return {positionId: position.id, positionIcon: position.icon};
         });
         const rosterIconManager = new RosterIconManager();
@@ -133,13 +101,99 @@ export default class TeamManagement extends Vue {
         this.rosterIconManager = rosterIconManager;
     }
 
+    private setupTeamManagementSettings(roster: any) {
+        const dedicatedFansCost = 10000;
+        const assistantCoachesCost = 10000;
+        const cheerleadersCost = 10000;
+        const apothecaryCost = 50000;
+
+        const maxRerolls = 8;
+        const maxAssistantCoaches = 6;
+        const maxCheerleaders = 12;
+
+        const setupTeamManagementSettings: SetupTeamManagementSettings = {
+            roster: {
+                name: roster.name,
+            },
+            treasury: {
+                start: this.rawApiRuleset.options.teamSettings.startTreasury,
+            },
+            players: {
+                start: this.rawApiRuleset.options.teamSettings.startPlayers,
+                max: this.rawApiRuleset.options.teamSettings.maxPlayers,
+                positions: roster.positions.map((position: any) => {
+                    return {
+                        id: ~~position.id,
+                        name: position.title,
+                        cost: ~~position.cost,
+                        skills: position.skills,
+                        stats: {
+                            Movement: ~~position.stats.MA,
+                            Strength: ~~position.stats.ST,
+                            Agility: ~~position.stats.AG,
+                            Passing: ~~position.stats.PA,
+                            Armour: ~~position.stats.AV,
+                        } as PositionStats,
+                        quantityAllowed: ~~position.quantity,
+                    } as Position;
+                }),
+            },
+            dedicatedFans: {
+                start: this.rawApiRuleset.options.teamSettings.startFans,
+                minStart: this.rawApiRuleset.options.teamSettings.minStartFans,
+                maxStart: this.rawApiRuleset.options.teamSettings.maxStartFans,
+                cost: dedicatedFansCost,
+            },
+            rerolls: {
+                max: maxRerolls,
+                cost: ~~roster.rerollCost,
+            },
+            sidelineStaff: {
+                assistantCoaches: {
+                    max: maxAssistantCoaches,
+                    cost: assistantCoachesCost,
+                },
+                cheerleaders: {
+                    max: maxCheerleaders,
+                    cost: cheerleadersCost,
+                },
+                apothecary: {
+                    allowed: roster.apothecary === 'Yes',
+                    cost: apothecaryCost,
+                },
+            }
+        };
+
+        // https://fumbbl.com/api/ruleset/get/4
+        // data.options.teamSettings.teamProgression
+        // data.options.teamSettings.skillProgressionType
+        // data.options.teamSettings.sppLimits": "6,16,31,51,76,176"
+        // data.options.teamSettings.predeterminedSkills": "0:6N2D8S|0:3N|0:2N2D|0:3N3D|0:6N2D"
+        // data.options.teamSettings.skillsPerPlayer
+
+        this.teamManagementSettings = new TeamManagementSettings(setupTeamManagementSettings);
+    }
+
+    private setupNewTeam() {
+        const team = {
+            players: [],
+            rerolls: 0,
+            dedicatedFans: this.teamManagementSettings.minStartFans,
+            assistantCoaches: 0,
+            cheerleaders: 0,
+            apothecary: false,
+        };
+
+        this.team = team;
+    }
+
     private async getRoster(rosterId: number) {
         const result = await Axios.post('http://localhost:3000/api/roster/get/' + rosterId);
         return result.data;
     }
 
     private async createPlayer(playerNumber: number, positionId: number): Promise<any> {
-        let positionObject = this.team.positionsLookup[positionId];
+        let position = this.teamManagementSettings.getPosition(positionId);
 
         const result = await Axios.post('http://localhost:3000/api/name/generate/default');
         const playerName = result.data;
@@ -148,8 +202,8 @@ export default class TeamManagement extends Vue {
             id: 'NEW--' + playerNumber,
             number: playerNumber,
             name: playerName,
-            position: positionObject.title,
-            positionId: positionObject.id,
+            position: position.name,
+            positionId: position.id,
             record: {
                 completions: 0,
                 touchdowns: 0,
@@ -161,7 +215,7 @@ export default class TeamManagement extends Vue {
             injuries: 'x,y,z',
             skills: ['skill1', 'skill2'],
             gender: 'Female',
-            iconRowVersionPosition: this.rosterIconManager.getRandomIconRowVersionPosition(positionObject.id),
+            iconRowVersionPosition: this.rosterIconManager.getRandomIconRowVersionPosition(position.id),
         };
     }
 
@@ -207,7 +261,7 @@ export default class TeamManagement extends Vue {
 
     private handleResetCreateTeam() {
         this.team.players = [];
-        // need to reset more here too
+        // team class should have its own reset method
     }
 
     private handleFoldOut(playerNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
@@ -241,61 +295,61 @@ export default class TeamManagement extends Vue {
     }
 
     private handleAddReroll() {
-        if (this.team.rerolls < 8) {
+        if (this.addRemovePermissions.rerolls.add) {
             this.team.rerolls++;
         }
     }
 
     private handleRemoveReroll() {
-        if (this.team.rerolls > 0) {
+        if (this.addRemovePermissions.rerolls.remove) {
             this.team.rerolls--;
         }
     }
 
     private handleAddDedicatedFans() {
-        if (this.team.dedicatedFans < this.team.ruleset.maxStartFans) {
+        if (this.addRemovePermissions.dedicatedFans.add) {
             this.team.dedicatedFans++;
         }
     }
 
     private handleRemoveDedicatedFans() {
-        if (this.team.dedicatedFans > this.team.ruleset.minStartFans) {
+        if (this.addRemovePermissions.dedicatedFans.remove) {
             this.team.dedicatedFans--;
         }
     }
 
     private handleAddAssistantCoaches() {
-        if (this.team.assistantCoaches < this.team.ruleset.maxAssistantCoaches) {
+        if (this.addRemovePermissions.assistantCoaches.add) {
             this.team.assistantCoaches++;
         }
     }
 
     private handleRemoveAssistantCoaches() {
-        if (this.team.assistantCoaches > 0) {
+        if (this.addRemovePermissions.assistantCoaches.remove) {
             this.team.assistantCoaches--;
         }
     }
 
     private handleAddCheerleaders() {
-        if (this.team.cheerleaders < this.team.ruleset.maxCheerleaders) {
+        if (this.addRemovePermissions.cheerleaders.add) {
             this.team.cheerleaders++;
         }
     }
 
     private handleRemoveCheerleaders() {
-        if (this.team.cheerleaders > 0) {
+        if (this.addRemovePermissions.cheerleaders.remove) {
             this.team.cheerleaders--;
         }
     }
 
     private handleAddApothecary() {
-        if (this.team.roster.apothecary === 'Yes' && this.team.apothecary === false) {
+        if (this.addRemovePermissions.apothecary.add) {
             this.team.apothecary = true;
         }
     }
 
     private handleRemoveApothecary() {
-        if (this.team.roster.apothecary === 'Yes' && this.team.apothecary === true) {
+        if (this.addRemovePermissions.apothecary.remove) {
             this.team.apothecary = false;
         }
     }
