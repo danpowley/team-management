@@ -378,17 +378,15 @@ export default class TeamComponent extends Vue {
             tbody.addEventListener('dragenter', function (this: any, e) {
                 const dropTargetRow = this;
 
-                const dropTargetPlayerNumber = ~~dropTargetRow.dataset.position;
+                const dropTargetPlayerNumber = ~~dropTargetRow.dataset.teamNumber;
                 if (dropTargetPlayerNumber !== vueComponent.dragSourcePlayerNumber) {
                     vueComponent.dropTargetPlayerNumber = dropTargetPlayerNumber;
-                    vueComponent.dropTargetPlayerId = dropTargetRow.dataset.id; // string id!!!
+                    vueComponent.dropTargetPlayerId = dropTargetRow.dataset.playerId; // new players using string id!!!
                 } else {
                     vueComponent.dropTargetPlayerNumber = false;
-                    vueComponent.dropTargetPlayerId = ''; // string id!!!
+                    vueComponent.dropTargetPlayerId = ''; // new players using string id!!!
                 }
             });
-
-            // naming, dataset.position, dataset.id
 
             tbody.addEventListener('drop', function (this: any, e) {
                 const eventData = {
@@ -397,8 +395,8 @@ export default class TeamComponent extends Vue {
                         playerId: vueComponent.dragSourcePlayerId,
                     },
                     target: {
-                        playerNumber: ~~this.dataset.position,
-                        playerId: this.dataset.id ? this.dataset.id : null,
+                        playerNumber: ~~this.dataset.teamNumber,
+                        playerId: this.dataset.playerId ? this.dataset.playerId : null,
                     }
                 };
 

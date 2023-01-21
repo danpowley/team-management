@@ -6,8 +6,8 @@
             dragsource: dragSourcePlayerNumber === ~~playerNumber,
             droptarget: dropTargetPlayerNumber === ~~playerNumber,
         }"
-        :data-position="playerNumber"
-        :data-id="player ? player.id : ''"
+        :data-team-number="playerNumber"
+        :data-player-id="player ? player.id : ''"
     >
         <template v-if="~~playerNumber === 1 && hasPlayer && ~~playerNumber !== dragSourcePlayerNumber && ~~playerNumber === dropTargetPlayerNumber">
             <div class="seperator active"><div class="line"></div></div>
