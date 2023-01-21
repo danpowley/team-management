@@ -9,11 +9,11 @@ export interface Position {
     quantityAllowed: number,
 };
 
-export interface PositionTeamStatus {
-    id: number,
+export interface PositionDataForBuyingPlayer {
+    positionId: number,
     quantityHired: number,
     canAfford: boolean,
-    settings: Position,
+    position: Position,
 }
 
 export interface PositionStats {

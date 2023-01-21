@@ -48,7 +48,7 @@
                 :drop-target-player-number="dropTargetPlayerNumber"
                 :player-numbers-with-player-below="playerNumbersWithPlayerBelow"
                 :team-creation-budget-remaining="teamCreationBudgetRemaining"
-                :roster-position-data="rosterPositionData"
+                :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
                 :roster-icon-manager="rosterIconManager"
                 @add-player="handleAddPlayer"
                 @delete-player="handleDeletePlayer"
@@ -192,8 +192,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { PlayerRowFoldOutMode, PositionTeamStatus } from "../include/Interfaces";
-import TeamManagementSettings from "../include/TeamManagementSettings";
+import { PlayerRowFoldOutMode, PositionDataForBuyingPlayer } from "../include/Interfaces";
 import PlayerComponent from "./Player.vue";
 
 @Component({
@@ -262,31 +261,21 @@ export default class TeamComponent extends Vue {
         return this.$props.teamManagementSettings.getRemainingBudget(this.teamCost);
     }
 
-    private get rosterPositionData(): any {
-        const rosterPositionData: PositionTeamStatus[] = [];
+    private get rosterPositionDataForBuyingPlayer(): PositionDataForBuyingPlayer[] {
+        const positionQuantities: {positionId: number, quantity: number}[] = [];
+
         for (const position of this.$props.teamManagementSettings.positions) {
-            rosterPositionData.push({
-                id: position.id,
-                quantityHired: 0,
-                canAfford: position.cost < this.teamCreationBudgetRemaining,
-                settings: this.$props.teamManagementSettings.getPosition(position.id),
-            } as PositionTeamStatus);
+            const positionQuantity = {
+                positionId: position.id,
+                quantity: this.$props.team.players.filter(player => player.positionId === position.id).length
+            };
+            positionQuantities.push(positionQuantity);
         }
 
-        rosterPositionData.sort((a: PositionTeamStatus, b: PositionTeamStatus) => {
-            const postitionACost = a.settings.cost;
-            const postitionBCost = b.settings.cost;
-            if (postitionACost === postitionBCost) {
-                return 0;
-            }
-            return postitionACost > postitionBCost ? -1 : 1;
-        });
-
-        for (const positionTeamStatus of rosterPositionData) {
-            positionTeamStatus.quantityHired += this.$props.team.players.filter(player => player.positionId === positionTeamStatus.id).length;
-        }
-
-        return rosterPositionData;
+        return this.$props.teamManagementSettings.getRosterPositionDataForBuyingPlayer(
+            this.teamCreationBudgetRemaining,
+            positionQuantities,
+        );
     }
 
     private get mngPlayerCount(): number {

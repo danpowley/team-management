@@ -109,7 +109,7 @@
                 </div>
             </template>
         </div>
-        <div class="foldout foldoutbuy" :class="{active: isFoldOutBuy}" :style="{maxHeight: isFoldOutBuy ? `${rosterPositionData.length * 65}px` : '0'}">
+        <div class="foldout foldoutbuy" :class="{active: isFoldOutBuy}" :style="{maxHeight: isFoldOutBuy ? `${rosterPositionDataForBuyingPlayer.length * 65}px` : '0'}">
             <div v-if="(player === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily" class="buyingplayer">
                 <table class="buyingpositionals">
                     <thead>
@@ -125,32 +125,32 @@
                         <th>Skills</th>
                     </thead>
                     <tbody>
-                    <tr v-for="positionData in rosterPositionData" :key="positionData.id">
+                    <tr v-for="positionDataForBuyingPlayer in rosterPositionDataForBuyingPlayer" :key="positionDataForBuyingPlayer.positionId">
                         <td class="buylink">
-                            <template v-if="positionData.quantityHired < positionData.settings.quantityAllowed">
+                            <template v-if="positionDataForBuyingPlayer.quantityHired < positionDataForBuyingPlayer.position.quantityAllowed">
                                 <a
-                                    @click.prevent="addPlayer(positionData.id)"
-                                    href="#" :title="!positionData.canAfford ? 'Insufficient treasury' : ''"
-                                >Buy<template v-if="!positionData.canAfford"> &#9888;</template></a>
+                                    @click.prevent="addPlayer(positionDataForBuyingPlayer.positionId)"
+                                    href="#" :title="!positionDataForBuyingPlayer.canAfford ? 'Insufficient treasury' : ''"
+                                >Buy<template v-if="!positionDataForBuyingPlayer.canAfford"> &#9888;</template></a>
                             </template>
                             <template v-else>
                                 n/a
                             </template>
                         </td>
-                        <td>{{ positionData.settings.cost/1000 }}k</td>
+                        <td>{{ positionDataForBuyingPlayer.position.cost/1000 }}k</td>
                         <td>
                             <div class="positioniconcontainer">
-                                <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(positionData.id, null)"></div>
+                                <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(positionDataForBuyingPlayer.positionId, null)"></div>
                             </div>
                         </td>
-                        <td class="positionname">{{ positionData.settings.name }}</td>
-                        <td class="quantityallowed">0-{{ positionData.settings.quantityAllowed }}{{ positionData.quantityHired > 0 ? ` (${positionData.quantityHired}*)` : '' }}</td>
-                        <td>{{ positionData.settings.stats.Movement }}</td>
-                        <td>{{ positionData.settings.stats.Strength }}</td>
-                        <td>{{ positionData.settings.stats.Agility }}</td>
-                        <td>{{ positionData.settings.stats.Passing }}</td>
-                        <td>{{ positionData.settings.stats.Armour }}</td>
-                        <td class="skills">{{ positionData.settings.skills.join(', ') }}</td>
+                        <td class="positionname">{{ positionDataForBuyingPlayer.position.name }}</td>
+                        <td class="quantityallowed">0-{{ positionDataForBuyingPlayer.position.quantityAllowed }}{{ positionDataForBuyingPlayer.quantityHired > 0 ? ` (${positionDataForBuyingPlayer.quantityHired}*)` : '' }}</td>
+                        <td>{{ positionDataForBuyingPlayer.position.stats.Movement }}</td>
+                        <td>{{ positionDataForBuyingPlayer.position.stats.Strength }}</td>
+                        <td>{{ positionDataForBuyingPlayer.position.stats.Agility }}</td>
+                        <td>{{ positionDataForBuyingPlayer.position.stats.Passing }}</td>
+                        <td>{{ positionDataForBuyingPlayer.position.stats.Armour }}</td>
+                        <td class="skills">{{ positionDataForBuyingPlayer.position.skills.join(', ') }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -244,7 +244,7 @@ import { PlayerRowFoldOutMode } from "../include/Interfaces";
             type: Number,
             required: true,
         },
-        rosterPositionData: {
+        rosterPositionDataForBuyingPlayer: {
             type: Array,
             required: true,
         },

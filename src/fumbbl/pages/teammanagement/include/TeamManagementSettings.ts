@@ -1,4 +1,4 @@
-import { AddRemovePermissions, Position, SetupTeamManagementSettings } from "./Interfaces";
+import { AddRemovePermissions, Position, PositionDataForBuyingPlayer, SetupTeamManagementSettings } from "./Interfaces";
 
 export default class TeamManagementSettings {
     private settings: SetupTeamManagementSettings;
@@ -102,5 +102,39 @@ export default class TeamManagementSettings {
                 remove: this.settings.sidelineStaff.apothecary.allowed && team.apothecary === true,
             },
         }
+    }
+
+    public getRosterPositionDataForBuyingPlayer(
+        availableTreasury: number,
+        positionQuantities: {positionId: number, quantity: number}[]
+    ): PositionDataForBuyingPlayer[] {
+        const rosterPositionDataForBuyingPlayer: PositionDataForBuyingPlayer[] = [];
+        for (const position of this.positions) {
+            let quantityHired = 0;
+            for (const positionQuantityData of positionQuantities) {
+                if (positionQuantityData.positionId === position.id) {
+                    quantityHired = positionQuantityData.quantity;
+                    break;
+                }
+            }
+
+            rosterPositionDataForBuyingPlayer.push({
+                positionId: position.id,
+                quantityHired: quantityHired,
+                canAfford: position.cost < availableTreasury,
+                position: position,
+            } as PositionDataForBuyingPlayer);
+        }
+
+        rosterPositionDataForBuyingPlayer.sort((a, b) => {
+            const postitionACost = a.position.cost;
+            const postitionBCost = b.position.cost;
+            if (postitionACost === postitionBCost) {
+                return 0;
+            }
+            return postitionACost > postitionBCost ? -1 : 1;
+        });
+
+        return rosterPositionDataForBuyingPlayer;
     }
 }
