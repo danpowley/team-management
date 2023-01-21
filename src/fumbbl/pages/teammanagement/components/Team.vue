@@ -303,11 +303,11 @@ export default class TeamComponent extends Vue {
     }
 
     private isFoldOutBuy(playerNumber: number): boolean {
-        return this.$props.foldOuts.buy.includes(~~playerNumber);
+        return this.$props.foldOuts.buy.includes(playerNumber);
     }
 
     private isFoldOutMore(playerNumber: number): boolean {
-        return this.$props.foldOuts.more.includes(~~playerNumber);
+        return this.$props.foldOuts.more.includes(playerNumber);
     }
 
     private get allFoldOutsClosed(): boolean {
