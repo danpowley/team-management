@@ -82,7 +82,8 @@ export default class TeamManagement extends Vue {
     }
 
     public async handleRosterChosen(rosterId: number) {
-        const roster = await this.getRoster(rosterId);
+        const result = await Axios.post('http://localhost:3000/api/roster/get/' + rosterId);
+        const roster = result.data;
 
         await this.setupRosterIconManager(roster.positions);
         this.setupTeamManagementSettings(roster);
@@ -185,11 +186,6 @@ export default class TeamManagement extends Vue {
         };
 
         this.team = team;
-    }
-
-    private async getRoster(rosterId: number) {
-        const result = await Axios.post('http://localhost:3000/api/roster/get/' + rosterId);
-        return result.data;
     }
 
     private async createPlayer(playerNumber: number, positionId: number): Promise<any> {
