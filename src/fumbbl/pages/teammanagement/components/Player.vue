@@ -110,40 +110,17 @@
             </template>
         </div>
         <div class="foldout foldoutbuy" :class="{active: isFoldOutBuy}" :style="{maxHeight: isFoldOutBuy ? `${rosterPositionDataForBuyingPlayer.length * 65}px` : '0'}">
-            <div v-if="(player === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily" class="buyingplayer">
-                <buyplayer
-                    :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
-                    :roster-icon-manager="rosterIconManager"
-                    @add-player="handleAddPlayer"
-                ></buyplayer>
-            </div>
+            <buyplayer v-if="(player === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily"
+                :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
+                :roster-icon-manager="rosterIconManager"
+                @add-player="handleAddPlayer"
+            ></buyplayer>
         </div>
         <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
-            <div v-if="(player !== null || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily" class="playerinfofoldout">
-                <div class="playerinfosection playeredit">
-                    <a href="#" @click.prevent="deletePlayer()" style="float: right;">Remove player</a>
-                    <div class="title">Edit</div>
-                    <p>Todo: decide what can be edited here.</p>
-                    <ul>
-                        <li>Name</li>
-                        <li>Gender</li>
-                        <li>Profile (after creation?)</li>
-                        <li>Player card image</li>
-                    </ul>
-                </div>
-                <div class="playerinfosection playerdetails">
-                    <div class="title">Details</div>
-                    <p>Todo: decide what to display here.</p>
-                    <ul>
-                        <li>Games played: [data unavailable]</li>
-                        <li>Completions: {{ player ? player.record.completions : '0' }}</li>
-                        <li>Touchdowns: {{ player ? player.record.touchdowns : '0' }}</li>
-                        <li>Interceptions: {{ player ? player.record.interceptions : '0' }}</li>
-                        <li>Casualties: {{ player ? player.record.casualties : '0' }}</li>
-                        <li>MVPs: {{ player ? player.record.mvps : '0' }}</li>
-                    </ul>
-                </div>
-            </div>
+            <playerdetails v-if="(player !== null || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily"
+                :player="player"
+                @delete-player="handleDeletePlayer()"
+            ></playerdetails>
         </div>
         <div class="seperator" :class="getSeperatorClasses()"><div class="line"></div></div>
     </div>
@@ -154,10 +131,12 @@ import Vue from "vue";
 import Component from 'vue-class-component';
 import { PlayerRowFoldOutMode } from "../include/Interfaces";
 import BuyPlayerComponent from "./BuyPlayer.vue";
+import PlayerDetailsComponent from "./PlayerDetails.vue";
 
 @Component({
     components: {
         'buyplayer': BuyPlayerComponent,
+        'playerdetails': PlayerDetailsComponent,
     },
     props: {
         teamMode: {
@@ -310,14 +289,6 @@ export default class PlayerComponent extends Vue {
         }
     }
 
-    public deletePlayer() {
-        this.showPlayerInfoFoldoutTemporarily = true;
-        setTimeout(() => {this.showPlayerInfoFoldoutTemporarily = false;}, this.delayForFoldoutAnimations);
-
-        this.performFoldOut('CLOSED');
-        this.$emit('delete-player', this.$props.playerNumber);
-    }
-
     public makePlayerDraggable(playerNumber: number, playerId: string) {
         this.$emit('make-player-draggable', playerNumber, playerId);
     }
@@ -329,6 +300,14 @@ export default class PlayerComponent extends Vue {
 
         this.performFoldOut('CLOSED');
         this.$emit('add-player', this.$props.playerNumber, positionId);
+    }
+
+    public handleDeletePlayer() {
+        this.showPlayerInfoFoldoutTemporarily = true;
+        setTimeout(() => {this.showPlayerInfoFoldoutTemporarily = false;}, this.delayForFoldoutAnimations);
+
+        this.performFoldOut('CLOSED');
+        this.$emit('delete-player', this.$props.playerNumber);
     }
 }
 </script>
