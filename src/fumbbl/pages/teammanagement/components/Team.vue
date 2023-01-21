@@ -273,6 +273,15 @@ export default class TeamComponent extends Vue {
             } as PositionTeamStatus);
         }
 
+        rosterPositionData.sort((a: PositionTeamStatus, b: PositionTeamStatus) => {
+            const postitionACost = a.settings.cost;
+            const postitionBCost = b.settings.cost;
+            if (postitionACost === postitionBCost) {
+                return 0;
+            }
+            return postitionACost > postitionBCost ? -1 : 1;
+        });
+
         for (const positionTeamStatus of rosterPositionData) {
             positionTeamStatus.quantityHired += this.$props.team.players.filter(player => player.positionId === positionTeamStatus.id).length;
         }

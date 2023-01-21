@@ -125,7 +125,7 @@
                         <th>Skills</th>
                     </thead>
                     <tbody>
-                    <tr v-for="positionData in sortedRosterPositionData" :key="positionData.id">
+                    <tr v-for="positionData in rosterPositionData" :key="positionData.id">
                         <td class="buylink">
                             <template v-if="positionData.quantityHired < positionData.settings.quantityAllowed">
                                 <a
@@ -365,17 +365,6 @@ export default class PlayerComponent extends Vue {
 
     public makePlayerDraggable(playerNumber: number, playerId: string) {
         this.$emit('make-player-draggable', playerNumber, playerId);
-    }
-
-    private get sortedRosterPositionData(): any[] {
-        return this.$props.rosterPositionData.sort((a: any, b: any) => {
-            const postitionACost = a.settings.cost;
-            const postitionBCost = b.settings.cost;
-            if (postitionACost === postitionBCost) {
-                return 0;
-            }
-            return postitionACost > postitionBCost ? -1 : 1;
-        });
     }
 }
 </script>
