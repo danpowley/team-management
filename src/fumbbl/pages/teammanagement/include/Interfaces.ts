@@ -20,7 +20,7 @@ export interface PositionStats {
     Movement: number,
     Strength: number,
     Agility: number,
-    Passing: number,
+    Passing: number | null,
     Armour: number,
 }
 
@@ -83,4 +83,11 @@ export interface AddRemovePermissions {
         add: boolean,
         remove: boolean,
     },
+};
+
+export type TeamSheet = TeamNumber[];
+
+export interface TeamNumber {
+    teamNumber: number,
+    player: any,
 };

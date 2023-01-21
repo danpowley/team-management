@@ -35,14 +35,13 @@
                 <div class="cell spp">SPP</div>
                 <div class="cell cost">Cost</div>
             </div>
-            <player v-for="(player, playerNumber) in playersInPositions" :key="playerNumber"
+            <player v-for="teamNumber in teamSheet" :key="teamNumber.teamNumber"
                 :team-mode="teamMode"
-                :playerNumber="~~playerNumber"
-                :player="player"
-                :roster="team.roster"
-                :position="player ? teamManagementSettings.getPosition(player.positionId) : null"
-                :is-fold-out-buy="isFoldOutBuy(playerNumber)"
-                :is-fold-out-more="isFoldOutMore(playerNumber)"
+                :playerNumber="teamNumber.teamNumber"
+                :player="teamNumber.player"
+                :position="teamNumber.player ? teamManagementSettings.getPosition(teamNumber.player.positionId) : null"
+                :is-fold-out-buy="isFoldOutBuy(teamNumber.teamNumber)"
+                :is-fold-out-more="isFoldOutMore(teamNumber.teamNumber)"
                 :all-fold-outs-closed="allFoldOutsClosed"
                 :drag-source-player-number="dragSourcePlayerNumber"
                 :drop-target-player-number="dropTargetPlayerNumber"
@@ -192,7 +191,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { PlayerRowFoldOutMode, PositionDataForBuyingPlayer } from "../include/Interfaces";
+import { PlayerRowFoldOutMode, PositionDataForBuyingPlayer, TeamNumber, TeamSheet } from "../include/Interfaces";
 import PlayerComponent from "./Player.vue";
 
 @Component({
@@ -225,7 +224,7 @@ import PlayerComponent from "./Player.vue";
         team: {
             handler(newValue, oldValue) {
                 // @ts-ignore: Property does not exist on type 'Vue'.
-                this.refreshPlayersInPositions();
+                this.refreshTeamSheet();
             },
             deep: true
         },
@@ -233,7 +232,7 @@ import PlayerComponent from "./Player.vue";
 })
 export default class TeamComponent extends Vue {
     private teamMode: 'CREATE' | 'POST_GAME' | 'READY' = 'CREATE';
-    public playersInPositions: any = null;
+    public teamSheet: TeamSheet = [];
 
     public playerNumbersWithPlayerBelow: number[] = [];
 
@@ -245,7 +244,7 @@ export default class TeamComponent extends Vue {
     async mounted() {
         this.teamMode = 'CREATE';
 
-        this.refreshPlayersInPositions();
+        this.refreshTeamSheet();
 
         // HACK: artificial delay needed for setting up drag and drop to be ready.
         setTimeout(() => {
@@ -328,29 +327,38 @@ export default class TeamComponent extends Vue {
         this.dragSourcePlayerId = playerId;
     }
 
-    public refreshPlayersInPositions() {
-        const playersInPositions = {};
+    public refreshTeamSheet() {
+        const teamSheet: TeamSheet = [];
 
         const maxPlayers = this.$props.teamManagementSettings.maxPlayers;
 
         for (let step = 1; step <= maxPlayers; step++) {
-            playersInPositions[step] = null;
-        }
-
-        for (const player of this.$props.team.players) {
-            playersInPositions[~~player.number] = player;
+            const teamNumber: TeamNumber = {
+                teamNumber: step,
+                player: null,
+            };
+            for (const player of this.$props.team.players) {
+                if (player.number === step) {
+                    teamNumber.player = player;
+                }
+            }
+            teamSheet.push(teamNumber);
         }
 
         const playerNumbersWithPlayerBelow = [];
-        for (const playerNumber of Object.keys(playersInPositions)) {
-            if (~~playerNumber < maxPlayers) {
-                if (playersInPositions[~~playerNumber + 1] !== null) {
-                    playerNumbersWithPlayerBelow.push(~~playerNumber);
+        for (const teamNumber of teamSheet) {
+            if (teamNumber.teamNumber < maxPlayers) {
+                for (const teamNumberInner of teamSheet) {
+                    if (teamNumberInner.teamNumber === teamNumber.teamNumber + 1) {
+                        if (teamNumberInner.player !== null) {
+                            playerNumbersWithPlayerBelow.push(teamNumber.teamNumber);
+                        }
+                    }
                 }
             }
         }
 
-        this.playersInPositions = playersInPositions;
+        this.teamSheet = teamSheet;
         this.playerNumbersWithPlayerBelow = playerNumbersWithPlayerBelow;
     }
 

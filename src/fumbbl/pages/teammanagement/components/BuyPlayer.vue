@@ -37,7 +37,7 @@
                 <td>{{ positionDataForBuyingPlayer.position.stats.Movement }}</td>
                 <td>{{ positionDataForBuyingPlayer.position.stats.Strength }}</td>
                 <td>{{ positionDataForBuyingPlayer.position.stats.Agility }}</td>
-                <td>{{ positionDataForBuyingPlayer.position.stats.Passing }}</td>
+                <td>{{ positionDataForBuyingPlayer.position.stats.Passing ? `${positionDataForBuyingPlayer.position.stats.Passing}+` : '-' }}</td>
                 <td>{{ positionDataForBuyingPlayer.position.stats.Armour }}</td>
                 <td class="skills">{{ positionDataForBuyingPlayer.position.skills.join(', ') }}</td>
             </tr>

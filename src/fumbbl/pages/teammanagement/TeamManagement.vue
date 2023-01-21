@@ -5,7 +5,7 @@
         ></demosetup>
 
         <chooseroster v-if="mode === 'CHOOSE_ROSTER'"
-            :raw-basic-rosters="basicRostersForRuleset"
+            :raw-basic-rosters="rawApiRuleset.rosters"
             @roster-chosen="handleRosterChosen"
         ></chooseroster>
 
@@ -56,7 +56,6 @@ export default class TeamManagement extends Vue {
     public mode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
     private rawApiRuleset: any;
     private teamManagementSettings: TeamManagementSettings;
-    private basicRostersForRuleset: any[] = [];
     public team: any = null;
     private rosterIconManager: RosterIconManager | null = null;
     public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
@@ -69,32 +68,32 @@ export default class TeamManagement extends Vue {
     }
 
     public async handleRulesetChosen(rulesetId: number) {
-        await this.setupRulesetAndBasicRostersForRuleset(rulesetId);
+        await this.setupRawRuleset(rulesetId);
         this.mode = 'CHOOSE_ROSTER';
     }
 
-    private async setupRulesetAndBasicRostersForRuleset(rulesetId: number) {
+    private async setupRawRuleset(rulesetId: number) {
         const result = await Axios.post('http://localhost:3000/api/ruleset/get/' + rulesetId);
-
         this.rawApiRuleset = result.data;
-
-        this.basicRostersForRuleset = result.data.rosters;
     }
 
     public async handleRosterChosen(rosterId: number) {
         const result = await Axios.post('http://localhost:3000/api/roster/get/' + rosterId);
-        const roster = result.data;
+        const rawApiRoster = result.data;
 
-        await this.setupRosterIconManager(roster.positions);
-        this.setupTeamManagementSettings(roster);
+        await this.setupRosterIconManager(rawApiRoster.positions);
+        this.setupTeamManagementSettings(rawApiRoster);
         this.setupNewTeam();
 
         this.mode = 'TEAM';
     }
 
-    public async setupRosterIconManager(positions: any[]) {
-        const positionIconData = positions.map((position: any) => {
-            return {positionId: position.id, positionIcon: position.icon};
+    public async setupRosterIconManager(rawApiPositions: any[]) {
+        const positionIconData = rawApiPositions.map((position: any) => {
+            return {
+                positionId: ~~position.id,
+                positionIcon: ~~position.icon,
+            };
         });
         const rosterIconManager = new RosterIconManager();
         await rosterIconManager.prepareIconData(positionIconData);
@@ -102,7 +101,7 @@ export default class TeamManagement extends Vue {
         this.rosterIconManager = rosterIconManager;
     }
 
-    private setupTeamManagementSettings(roster: any) {
+    private setupTeamManagementSettings(rawApiRoster: any) {
         const dedicatedFansCost = 10000;
         const assistantCoachesCost = 10000;
         const cheerleadersCost = 10000;
@@ -114,7 +113,7 @@ export default class TeamManagement extends Vue {
 
         const setupTeamManagementSettings: SetupTeamManagementSettings = {
             roster: {
-                name: roster.name,
+                name: rawApiRoster.name,
             },
             treasury: {
                 start: this.rawApiRuleset.options.teamSettings.startTreasury,
@@ -122,7 +121,7 @@ export default class TeamManagement extends Vue {
             players: {
                 start: this.rawApiRuleset.options.teamSettings.startPlayers,
                 max: this.rawApiRuleset.options.teamSettings.maxPlayers,
-                positions: roster.positions.map((position: any) => {
+                positions: rawApiRoster.positions.map((position: any) => {
                     return {
                         id: ~~position.id,
                         name: position.title,
@@ -132,7 +131,7 @@ export default class TeamManagement extends Vue {
                             Movement: ~~position.stats.MA,
                             Strength: ~~position.stats.ST,
                             Agility: ~~position.stats.AG,
-                            Passing: ~~position.stats.PA,
+                            Passing: position.stats.PA !== '0' ? ~~position.stats.PA : null,
                             Armour: ~~position.stats.AV,
                         } as PositionStats,
                         quantityAllowed: ~~position.quantity,
@@ -147,7 +146,7 @@ export default class TeamManagement extends Vue {
             },
             rerolls: {
                 max: maxRerolls,
-                cost: ~~roster.rerollCost,
+                cost: ~~rawApiRoster.rerollCost,
             },
             sidelineStaff: {
                 assistantCoaches: {
@@ -159,7 +158,7 @@ export default class TeamManagement extends Vue {
                     cost: cheerleadersCost,
                 },
                 apothecary: {
-                    allowed: roster.apothecary === 'Yes',
+                    allowed: rawApiRoster.apothecary === 'Yes',
                     cost: apothecaryCost,
                 },
             }

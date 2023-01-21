@@ -31,7 +31,6 @@ export default class ChooseRosterComponent extends Vue {
     readonly logoImageSize = 128;
     private basicRosters: BasicRoster[] = [];
 
-
     async mounted() {
         await this.prepareBasicRosters();
     }
@@ -47,7 +46,7 @@ export default class ChooseRosterComponent extends Vue {
             const rosterId = ~~roster.id;
 
             const basicRoster = new BasicRoster(
-                ~~rosterId,
+                rosterId,
                 roster.value,
                 roster.tier,
                 rosterLogos[rosterId],

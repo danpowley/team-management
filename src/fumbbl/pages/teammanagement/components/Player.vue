@@ -69,7 +69,7 @@
                     {{ position.stats.Agility }}+
                 </div>
                 <div  class="cell statpa">
-                    {{ position.stats.Passing }}+
+                    {{ position.stats.Passing ? `${position.stats.Passing}+` : '-' }}
                 </div>
                 <div class="cell statav">
                     {{ position.stats.Armour }}+
