@@ -1,15 +1,15 @@
 <template>
     <div class="playerrow"
-        :draggable="playerNumber == dragSourcePlayerNumber"
+        :draggable="isDragSource"
         :class="{
             playerinrow: player !== null,
-            dragsource: dragSourcePlayerNumber === ~~playerNumber,
-            droptarget: dropTargetPlayerNumber === ~~playerNumber,
+            dragsource: isDragSource,
+            droptarget: isDropTarget,
         }"
         :data-team-number="playerNumber"
         :data-player-id="player ? player.id : ''"
     >
-        <template v-if="~~playerNumber === 1 && hasPlayer && ~~playerNumber !== dragSourcePlayerNumber && ~~playerNumber === dropTargetPlayerNumber">
+        <template v-if="isFirstTeamNumber && hasPlayer && !isDragSource && isDropTarget">
             <div class="seperator active"><div class="line"></div></div>
         </template>
         <template v-else>
@@ -17,8 +17,8 @@
         </template>
         <div class="main">
             <template v-if="player !== null">
-                <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable(~~playerNumber, player.id)" @mouseup="makePlayerDraggable(false, '')">
-                    <template v-if="dragSourcePlayerNumber === false || dragSourcePlayerNumber === ~~playerNumber">
+                <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable()" @mouseup="endPlayerDraggable()">
+                    <template v-if="!isAnyPlayerDragInProgress || isDragSource">
                         <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
                             <title>draggable</title>
@@ -169,18 +169,24 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
             type: Boolean,
             required: true,
         },
-        dragSourcePlayerNumber: {
-            validator: function (dragSourcePlayerNumber) {
-                return typeof dragSourcePlayerNumber === 'number' || dragSourcePlayerNumber === false;
-            }
+        isFirstTeamNumber: {
+            type: Boolean,
+            required: true,
         },
-        dropTargetPlayerNumber: {
-            validator: function (dropTargetPlayerNumber) {
-                return typeof dropTargetPlayerNumber === 'number' || dropTargetPlayerNumber === false;
-            }
+        isAnyPlayerDragInProgress: {
+            type: Boolean,
+            required: true,
         },
-        playerNumbersWithPlayerBelow: {
-            type: Array,
+        isDragSource: {
+            type: Boolean,
+            required: true,
+        },
+        isDropTarget: {
+            type: Boolean,
+            required: true,
+        },
+        useActiveSeperatorForDragDrop: {
+            type: Boolean,
             required: true,
         },
         teamCreationBudgetRemaining: {
@@ -213,23 +219,7 @@ export default class PlayerComponent extends Vue {
     }
 
     public getSeperatorClasses() {
-        const draggingDownward = this.$props.dropTargetPlayerNumber > this.$props.dragSourcePlayerNumber;
-        const ourPlayerNumberIsTheDropTarget = this.$props.playerNumber === this.$props.dropTargetPlayerNumber;
-        if (
-            draggingDownward &&
-            ourPlayerNumberIsTheDropTarget &&
-            this.hasPlayer
-        ) {
-            return { active: true };
-        }
-
-        const draggingUpward = this.$props.dropTargetPlayerNumber < this.$props.dragSourcePlayerNumber;
-        const ourPlayerNumberIsImmediatelyAboveDropTarget = this.$props.dropTargetPlayerNumber !== false && this.$props.playerNumber === this.$props.dropTargetPlayerNumber - 1;
-        if (
-            draggingUpward &&
-            ourPlayerNumberIsImmediatelyAboveDropTarget &&
-            this.hasPlayerBelow
-        ) {
+        if (this.$props.useActiveSeperatorForDragDrop) {
             return { active: true };
         }
 
@@ -240,10 +230,6 @@ export default class PlayerComponent extends Vue {
 
     public get hasPlayer() {
         return this.$props.player !== null;
-    }
-
-    public get hasPlayerBelow() {
-        return this.$props.playerNumbersWithPlayerBelow.includes(~~this.$props.playerNumber);
     }
 
     private performFoldOut(playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode = false) {
@@ -289,8 +275,12 @@ export default class PlayerComponent extends Vue {
         }
     }
 
-    public makePlayerDraggable(playerNumber: number, playerId: string) {
-        this.$emit('make-player-draggable', playerNumber, playerId);
+    public makePlayerDraggable() {
+        this.$emit('make-player-draggable', this.$props.playerNumber, this.$props.player.id);
+    }
+
+    public endPlayerDraggable() {
+        this.$emit('end-player-draggable');
     }
 
     public handleAddPlayer(positionId: number) {

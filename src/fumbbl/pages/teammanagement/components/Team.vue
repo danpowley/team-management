@@ -43,15 +43,18 @@
                 :is-fold-out-buy="isFoldOutBuy(teamNumber.teamNumber)"
                 :is-fold-out-more="isFoldOutMore(teamNumber.teamNumber)"
                 :all-fold-outs-closed="allFoldOutsClosed"
-                :drag-source-player-number="dragSourcePlayerNumber"
-                :drop-target-player-number="dropTargetPlayerNumber"
-                :player-numbers-with-player-below="playerNumbersWithPlayerBelow"
+                :is-first-team-number="teamNumber.teamNumber === 1"
+                :is-any-player-drag-in-progress="dragSourcePlayerNumber !== false"
+                :is-drag-source="dragSourcePlayerNumber === teamNumber.teamNumber"
+                :is-drop-target="dropTargetPlayerNumber === teamNumber.teamNumber"
+                :use-active-seperator-for-drag-drop="useActiveSeperatorForDragDrop(teamNumber)"
                 :team-creation-budget-remaining="teamCreationBudgetRemaining"
                 :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
                 :roster-icon-manager="rosterIconManager"
                 @add-player="handleAddPlayer"
                 @delete-player="handleDeletePlayer"
                 @make-player-draggable="handleMakePlayerDraggable"
+                @end-player-draggable="handleEndPlayerDraggable"
                 @fold-out="handleFoldOut"
             ></player>
         </div>
@@ -327,6 +330,11 @@ export default class TeamComponent extends Vue {
         this.dragSourcePlayerId = playerId;
     }
 
+    public handleEndPlayerDraggable() {
+        this.dragSourcePlayerNumber = false;
+        this.dragSourcePlayerId = ''; // string id issues (new players etc)
+    }
+
     public refreshTeamSheet() {
         const teamSheet: TeamSheet = [];
 
@@ -378,9 +386,9 @@ export default class TeamComponent extends Vue {
             tbody.addEventListener('dragenter', function (this: any, e) {
                 const dropTargetRow = this;
 
-                const dropTargetPlayerNumber = ~~dropTargetRow.dataset.teamNumber;
-                if (dropTargetPlayerNumber !== vueComponent.dragSourcePlayerNumber) {
-                    vueComponent.dropTargetPlayerNumber = dropTargetPlayerNumber;
+                const teamNumberFromDataAttribute = ~~dropTargetRow.dataset.teamNumber;
+                if (teamNumberFromDataAttribute !== vueComponent.dragSourcePlayerNumber) {
+                    vueComponent.dropTargetPlayerNumber = teamNumberFromDataAttribute;
                     vueComponent.dropTargetPlayerId = dropTargetRow.dataset.playerId; // new players using string id!!!
                 } else {
                     vueComponent.dropTargetPlayerNumber = false;
@@ -389,14 +397,17 @@ export default class TeamComponent extends Vue {
             });
 
             tbody.addEventListener('drop', function (this: any, e) {
+                const dropTargetRow = this;
+
+                const teamNumberFromDataAttribute = ~~dropTargetRow.dataset.teamNumber;
                 const eventData = {
                     source: {
                         playerNumber: vueComponent.dragSourcePlayerNumber,
                         playerId: vueComponent.dragSourcePlayerId,
                     },
                     target: {
-                        playerNumber: ~~this.dataset.teamNumber,
-                        playerId: this.dataset.playerId ? this.dataset.playerId : null,
+                        playerNumber: teamNumberFromDataAttribute,
+                        playerId: dropTargetRow.dataset.playerId ? dropTargetRow.dataset.playerId : null,
                     }
                 };
 
@@ -413,6 +424,37 @@ export default class TeamComponent extends Vue {
         this.dragSourcePlayerId = '';
         this.dropTargetPlayerNumber = false;
         this.dropTargetPlayerId = '';
+    }
+
+    public useActiveSeperatorForDragDrop(teamNumber: TeamNumber): boolean {
+        let dragDirection: 'UP' | 'DOWN' | null = null;
+        const isMovingUpOrDown =
+            this.dropTargetPlayerNumber !== false
+            && this.dragSourcePlayerNumber !== false
+            && this.dropTargetPlayerNumber !== this.dragSourcePlayerNumber;
+
+        if (isMovingUpOrDown) {
+            dragDirection = this.dropTargetPlayerNumber > this.dragSourcePlayerNumber ? 'DOWN' : 'UP';
+        }
+
+        if (
+            dragDirection === 'DOWN' &&
+            this.dropTargetPlayerNumber === teamNumber.teamNumber &&
+            teamNumber.player !== null
+        ) {
+            return true;
+        }
+
+        const isAboveDropTarget = this.dropTargetPlayerNumber !== false && this.dropTargetPlayerNumber - 1 === teamNumber.teamNumber;
+        if (
+            dragDirection === 'UP' &&
+            isAboveDropTarget &&
+            this.playerNumbersWithPlayerBelow.includes(teamNumber.teamNumber)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     private resetCreateTeam() {
