@@ -20,19 +20,19 @@ export default class TeamSheet {
         return this.teamSheetEntries;
     }
 
-    public getPlayerNumbersWithPlayerBelow(): number[] {
-        const playerNumbersWithPlayerBelow: number[] = [];
+    public getEntryNumbersWithPlayerBelow(): number[] {
+        const entryNumbersWithPlayerBelow: number[] = [];
         for (const teamSheetEntry of this.teamSheetEntries) {
             if (teamSheetEntry.getNumber() !== this.teamSheetEntries.length) {
                 for (const teamSheetEntryInner of this.teamSheetEntries) {
                     if (teamSheetEntryInner.getNumber() === teamSheetEntry.getNumber() + 1) {
                         if (teamSheetEntryInner.getPlayer() !== null) {
-                            playerNumbersWithPlayerBelow.push(teamSheetEntry.getNumber());
+                            entryNumbersWithPlayerBelow.push(teamSheetEntry.getNumber());
                         }
                     }
                 }
             }
         }
-        return playerNumbersWithPlayerBelow;
+        return entryNumbersWithPlayerBelow;
     }
 }

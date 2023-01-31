@@ -423,7 +423,7 @@ export default class TeamComponent extends Vue {
         if (
             dragDirection === 'UP' &&
             isAboveDropTarget &&
-            this.teamSheet.getPlayerNumbersWithPlayerBelow().includes(teamSheetEntry.getNumber())
+            this.teamSheet.getEntryNumbersWithPlayerBelow().includes(teamSheetEntry.getNumber())
         ) {
             return true;
         }
