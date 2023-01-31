@@ -35,28 +35,30 @@
                 <div class="cell spp">SPP</div>
                 <div class="cell cost">Cost</div>
             </div>
-            <player v-for="teamNumber in teamSheet" :key="teamNumber.teamNumber"
-                :team-mode="teamMode"
-                :playerNumber="teamNumber.teamNumber"
-                :player="teamNumber.player"
-                :position="teamNumber.player ? teamManagementSettings.getPosition(teamNumber.player.positionId) : null"
-                :is-fold-out-buy="isFoldOutBuy(teamNumber.teamNumber)"
-                :is-fold-out-more="isFoldOutMore(teamNumber.teamNumber)"
-                :all-fold-outs-closed="allFoldOutsClosed"
-                :is-first-team-number="teamNumber.teamNumber === 1"
-                :is-any-player-drag-in-progress="dragSourcePlayerNumber !== false"
-                :is-drag-source="dragSourcePlayerNumber === teamNumber.teamNumber"
-                :is-drop-target="dropTargetPlayerNumber === teamNumber.teamNumber"
-                :use-active-seperator-for-drag-drop="useActiveSeperatorForDragDrop(teamNumber)"
-                :team-creation-budget-remaining="teamCreationBudgetRemaining"
-                :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
-                :roster-icon-manager="rosterIconManager"
-                @add-player="handleAddPlayer"
-                @delete-player="handleDeletePlayer"
-                @make-player-draggable="handleMakePlayerDraggable"
-                @end-player-draggable="handleEndPlayerDraggable"
-                @fold-out="handleFoldOut"
-            ></player>
+            <template v-if="teamSheet !== null">
+                <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
+                    :team-mode="teamMode"
+                    :playerNumber="teamSheetEntry.getNumber()"
+                    :player="teamSheetEntry.getPlayer()"
+                    :position="teamSheetEntry.getPlayer() ? teamManagementSettings.getPosition(teamSheetEntry.getPlayer().positionId) : null"
+                    :is-fold-out-buy="isFoldOutBuy(teamSheetEntry.getNumber())"
+                    :is-fold-out-more="isFoldOutMore(teamSheetEntry.getNumber())"
+                    :all-fold-outs-closed="allFoldOutsClosed"
+                    :is-first-team-number="teamSheetEntry.getNumber() === 1"
+                    :is-any-player-drag-in-progress="dragSourcePlayerNumber !== false"
+                    :is-drag-source="dragSourcePlayerNumber === teamSheetEntry.getNumber()"
+                    :is-drop-target="dropTargetPlayerNumber === teamSheetEntry.getNumber()"
+                    :use-active-seperator-for-drag-drop="useActiveSeperatorForDragDrop(teamSheetEntry)"
+                    :team-creation-budget-remaining="teamCreationBudgetRemaining"
+                    :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
+                    :roster-icon-manager="rosterIconManager"
+                    @add-player="handleAddPlayer"
+                    @delete-player="handleDeletePlayer"
+                    @make-player-draggable="handleMakePlayerDraggable"
+                    @end-player-draggable="handleEndPlayerDraggable"
+                    @fold-out="handleFoldOut"
+                ></player>
+            </template>
         </div>
         <div class="playerrowsfooter">
             <div class="playercount">{{ team.players.length - mngPlayerCount }} players (+{{ mngPlayerCount }} players missing next game)</div>
@@ -194,7 +196,9 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { PlayerRowFoldOutMode, PositionDataForBuyingPlayer, TeamNumber, TeamSheet } from "../include/Interfaces";
+import { PlayerRowFoldOutMode, PositionDataForBuyingPlayer } from "../include/Interfaces";
+import TeamSheet from "../include/TeamSheet";
+import TeamSheetEntry from "../include/TeamSheetEntry";
 import PlayerComponent from "./Player.vue";
 
 @Component({
@@ -235,9 +239,7 @@ import PlayerComponent from "./Player.vue";
 })
 export default class TeamComponent extends Vue {
     private teamMode: 'CREATE' | 'POST_GAME' | 'READY' = 'CREATE';
-    public teamSheet: TeamSheet = [];
-
-    public playerNumbersWithPlayerBelow: number[] = [];
+    public teamSheet: TeamSheet = null;
 
     public dragSourcePlayerNumber: number | false = false;
     public dragSourcePlayerId: string = ''; // deal with new id string
@@ -336,38 +338,10 @@ export default class TeamComponent extends Vue {
     }
 
     public refreshTeamSheet() {
-        const teamSheet: TeamSheet = [];
-
-        const maxPlayers = this.$props.teamManagementSettings.maxPlayers;
-
-        for (let step = 1; step <= maxPlayers; step++) {
-            const teamNumber: TeamNumber = {
-                teamNumber: step,
-                player: null,
-            };
-            for (const player of this.$props.team.players) {
-                if (player.number === step) {
-                    teamNumber.player = player;
-                }
-            }
-            teamSheet.push(teamNumber);
-        }
-
-        const playerNumbersWithPlayerBelow = [];
-        for (const teamNumber of teamSheet) {
-            if (teamNumber.teamNumber < maxPlayers) {
-                for (const teamNumberInner of teamSheet) {
-                    if (teamNumberInner.teamNumber === teamNumber.teamNumber + 1) {
-                        if (teamNumberInner.player !== null) {
-                            playerNumbersWithPlayerBelow.push(teamNumber.teamNumber);
-                        }
-                    }
-                }
-            }
-        }
-
-        this.teamSheet = teamSheet;
-        this.playerNumbersWithPlayerBelow = playerNumbersWithPlayerBelow;
+        this.teamSheet = new TeamSheet(
+            this.$props.teamManagementSettings.maxPlayers,
+            this.$props.team.players
+        );
     }
 
     public setupDragDrop() {
@@ -426,7 +400,7 @@ export default class TeamComponent extends Vue {
         this.dropTargetPlayerId = '';
     }
 
-    public useActiveSeperatorForDragDrop(teamNumber: TeamNumber): boolean {
+    public useActiveSeperatorForDragDrop(teamSheetEntry: TeamSheetEntry): boolean {
         let dragDirection: 'UP' | 'DOWN' | null = null;
         const isMovingUpOrDown =
             this.dropTargetPlayerNumber !== false
@@ -439,17 +413,17 @@ export default class TeamComponent extends Vue {
 
         if (
             dragDirection === 'DOWN' &&
-            this.dropTargetPlayerNumber === teamNumber.teamNumber &&
-            teamNumber.player !== null
+            this.dropTargetPlayerNumber === teamSheetEntry.getNumber() &&
+            teamSheetEntry.getPlayer() !== null
         ) {
             return true;
         }
 
-        const isAboveDropTarget = this.dropTargetPlayerNumber !== false && this.dropTargetPlayerNumber - 1 === teamNumber.teamNumber;
+        const isAboveDropTarget = this.dropTargetPlayerNumber !== false && this.dropTargetPlayerNumber - 1 === teamSheetEntry.getNumber();
         if (
             dragDirection === 'UP' &&
             isAboveDropTarget &&
-            this.playerNumbersWithPlayerBelow.includes(teamNumber.teamNumber)
+            this.teamSheet.getPlayerNumbersWithPlayerBelow().includes(teamSheetEntry.getNumber())
         ) {
             return true;
         }

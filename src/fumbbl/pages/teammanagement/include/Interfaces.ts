@@ -84,10 +84,3 @@ export interface AddRemovePermissions {
         remove: boolean,
     },
 };
-
-export type TeamSheet = TeamNumber[];
-
-export interface TeamNumber {
-    teamNumber: number,
-    player: any,
-};
