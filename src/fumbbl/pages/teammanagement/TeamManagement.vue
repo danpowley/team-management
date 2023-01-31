@@ -20,16 +20,7 @@
             @drag-drop-player="handleDragDropPlayer"
             @reset-create-team="handleResetCreateTeam"
             @fold-out="handleFoldOut"
-            @add-reroll="handleAddReroll"
-            @remove-reroll="handleRemoveReroll"
-            @add-dedicated-fans="handleAddDedicatedFans"
-            @remove-dedicated-fans="handleRemoveDedicatedFans"
-            @add-assistant-coaches="handleAddAssistantCoaches"
-            @remove-assistant-coaches="handleRemoveAssistantCoaches"
-            @add-cheerleaders="handleAddCheerleaders"
-            @remove-cheerleaders="handleRemoveCheerleaders"
-            @add-apothecary="handleAddApothecary"
-            @remove-apothecary="handleRemoveApothecary"
+            @add-remove="handleAddRemove"
         ></team>
     </div>
 </template>
@@ -289,63 +280,37 @@ export default class TeamManagement extends Vue {
         }
     }
 
-    private handleAddReroll() {
-        if (this.addRemovePermissions.rerolls.add) {
-            this.team.rerolls++;
-        }
-    }
-
-    private handleRemoveReroll() {
-        if (this.addRemovePermissions.rerolls.remove) {
-            this.team.rerolls--;
-        }
-    }
-
-    private handleAddDedicatedFans() {
-        if (this.addRemovePermissions.dedicatedFans.add) {
-            this.team.dedicatedFans++;
-        }
-    }
-
-    private handleRemoveDedicatedFans() {
-        if (this.addRemovePermissions.dedicatedFans.remove) {
-            this.team.dedicatedFans--;
-        }
-    }
-
-    private handleAddAssistantCoaches() {
-        if (this.addRemovePermissions.assistantCoaches.add) {
-            this.team.assistantCoaches++;
-        }
-    }
-
-    private handleRemoveAssistantCoaches() {
-        if (this.addRemovePermissions.assistantCoaches.remove) {
-            this.team.assistantCoaches--;
-        }
-    }
-
-    private handleAddCheerleaders() {
-        if (this.addRemovePermissions.cheerleaders.add) {
-            this.team.cheerleaders++;
-        }
-    }
-
-    private handleRemoveCheerleaders() {
-        if (this.addRemovePermissions.cheerleaders.remove) {
-            this.team.cheerleaders--;
-        }
-    }
-
-    private handleAddApothecary() {
-        if (this.addRemovePermissions.apothecary.add) {
-            this.team.apothecary = true;
-        }
-    }
-
-    private handleRemoveApothecary() {
-        if (this.addRemovePermissions.apothecary.remove) {
-            this.team.apothecary = false;
+    private handleAddRemove(whatToAdd: string, isAdd: boolean) {
+        if (whatToAdd === 'reroll') {
+            if (isAdd) {
+                this.team.rerolls++;
+            } else {
+                this.team.rerolls--;
+            }
+        } else if (whatToAdd === 'dedicated-fans') {
+            if (isAdd) {
+                this.team.dedicatedFans++;
+            } else {
+                this.team.dedicatedFans--;
+            }
+        } else if (whatToAdd === 'cheerleader') {
+            if (isAdd) {
+                this.team.cheerleaders++;
+            } else {
+                this.team.cheerleaders--;
+            }
+        } else if (whatToAdd === 'assistant-coach') {
+            if (isAdd) {
+                this.team.assistantCoaches++;
+            } else {
+                this.team.assistantCoaches--;
+            }
+        } else if (whatToAdd === 'apothecary') {
+            if (isAdd) {
+                this.team.apothecary = true;
+            } else {
+                this.team.apothecary = false;
+            }
         }
     }
 }
