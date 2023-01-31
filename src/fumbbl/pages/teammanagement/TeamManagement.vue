@@ -187,15 +187,15 @@ export default class TeamManagement extends Vue {
         this.team = team;
     }
 
-    private async createPlayer(playerNumber: number, positionId: number): Promise<any> {
+    private async createPlayer(teamSheetEntryNumber: number, positionId: number): Promise<any> {
         let position = this.teamManagementSettings.getPosition(positionId);
 
         const result = await Axios.post('http://localhost:3000/api/name/generate/default');
         const playerName = result.data;
 
         return {
-            id: 'NEW--' + playerNumber,
-            number: playerNumber,
+            id: 'NEW--' + teamSheetEntryNumber,
+            number: teamSheetEntryNumber,
             name: playerName,
             position: position.name,
             positionId: position.id,
@@ -243,12 +243,12 @@ export default class TeamManagement extends Vue {
         sourcePlayer.number = dragDropData.target.playerNumber;
     }
 
-    public async handleAddPlayer(playerNumber: number, positionId: number) {
-        this.team.players.push(await this.createPlayer(playerNumber, positionId));
+    public async handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
+        this.team.players.push(await this.createPlayer(teamSheetEntryNumber, positionId));
     }
 
-    public handleDeletePlayer(playerNumber: number) {
-        const index = this.team.players.findIndex((player) => player.number === playerNumber);
+    public handleDeletePlayer(teamSheetEntryNumber: number) {
+        const index = this.team.players.findIndex((player) => player.number === teamSheetEntryNumber);
         if (index !== -1) {
             this.team.players.splice(index, 1);
         }
@@ -259,31 +259,31 @@ export default class TeamManagement extends Vue {
         // team class should have its own reset method
     }
 
-    private handleFoldOut(playerNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
+    private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
         if (playerRowFoldOutMode === 'CLOSED') {
-            this.closeFoldOutForPlayerNumber(playerNumber);
+            this.closeFoldOutForTeamSheetEntryNumber(teamSheetEntryNumber);
         } else if (! multipleOpenMode) {
             this.foldOuts.buy = [];
             this.foldOuts.more = [];
         }
 
         if (playerRowFoldOutMode === 'BUY') {
-            if (! this.foldOuts.buy.includes(playerNumber)) {
-                this.foldOuts.buy.push(playerNumber);
+            if (! this.foldOuts.buy.includes(teamSheetEntryNumber)) {
+                this.foldOuts.buy.push(teamSheetEntryNumber);
             }
         } else if (playerRowFoldOutMode === 'MORE') {
-            if (! this.foldOuts.more.includes(playerNumber)) {
-                this.foldOuts.more.push(playerNumber);
+            if (! this.foldOuts.more.includes(teamSheetEntryNumber)) {
+                this.foldOuts.more.push(teamSheetEntryNumber);
             }
         }
     }
 
-    private closeFoldOutForPlayerNumber(playerNumber: number) {
-        const buyIndex = this.foldOuts.buy.findIndex((playerNumberToCheck) => playerNumberToCheck === playerNumber);
+    private closeFoldOutForTeamSheetEntryNumber(teamSheetEntryNumber: number) {
+        const buyIndex = this.foldOuts.buy.findIndex((teamSheetEntryNumberToCheck) => teamSheetEntryNumberToCheck === teamSheetEntryNumber);
         if (buyIndex !== -1) {
             this.foldOuts.buy.splice(buyIndex, 1);
         }
-        const moreIndex = this.foldOuts.more.findIndex((playerNumberToCheck) => playerNumberToCheck === playerNumber);
+        const moreIndex = this.foldOuts.more.findIndex((teamSheetEntryNumberToCheck) => teamSheetEntryNumberToCheck === teamSheetEntryNumber);
         if (moreIndex !== -1) {
             this.foldOuts.more.splice(moreIndex, 1);
         }

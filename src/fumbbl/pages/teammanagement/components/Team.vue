@@ -474,16 +474,16 @@ export default class TeamComponent extends Vue {
         this.$emit('remove-apothecary');
     }
 
-    public handleAddPlayer(playerNumber: number, positionId: number) {
-        this.$emit('add-player', playerNumber, positionId);
+    public handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
+        this.$emit('add-player', teamSheetEntryNumber, positionId);
     }
 
-    public handleDeletePlayer(playerNumber: number) {
-        this.$emit('delete-player', playerNumber);
+    public handleDeletePlayer(teamSheetEntryNumber: number) {
+        this.$emit('delete-player', teamSheetEntryNumber);
     }
 
-    private handleFoldOut(playerNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
-        this.$emit('fold-out', playerNumber, playerRowFoldOutMode, multipleOpenMode);
+    private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
+        this.$emit('fold-out', teamSheetEntryNumber, playerRowFoldOutMode, multipleOpenMode);
     }
 }
 </script>
