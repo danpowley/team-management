@@ -38,8 +38,7 @@
             <template v-if="teamSheet !== null">
                 <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
                     :team-mode="teamMode"
-                    :playerNumber="teamSheetEntry.getNumber()"
-                    :player="teamSheetEntry.getPlayer()"
+                    :team-sheet-entry="teamSheetEntry"
                     :position="teamSheetEntry.getPlayer() ? teamManagementSettings.getPosition(teamSheetEntry.getPlayer().positionId) : null"
                     :is-fold-out-buy="isFoldOutBuy(teamSheetEntry.getNumber())"
                     :is-fold-out-more="isFoldOutMore(teamSheetEntry.getNumber())"

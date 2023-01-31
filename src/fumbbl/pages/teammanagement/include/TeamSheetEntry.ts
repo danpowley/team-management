@@ -14,4 +14,8 @@ export default class TeamSheetEntry {
     public getPlayer(): any {
         return this.entryPlayer;
     }
+
+    public hasPlayer(): any {
+        return this.entryPlayer !== null;
+    }
 }

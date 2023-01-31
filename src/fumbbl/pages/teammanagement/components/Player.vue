@@ -2,21 +2,21 @@
     <div class="playerrow"
         :draggable="isDragSource"
         :class="{
-            playerinrow: player !== null,
+            playerinrow: teamSheetEntry.hasPlayer(),
             dragsource: isDragSource,
             droptarget: isDropTarget,
         }"
-        :data-team-number="playerNumber"
-        :data-player-id="player ? player.id : ''"
+        :data-team-number="teamSheetEntry.getNumber()"
+        :data-player-id="teamSheetEntry.getPlayer() ? teamSheetEntry.getPlayer().id : ''"
     >
-        <template v-if="isFirstTeamNumber && hasPlayer && !isDragSource && isDropTarget">
+        <template v-if="isFirstTeamNumber && teamSheetEntry.hasPlayer() && !isDragSource && isDropTarget">
             <div class="seperator active"><div class="line"></div></div>
         </template>
         <template v-else>
             <div class="seperator spacer"><div class="line"></div></div>
         </template>
         <div class="main">
-            <template v-if="player !== null">
+            <template v-if="teamSheetEntry.hasPlayer()">
                 <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable()" @mouseup="endPlayerDraggable()">
                     <template v-if="!isAnyPlayerDragInProgress || isDragSource">
                         <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -45,19 +45,19 @@
             </template>
             <div class="cell playernumber">
                 <span class="normalplayernumber">
-                    {{ playerNumber }}
+                    {{ teamSheetEntry.getNumber() }}
                 </span>
                 <div class="draggingnowindicator">&#8597;</div>
             </div>
-            <template v-if="player !== null && ! showBuyDialogTemporarily">
+            <template v-if="teamSheetEntry.hasPlayer() && ! showBuyDialogTemporarily">
                 <div class="cell playericoncontainer">
-                    <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(player.positionId, player.iconRowVersionPosition)"></div>
+                    <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(teamSheetEntry.getPlayer().positionId, teamSheetEntry.getPlayer().iconRowVersionPosition)"></div>
                 </div>
                 <div class="cell playerdetails">
                     <div class="playername">
-                        <a href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)">{{ player.name }}</a>
+                        <a href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)">{{ teamSheetEntry.getPlayer().name }}</a>
                     </div>
-                    <div class="playerposition">{{ player.position }}</div>
+                    <div class="playerposition">{{ teamSheetEntry.getPlayer().position }}</div>
                 </div>
                 <div class="cell statma">
                     {{ position.stats.Movement }}
@@ -79,14 +79,14 @@
                         {{ position.skills.join(', ') }}
                     </div>
                     <div class="playerskills">
-                        {{ player.skills.join(', ') }}
+                        {{ teamSheetEntry.getPlayer().skills.join(', ') }}
                     </div>
                 </div>
                 <div class="cell injuries">
-                    {{ player.injuries }}
+                    {{ teamSheetEntry.getPlayer().injuries }}
                 </div>
                 <div class="cell spp">
-                    {{ player.record.spp }}
+                    {{ teamSheetEntry.getPlayer().record.spp }}
                 </div>
                 <div class="cell cost">
                     {{ position.cost/1000 }}k
@@ -110,15 +110,15 @@
             </template>
         </div>
         <div class="foldout foldoutbuy" :class="{active: isFoldOutBuy}" :style="{maxHeight: isFoldOutBuy ? `${rosterPositionDataForBuyingPlayer.length * 65}px` : '0'}">
-            <buyplayer v-if="(player === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily"
+            <buyplayer v-if="(teamSheetEntry.getPlayer() === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily"
                 :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
                 :roster-icon-manager="rosterIconManager"
                 @add-player="handleAddPlayer"
             ></buyplayer>
         </div>
         <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
-            <playerdetails v-if="(player !== null || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily"
-                :player="player"
+            <playerdetails v-if="(teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily"
+                :player="teamSheetEntry.getPlayer()"
                 @delete-player="handleDeletePlayer()"
             ></playerdetails>
         </div>
@@ -143,14 +143,9 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
             type: String,
             required: true,
         },
-        playerNumber: {
-            type: Number,
+        teamSheetEntry: {
+            type: Object,
             required: true,
-        },
-        player: {
-            validator: function (player) {
-                return typeof player === 'object' || player === null;
-            }
         },
         position: {
             validator: function (position) {
@@ -228,12 +223,8 @@ export default class PlayerComponent extends Vue {
         };
     }
 
-    public get hasPlayer() {
-        return this.$props.player !== null;
-    }
-
     private performFoldOut(playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode = false) {
-        this.$emit('fold-out', this.$props.playerNumber, playerRowFoldOutMode, multipleOpenMode);
+        this.$emit('fold-out', this.$props.teamSheetEntry.getNumber(), playerRowFoldOutMode, multipleOpenMode);
         this.enableSmartScroll();
     }
 
@@ -276,7 +267,7 @@ export default class PlayerComponent extends Vue {
     }
 
     public makePlayerDraggable() {
-        this.$emit('make-player-draggable', this.$props.playerNumber, this.$props.player.id);
+        this.$emit('make-player-draggable', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.getPlayer().id);
     }
 
     public endPlayerDraggable() {
@@ -289,7 +280,7 @@ export default class PlayerComponent extends Vue {
         setTimeout(() => {this.showBuyDialogTemporarily = false;}, this.delayForFoldoutAnimations);
 
         this.performFoldOut('CLOSED');
-        this.$emit('add-player', this.$props.playerNumber, positionId);
+        this.$emit('add-player', this.$props.teamSheetEntry.getNumber(), positionId);
     }
 
     public handleDeletePlayer() {
@@ -297,7 +288,7 @@ export default class PlayerComponent extends Vue {
         setTimeout(() => {this.showPlayerInfoFoldoutTemporarily = false;}, this.delayForFoldoutAnimations);
 
         this.performFoldOut('CLOSED');
-        this.$emit('delete-player', this.$props.playerNumber);
+        this.$emit('delete-player', this.$props.teamSheetEntry.getNumber());
     }
 }
 </script>
