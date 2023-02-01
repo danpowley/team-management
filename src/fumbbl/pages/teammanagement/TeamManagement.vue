@@ -35,6 +35,7 @@ import DemoSetupComponent from "./components/DemoSetup.vue";
 import { AddRemovePermissions, PlayerRowFoldOutMode, Position, PositionStats, SetupTeamManagementSettings } from "./include/Interfaces";
 import RosterIconManager from "./include/RosterIconManager";
 import TeamManagementSettings from "./include/TeamManagementSettings";
+import Team from "./include/Team";
 
 @Component({
     components: {
@@ -47,7 +48,7 @@ export default class TeamManagement extends Vue {
     public mode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
     private rawApiRuleset: any;
     private teamManagementSettings: TeamManagementSettings;
-    public team: any = null;
+    public team: Team | null = null;
     private rosterIconManager: RosterIconManager | null = null;
     public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
 
@@ -166,16 +167,7 @@ export default class TeamManagement extends Vue {
     }
 
     private setupNewTeam() {
-        const team = {
-            players: [],
-            rerolls: 0,
-            dedicatedFans: this.teamManagementSettings.minStartFans,
-            assistantCoaches: 0,
-            cheerleaders: 0,
-            apothecary: false,
-        };
-
-        this.team = team;
+        this.team = new Team(this.teamManagementSettings.minStartFans);
     }
 
     private async createPlayer(teamSheetEntryNumber: number, positionId: number): Promise<any> {
@@ -214,7 +206,7 @@ export default class TeamManagement extends Vue {
         const movingUp = dragDropData.source.playerNumber > dragDropData.target.playerNumber;
 
         let sourcePlayer = null;
-        for (const player of this.team.players) {
+        for (const player of this.team.getPlayers()) {
             if (player.number === dragDropData.source.playerNumber) {
                 sourcePlayer = player;
             }
@@ -235,19 +227,16 @@ export default class TeamManagement extends Vue {
     }
 
     public async handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
-        this.team.players.push(await this.createPlayer(teamSheetEntryNumber, positionId));
+        const newPlayer = await this.createPlayer(teamSheetEntryNumber, positionId);
+        this.team.addPlayer(newPlayer);
     }
 
     public handleDeletePlayer(teamSheetEntryNumber: number) {
-        const index = this.team.players.findIndex((player) => player.number === teamSheetEntryNumber);
-        if (index !== -1) {
-            this.team.players.splice(index, 1);
-        }
+        this.team.removePlayer(teamSheetEntryNumber);
     }
 
     private handleResetCreateTeam() {
-        this.team.players = [];
-        // team class should have its own reset method
+        this.team.resetDuringCreate();
     }
 
     private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
@@ -283,33 +272,33 @@ export default class TeamManagement extends Vue {
     private handleAddRemove(whatToAdd: string, isAdd: boolean) {
         if (whatToAdd === 'reroll') {
             if (isAdd) {
-                this.team.rerolls++;
+                this.team.addReroll();
             } else {
-                this.team.rerolls--;
+                this.team.removeReroll();
             }
         } else if (whatToAdd === 'dedicated-fans') {
             if (isAdd) {
-                this.team.dedicatedFans++;
+                this.team.addDedicatedFans();
             } else {
-                this.team.dedicatedFans--;
+                this.team.removeDedicatedFans;
             }
         } else if (whatToAdd === 'cheerleader') {
             if (isAdd) {
-                this.team.cheerleaders++;
+                this.team.addCheerleader();
             } else {
-                this.team.cheerleaders--;
+                this.team.addCheerleader();
             }
         } else if (whatToAdd === 'assistant-coach') {
             if (isAdd) {
-                this.team.assistantCoaches++;
+                this.team.addAssistantCoach();
             } else {
-                this.team.assistantCoaches--;
+                this.team.removeAssistantCoach();
             }
         } else if (whatToAdd === 'apothecary') {
             if (isAdd) {
-                this.team.apothecary = true;
+                this.team.addApothecary();
             } else {
-                this.team.apothecary = false;
+                this.team.removeApothecary();
             }
         }
     }

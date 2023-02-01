@@ -10,7 +10,7 @@
         </div>
         <div v-if="teamMode === 'CREATE'" class="createteamstats">
             <div class="playerinfo">
-                <div class="currentplayercount">{{ team.players.length }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required)</div>
+                <div class="currentplayercount">{{ team.getPlayerCount() }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required)</div>
             </div>
             <div class="costinfo">
                 <div class="currentteamcost">{{ teamCost/1000 }}k</div> <div class="currentteamcostlabel">(Max {{ teamManagementSettings.startTreasury/1000 }}k)</div>
@@ -60,7 +60,7 @@
             </template>
         </div>
         <div class="playerrowsfooter">
-            <div class="playercount">{{ team.players.length - mngPlayerCount }} players (+{{ mngPlayerCount }} players missing next game)</div>
+            <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game)</div>
             <div class="favouredof">Todo (Favoured of)</div>
         </div>
         <div class="teammanagement" :class="{newteam: teamMode === 'CREATE'}">
@@ -76,7 +76,7 @@
                 </div>
                 <div class="info right">
                     <div class="data">
-                        {{ team.rerolls }}
+                        {{ team.getRerolls() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
                         <template v-if="addRemovePermissions.rerolls.add">(<a href="#" @click.prevent="$emit('add-remove', 'reroll', true)">Add</a>)</template><template v-if="addRemovePermissions.rerolls.remove">(<a href="#" @click.prevent="$emit('add-remove', 'reroll', false)">Remove</a>)</template>
@@ -95,7 +95,7 @@
                 </div>
                 <div class="info right">
                     <div class="data">
-                        {{ team.dedicatedFans }}
+                        {{ team.getDedicatedFans() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
                         <template v-if="addRemovePermissions.dedicatedFans.add">(<a href="#" @click.prevent="$emit('add-remove', 'dedicated-fans', true)">Add</a>)</template><template v-if="addRemovePermissions.dedicatedFans.remove">(<a href="#" @click.prevent="$emit('add-remove', 'dedicated-fans', false)">Remove</a>)</template>
@@ -114,7 +114,7 @@
                 </div>
                 <div class="info right">
                     <div class="data">
-                        {{ team.assistantCoaches }}
+                        {{ team.getAssistantCoaches() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
                         <template v-if="addRemovePermissions.assistantCoaches.add">(<a href="#" @click.prevent="$emit('add-remove', 'assistant-coach', true)">Add</a>)</template><template v-if="addRemovePermissions.assistantCoaches.remove">(<a href="#" @click.prevent="$emit('add-remove', 'assistant-coach', false)">Remove</a>)</template>
@@ -133,7 +133,7 @@
                 </div>
                 <div class="info right">
                     <div class="data">
-                        {{ team.cheerleaders }}
+                        {{ team.getCheerleaders() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
                         <template v-if="addRemovePermissions.cheerleaders.add">(<a href="#" @click.prevent="$emit('add-remove', 'cheerleader', true)">Add</a>)</template><template v-if="addRemovePermissions.cheerleaders.remove">(<a href="#" @click.prevent="$emit('add-remove', 'cheerleader', false)">Remove</a>)</template>
@@ -152,7 +152,7 @@
                 </div>
                 <div class="info right">
                     <div class="data">
-                        {{ team.apothecary ? 'Yes' : 'No' }}
+                        {{ team.getApothecary() ? 'Yes' : 'No' }}
                     </div>
                     <div v-if="teamMode === 'CREATE' && teamManagementSettings.apothecaryAllowed" class="newteamcontrols">
                         <template v-if="addRemovePermissions.apothecary.add">(<a href="#" @click.prevent="$emit('add-remove', 'apothecary', true)">Add</a>)</template><template v-if="addRemovePermissions.apothecary.remove">(<a href="#" @click.prevent="$emit('add-remove', 'apothecary', false)">Remove</a>)</template>
@@ -270,7 +270,7 @@ export default class TeamComponent extends Vue {
         for (const position of this.$props.teamManagementSettings.positions) {
             const positionQuantity = {
                 positionId: position.id,
-                quantity: this.$props.team.players.filter(player => player.positionId === position.id).length
+                quantity: this.$props.team.countPlayersOfPositionId(position.id),
             };
             positionQuantities.push(positionQuantity);
         }
@@ -279,12 +279,6 @@ export default class TeamComponent extends Vue {
             this.teamCreationBudgetRemaining,
             positionQuantities,
         );
-    }
-
-    private get mngPlayerCount(): number {
-        return this.$props.team.players.filter((player) => {
-            return player.injuries.split(',').includes('m');
-        }).length;
     }
 
     private get gamesPlayedStatDisplay(): string {
@@ -339,7 +333,7 @@ export default class TeamComponent extends Vue {
     public refreshTeamSheet() {
         this.teamSheet = new TeamSheet(
             this.$props.teamManagementSettings.maxPlayers,
-            this.$props.team.players
+            this.$props.team.getPlayers(),
         );
     }
 

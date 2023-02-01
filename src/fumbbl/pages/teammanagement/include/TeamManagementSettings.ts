@@ -1,4 +1,5 @@
 import { AddRemovePermissions, Position, PositionDataForBuyingPlayer, SetupTeamManagementSettings } from "./Interfaces";
+import Team from "./Team";
 
 export default class TeamManagementSettings {
     private settings: SetupTeamManagementSettings;
@@ -52,19 +53,19 @@ export default class TeamManagementSettings {
         throw Error(`Position not found ${positionId}`);
     }
 
-    public calculateTeamCost(team: any): number {
+    public calculateTeamCost(team: Team): number {
         const positionCostsLookup = this.getPositionCostsLookup();
         let playerCost = 0;
-        for (const player of team.players) {
+        for (const player of team.getPlayers()) {
             playerCost += positionCostsLookup[player.positionId];
         }
 
         return playerCost +
-            (team.rerolls * this.settings.rerolls.cost) +
-            (team.assistantCoaches * this.settings.sidelineStaff.assistantCoaches.cost) +
-            (team.cheerleaders * this.settings.sidelineStaff.cheerleaders.cost) +
-            (team.apothecary && this.settings.sidelineStaff.apothecary ? this.settings.sidelineStaff.apothecary.cost : 0) +
-            ((team.dedicatedFans - this.settings.dedicatedFans.minStart) * this.settings.dedicatedFans.cost);
+            (team.getRerolls() * this.settings.rerolls.cost) +
+            (team.getAssistantCoaches() * this.settings.sidelineStaff.assistantCoaches.cost) +
+            (team.getCheerleaders() * this.settings.sidelineStaff.cheerleaders.cost) +
+            (team.getApothecary() && this.settings.sidelineStaff.apothecary ? this.settings.sidelineStaff.apothecary.cost : 0) +
+            ((team.getDedicatedFans() - this.settings.dedicatedFans.minStart) * this.settings.dedicatedFans.cost);
     }
 
     private getPositionCostsLookup(): any {
