@@ -110,7 +110,7 @@ export default class TeamManagementSettings {
         positionQuantities: {positionId: number, quantity: number}[]
     ): PositionDataForBuyingPlayer[] {
         const rosterPositionDataForBuyingPlayer: PositionDataForBuyingPlayer[] = [];
-        for (const position of this.positions) {
+        for (const position of this.positions.filter(position => position.quantityAllowed > 0)) {
             let quantityHired = 0;
             for (const positionQuantityData of positionQuantities) {
                 if (positionQuantityData.positionId === position.id) {
