@@ -7,7 +7,7 @@
             droptarget: isDropTarget,
         }"
         :data-team-number="teamSheetEntry.getNumber()"
-        :data-player-id="teamSheetEntry.getPlayer() ? teamSheetEntry.getPlayer().id : ''"
+        :data-player-id="teamSheetEntry.getPlayer() ? teamSheetEntry.getPlayer().getId() : ''"
     >
         <template v-if="isFirstTeamNumber && teamSheetEntry.hasPlayer() && !isDragSource && isDropTarget">
             <div class="seperator active"><div class="line"></div></div>
@@ -51,45 +51,45 @@
             </div>
             <template v-if="teamSheetEntry.hasPlayer() && ! showBuyDialogTemporarily">
                 <div class="cell playericoncontainer">
-                    <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(teamSheetEntry.getPlayer().positionId, teamSheetEntry.getPlayer().iconRowVersionPosition)"></div>
+                    <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(teamSheetEntry.getPlayer().getPositionId(), teamSheetEntry.getPlayer().getIconRowVersionPosition())"></div>
                 </div>
                 <div class="cell playerdetails">
                     <div class="playername">
-                        <a href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)">{{ teamSheetEntry.getPlayer().name }}</a>
+                        <a href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)">{{ teamSheetEntry.getPlayer().getPlayerName() }}</a>
                     </div>
-                    <div class="playerposition">{{ teamSheetEntry.getPlayer().position }}</div>
+                    <div class="playerposition">{{ teamSheetEntry.getPlayer().getPositionName() }}</div>
                 </div>
                 <div class="cell statma">
-                    {{ position.stats.Movement }}
+                    {{ teamSheetEntry.getPlayer().getPositionStats().Movement }}
                 </div>
                 <div class="cell statst">
-                    {{ position.stats.Strength }}
+                    {{ teamSheetEntry.getPlayer().getPositionStats().Strength }}
                 </div>
                 <div class="cell statag">
-                    {{ position.stats.Agility }}+
+                    {{ teamSheetEntry.getPlayer().getPositionStats().Agility }}+
                 </div>
                 <div  class="cell statpa">
-                    {{ position.stats.Passing ? `${position.stats.Passing}+` : '-' }}
+                    {{ teamSheetEntry.getPlayer().getPositionStats().Passing ? `${teamSheetEntry.getPlayer().getPositionStats().Passing}+` : '-' }}
                 </div>
                 <div class="cell statav">
-                    {{ position.stats.Armour }}+
+                    {{ teamSheetEntry.getPlayer().getPositionStats().Armour }}+
                 </div>
                 <div class="cell skills">
                     <div class="positionskills">
-                        {{ position.skills.join(', ') }}
+                        {{ teamSheetEntry.getPlayer().getPositionSkills().join(', ') }}
                     </div>
                     <div class="playerskills">
-                        {{ teamSheetEntry.getPlayer().skills.join(', ') }}
+                        {{ teamSheetEntry.getPlayer().getSkills().join(', ') }}
                     </div>
                 </div>
                 <div class="cell injuries">
-                    {{ teamSheetEntry.getPlayer().injuries }}
+                    {{ teamSheetEntry.getPlayer().getInjuries().join(', ') }}
                 </div>
                 <div class="cell spp">
-                    {{ teamSheetEntry.getPlayer().record.spp }}
+                    {{ teamSheetEntry.getPlayer().getRecord().spp }}
                 </div>
                 <div class="cell cost">
-                    {{ position.cost/1000 }}k
+                    {{ teamSheetEntry.getPlayer().getPositionCost()/1000 }}k
                 </div>
             </template>
             <template v-else>
@@ -146,11 +146,6 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
         teamSheetEntry: {
             type: Object,
             required: true,
-        },
-        position: {
-            validator: function (position) {
-                return typeof position === 'object' || position === null;
-            }
         },
         isFoldOutBuy: {
             type: Boolean,
@@ -267,7 +262,7 @@ export default class PlayerComponent extends Vue {
     }
 
     public makePlayerDraggable() {
-        this.$emit('make-player-draggable', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.getPlayer().id);
+        this.$emit('make-player-draggable', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.getPlayer().getId());
     }
 
     public endPlayerDraggable() {

@@ -57,7 +57,7 @@ export default class TeamManagementSettings {
         const positionCostsLookup = this.getPositionCostsLookup();
         let playerCost = 0;
         for (const player of team.getPlayers()) {
-            playerCost += positionCostsLookup[player.positionId];
+            playerCost += positionCostsLookup[player.getPositionId()];
         }
 
         return playerCost +

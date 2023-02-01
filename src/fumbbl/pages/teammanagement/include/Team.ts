@@ -1,7 +1,7 @@
-export default class Team {
-    private readonly mngValue = 'm';
+import Player from "./Player";
 
-    private players: any[] = [];
+export default class Team {
+    private players: Player[] = [];
     private rerolls: number = 0;
     private minStartDedicatedFans: number = 0;
     private dedicatedFans: number = 0;
@@ -14,26 +14,26 @@ export default class Team {
         this.dedicatedFans = minStartFans;
     }
 
-    public getPlayers() {
+    public getPlayers(): Player[] {
         return this.players;
     }
 
-    public getPlayerCount() {
+    public getPlayerCount(): number {
         return this.players.length;
     }
 
-    public addPlayer(player: any) {
+    public addPlayer(player: Player): void {
         this.players.push(player);
     }
 
-    public removePlayer(teamSheetEntryNumber: number) {
-        const index = this.players.findIndex((player) => player.number === teamSheetEntryNumber);
+    public removePlayer(teamSheetEntryNumber: number): void {
+        const index = this.players.findIndex((player) => player.getPlayerNumber() === teamSheetEntryNumber);
         if (index !== -1) {
             this.players.splice(index, 1);
         }
     }
 
-    public resetDuringCreate() {
+    public resetDuringCreate(): void {
         this.players = [];
         this.rerolls = 0;
         this.dedicatedFans = this.minStartDedicatedFans;
@@ -42,33 +42,33 @@ export default class Team {
         this.apothecary = false;
     }
 
-    public getRerolls() {
+    public getRerolls(): number {
         return this.rerolls;
     }
 
-    public getDedicatedFans() {
+    public getDedicatedFans(): number {
         return this.dedicatedFans;
     }
 
-    public getAssistantCoaches() {
+    public getAssistantCoaches(): number {
         return this.assistantCoaches;
     }
 
-    public getCheerleaders() {
+    public getCheerleaders(): number {
         return this.cheerleaders;
     }
 
-    public getApothecary() {
+    public getApothecary(): boolean {
         return this.apothecary;
     }
 
-    public countPlayersOfPositionId(positionId: number) {
-        return this.players.filter(player => player.positionId === positionId).length;
+    public countPlayersOfPositionId(positionId: number): number {
+        return this.players.filter(player => player.getPositionId() === positionId).length;
     }
 
-    public getMissNextGamePlayers(): any[] {
+    public getMissNextGamePlayers(): Player[] {
         return this.players.filter((player) => {
-            return player.injuries.split(',').includes(this.mngValue);
+            return player.isMissNextGame();
         });
     }
 
@@ -80,43 +80,43 @@ export default class Team {
         return this.players.length - this.countMissNextGamePlayers();
     }
 
-    public addReroll() {
+    public addReroll(): void {
         this.rerolls++;
     }
 
-    public removeReroll() {
+    public removeReroll(): void {
         this.rerolls--;
     }
 
-    public addDedicatedFans() {
+    public addDedicatedFans(): void {
         this.dedicatedFans++;
     }
 
-    public removeDedicatedFans() {
+    public removeDedicatedFans(): void {
         this.dedicatedFans--;
     }
 
-    public addAssistantCoach() {
+    public addAssistantCoach(): void {
         this.assistantCoaches++;
     }
 
-    public removeAssistantCoach() {
+    public removeAssistantCoach(): void {
         this.assistantCoaches--;
     }
 
-    public addCheerleader() {
+    public addCheerleader(): void {
         this.cheerleaders++;
     }
 
-    public removeCheerleader() {
+    public removeCheerleader(): void {
         this.cheerleaders--;
     }
 
-    public addApothecary() {
+    public addApothecary(): void {
         this.apothecary = true;
     }
 
-    public removeApothecary() {
+    public removeApothecary(): void {
         this.apothecary = false;
     }
 }

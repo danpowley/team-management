@@ -1,13 +1,14 @@
+import Player from "./Player";
 import TeamSheetEntry from "./TeamSheetEntry";
 
 export default class TeamSheet {
     private teamSheetEntries: TeamSheetEntry[] = [];
 
-    constructor(maxPlayers: number, players: any[]) {
+    constructor(maxPlayers: number, players: Player[]) {
         for (let step = 1; step <= maxPlayers; step++) {
             let entryPlayer = null;
             for (const player of players) {
-                if (player.number === step) {
+                if (player.getPlayerNumber() === step) {
                     entryPlayer = player;
                     break;
                 }

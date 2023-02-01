@@ -1,8 +1,10 @@
+import Player from "./Player";
+
 export default class TeamSheetEntry {
     private entryNumber: number;
-    private entryPlayer: any;
+    private entryPlayer: Player | null;
 
-    constructor(entryNumber: number, entryPlayer: any) {
+    constructor(entryNumber: number, entryPlayer: Player | null) {
         this.entryNumber = entryNumber;
         this.entryPlayer = entryPlayer;
     }
@@ -11,7 +13,7 @@ export default class TeamSheetEntry {
         return this.entryNumber;
     }
 
-    public getPlayer(): any {
+    public getPlayer(): Player | null {
         return this.entryPlayer;
     }
 

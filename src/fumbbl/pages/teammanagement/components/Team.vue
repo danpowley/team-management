@@ -39,7 +39,6 @@
                 <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
                     :team-mode="teamMode"
                     :team-sheet-entry="teamSheetEntry"
-                    :position="teamSheetEntry.getPlayer() ? teamManagementSettings.getPosition(teamSheetEntry.getPlayer().positionId) : null"
                     :is-fold-out-buy="isFoldOutBuy(teamSheetEntry.getNumber())"
                     :is-fold-out-more="isFoldOutMore(teamSheetEntry.getNumber())"
                     :all-fold-outs-closed="allFoldOutsClosed"

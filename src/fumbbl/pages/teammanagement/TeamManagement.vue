@@ -36,6 +36,7 @@ import { AddRemovePermissions, PlayerRowFoldOutMode, Position, PositionStats, Se
 import RosterIconManager from "./include/RosterIconManager";
 import TeamManagementSettings from "./include/TeamManagementSettings";
 import Team from "./include/Team";
+import Player from "./include/Player";
 
 @Component({
     components: {
@@ -170,31 +171,21 @@ export default class TeamManagement extends Vue {
         this.team = new Team(this.teamManagementSettings.minStartFans);
     }
 
-    private async createPlayer(teamSheetEntryNumber: number, positionId: number): Promise<any> {
+    private async createPlayer(teamSheetEntryNumber: number, positionId: number): Promise<Player> {
         let position = this.teamManagementSettings.getPosition(positionId);
 
         const result = await Axios.post('http://localhost:3000/api/name/generate/default');
         const playerName = result.data;
 
-        return {
-            id: 'NEW--' + teamSheetEntryNumber,
-            number: teamSheetEntryNumber,
-            name: playerName,
-            position: position.name,
-            positionId: position.id,
-            record: {
-                completions: 0,
-                touchdowns: 0,
-                interceptions: 0,
-                casualties: 0,
-                mvps: 0,
-                spp: 0,
-            },
-            injuries: 'x,y,z',
-            skills: ['skill1', 'skill2'],
-            gender: 'Female',
-            iconRowVersionPosition: this.rosterIconManager.getRandomIconRowVersionPosition(position.id),
-        };
+        const player = new Player(
+            'NEW--' + teamSheetEntryNumber,
+            teamSheetEntryNumber,
+            playerName,
+            position,
+            this.rosterIconManager.getRandomIconRowVersionPosition(position.id),
+        );
+
+        return player;
     }
 
     public handleDragDropPlayer(dragDropData: any) {
@@ -207,23 +198,23 @@ export default class TeamManagement extends Vue {
 
         let sourcePlayer = null;
         for (const player of this.team.getPlayers()) {
-            if (player.number === dragDropData.source.playerNumber) {
+            if (player.getPlayerNumber() === dragDropData.source.playerNumber) {
                 sourcePlayer = player;
             }
 
             if (! emptyTarget) {
                 if (movingUp) {
-                    if (player.number >= dragDropData.target.playerNumber && player.number < dragDropData.source.playerNumber) {
-                        player.number += 1;
+                    if (player.getPlayerNumber() >= dragDropData.target.playerNumber && player.getPlayerNumber() < dragDropData.source.playerNumber) {
+                        player.increasePlayerNumber();
                     }
                 } else {
-                    if (player.number <= dragDropData.target.playerNumber && player.number > dragDropData.source.playerNumber) {
-                        player.number -= 1;
+                    if (player.getPlayerNumber() <= dragDropData.target.playerNumber && player.getPlayerNumber() > dragDropData.source.playerNumber) {
+                        player.decreasePlayerNumber();
                     }
                 }
             }
         }
-        sourcePlayer.number = dragDropData.target.playerNumber;
+        sourcePlayer.setPlayerNumber(dragDropData.target.playerNumber);
     }
 
     public async handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {

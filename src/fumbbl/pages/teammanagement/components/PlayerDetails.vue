@@ -16,11 +16,11 @@
             <p>Todo: decide what to display here.</p>
             <ul>
                 <li>Games played: [data unavailable]</li>
-                <li>Completions: {{ player ? player.record.completions : '0' }}</li>
-                <li>Touchdowns: {{ player ? player.record.touchdowns : '0' }}</li>
-                <li>Interceptions: {{ player ? player.record.interceptions : '0' }}</li>
-                <li>Casualties: {{ player ? player.record.casualties : '0' }}</li>
-                <li>MVPs: {{ player ? player.record.mvps : '0' }}</li>
+                <li>Completions: {{ player ? player.getRecord().completions : '0' }}</li>
+                <li>Touchdowns: {{ player ? player.getRecord().touchdowns : '0' }}</li>
+                <li>Interceptions: {{ player ? player.getRecord().interceptions : '0' }}</li>
+                <li>Casualties: {{ player ? player.getRecord().casualties : '0' }}</li>
+                <li>MVPs: {{ player ? player.getRecord().mvps : '0' }}</li>
             </ul>
         </div>
     </div>
