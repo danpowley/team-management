@@ -1,11 +1,80 @@
-import { AddRemovePermissions, Position, PositionDataForBuyingPlayer, SetupTeamManagementSettings } from "./Interfaces";
+import { AddRemovePermissions, Position, PositionDataForBuyingPlayer, PositionStats, SetupTeamManagementSettings } from "./Interfaces";
 import Team from "./Team";
 
 export default class TeamManagementSettings {
     private settings: SetupTeamManagementSettings;
 
-    constructor(settings: SetupTeamManagementSettings) {
-        this.settings = settings;
+    constructor(rawApiRuleset: any, rawApiRoster: any) {
+        const dedicatedFansCost = 10000;
+        const assistantCoachesCost = 10000;
+        const cheerleadersCost = 10000;
+        const apothecaryCost = 50000;
+
+        const maxRerolls = 8;
+        const maxAssistantCoaches = 6;
+        const maxCheerleaders = 12;
+
+        const setupTeamManagementSettings: SetupTeamManagementSettings = {
+            roster: {
+                name: rawApiRoster.name,
+            },
+            treasury: {
+                start: rawApiRuleset.options.teamSettings.startTreasury,
+            },
+            players: {
+                start: rawApiRuleset.options.teamSettings.startPlayers,
+                max: rawApiRuleset.options.teamSettings.maxPlayers,
+                positions: rawApiRoster.positions.map((position: any) => {
+                    return {
+                        id: ~~position.id,
+                        name: position.title,
+                        cost: ~~position.cost,
+                        skills: position.skills,
+                        stats: {
+                            Movement: ~~position.stats.MA,
+                            Strength: ~~position.stats.ST,
+                            Agility: ~~position.stats.AG,
+                            Passing: position.stats.PA !== '0' ? ~~position.stats.PA : null,
+                            Armour: ~~position.stats.AV,
+                        } as PositionStats,
+                        quantityAllowed: ~~position.quantity,
+                    } as Position;
+                }),
+            },
+            dedicatedFans: {
+                start: rawApiRuleset.options.teamSettings.startFans,
+                minStart: rawApiRuleset.options.teamSettings.minStartFans,
+                maxStart: rawApiRuleset.options.teamSettings.maxStartFans,
+                cost: dedicatedFansCost,
+            },
+            rerolls: {
+                max: maxRerolls,
+                cost: ~~rawApiRoster.rerollCost,
+            },
+            sidelineStaff: {
+                assistantCoaches: {
+                    max: maxAssistantCoaches,
+                    cost: assistantCoachesCost,
+                },
+                cheerleaders: {
+                    max: maxCheerleaders,
+                    cost: cheerleadersCost,
+                },
+                apothecary: {
+                    allowed: rawApiRoster.apothecary === 'Yes',
+                    cost: apothecaryCost,
+                },
+            }
+        };
+
+        // https://fumbbl.com/api/ruleset/get/4
+        // data.options.teamSettings.teamProgression
+        // data.options.teamSettings.skillProgressionType
+        // data.options.teamSettings.sppLimits": "6,16,31,51,76,176"
+        // data.options.teamSettings.predeterminedSkills": "0:6N2D8S|0:3N|0:2N2D|0:3N3D|0:6N2D"
+        // data.options.teamSettings.skillsPerPlayer
+
+        this.settings = setupTeamManagementSettings;
     }
 
     public get rosterName() {

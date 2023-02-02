@@ -31,7 +31,7 @@ import Component from "vue-class-component";
 import ChooseRosterComponent from "./components/ChooseRoster.vue";
 import TeamComponent from "./components/Team.vue";
 import DemoSetupComponent from "./components/DemoSetup.vue";
-import { PlayerRowFoldOutMode, Position, PositionStats, SetupTeamManagementSettings } from "./include/Interfaces";
+import { PlayerRowFoldOutMode } from "./include/Interfaces";
 import RosterIconManager from "./include/RosterIconManager";
 import TeamManagementSettings from "./include/TeamManagementSettings";
 import Team from "./include/Team";
@@ -66,7 +66,7 @@ export default class TeamManagement extends Vue {
         const rawApiRoster = result.data;
 
         await this.setupRosterIconManager(rawApiRoster.positions);
-        this.setupTeamManagementSettings(rawApiRoster);
+        this.teamManagementSettings = new TeamManagementSettings(this.rawApiRuleset, rawApiRoster);
         this.team = new Team(this.teamManagementSettings.minStartFans);
 
         this.overallApplicationMode = 'TEAM';
@@ -83,79 +83,6 @@ export default class TeamManagement extends Vue {
         await rosterIconManager.prepareIconData(positionIconData);
 
         this.rosterIconManager = rosterIconManager;
-    }
-
-    private setupTeamManagementSettings(rawApiRoster: any) {
-        const dedicatedFansCost = 10000;
-        const assistantCoachesCost = 10000;
-        const cheerleadersCost = 10000;
-        const apothecaryCost = 50000;
-
-        const maxRerolls = 8;
-        const maxAssistantCoaches = 6;
-        const maxCheerleaders = 12;
-
-        const setupTeamManagementSettings: SetupTeamManagementSettings = {
-            roster: {
-                name: rawApiRoster.name,
-            },
-            treasury: {
-                start: this.rawApiRuleset.options.teamSettings.startTreasury,
-            },
-            players: {
-                start: this.rawApiRuleset.options.teamSettings.startPlayers,
-                max: this.rawApiRuleset.options.teamSettings.maxPlayers,
-                positions: rawApiRoster.positions.map((position: any) => {
-                    return {
-                        id: ~~position.id,
-                        name: position.title,
-                        cost: ~~position.cost,
-                        skills: position.skills,
-                        stats: {
-                            Movement: ~~position.stats.MA,
-                            Strength: ~~position.stats.ST,
-                            Agility: ~~position.stats.AG,
-                            Passing: position.stats.PA !== '0' ? ~~position.stats.PA : null,
-                            Armour: ~~position.stats.AV,
-                        } as PositionStats,
-                        quantityAllowed: ~~position.quantity,
-                    } as Position;
-                }),
-            },
-            dedicatedFans: {
-                start: this.rawApiRuleset.options.teamSettings.startFans,
-                minStart: this.rawApiRuleset.options.teamSettings.minStartFans,
-                maxStart: this.rawApiRuleset.options.teamSettings.maxStartFans,
-                cost: dedicatedFansCost,
-            },
-            rerolls: {
-                max: maxRerolls,
-                cost: ~~rawApiRoster.rerollCost,
-            },
-            sidelineStaff: {
-                assistantCoaches: {
-                    max: maxAssistantCoaches,
-                    cost: assistantCoachesCost,
-                },
-                cheerleaders: {
-                    max: maxCheerleaders,
-                    cost: cheerleadersCost,
-                },
-                apothecary: {
-                    allowed: rawApiRoster.apothecary === 'Yes',
-                    cost: apothecaryCost,
-                },
-            }
-        };
-
-        // https://fumbbl.com/api/ruleset/get/4
-        // data.options.teamSettings.teamProgression
-        // data.options.teamSettings.skillProgressionType
-        // data.options.teamSettings.sppLimits": "6,16,31,51,76,176"
-        // data.options.teamSettings.predeterminedSkills": "0:6N2D8S|0:3N|0:2N2D|0:3N3D|0:6N2D"
-        // data.options.teamSettings.skillsPerPlayer
-
-        this.teamManagementSettings = new TeamManagementSettings(setupTeamManagementSettings);
     }
 
     private async generatePlayerName(): Promise<string> {
