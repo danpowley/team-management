@@ -56,13 +56,9 @@ export default class TeamManagement extends Vue {
     }
 
     public async handleRulesetChosen(rulesetId: number) {
-        await this.setupRawRuleset(rulesetId);
-        this.overallApplicationMode = 'CHOOSE_ROSTER';
-    }
-
-    private async setupRawRuleset(rulesetId: number) {
         const result = await Axios.post('http://localhost:3000/api/ruleset/get/' + rulesetId);
         this.rawApiRuleset = result.data;
+        this.overallApplicationMode = 'CHOOSE_ROSTER';
     }
 
     public async handleRosterChosen(rosterId: number) {
