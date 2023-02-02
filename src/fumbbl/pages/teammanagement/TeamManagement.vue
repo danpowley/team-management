@@ -1,15 +1,15 @@
 <template>
     <div class="teammanagement">
-        <demosetup v-if="mode === 'DEMO_SETUP'"
+        <demosetup v-if="overallApplicationMode === 'DEMO_SETUP'"
             @ruleset-chosen="handleRulesetChosen"
         ></demosetup>
 
-        <chooseroster v-if="mode === 'CHOOSE_ROSTER'"
+        <chooseroster v-if="overallApplicationMode === 'CHOOSE_ROSTER'"
             :raw-basic-rosters="rawApiRuleset.rosters"
             @roster-chosen="handleRosterChosen"
         ></chooseroster>
 
-        <team v-if="mode === 'TEAM'"
+        <team v-if="overallApplicationMode === 'TEAM'"
             :team-management-settings="teamManagementSettings"
             :add-remove-permissions="addRemovePermissions"
             :team="team"
@@ -46,7 +46,7 @@ import Player from "./include/Player";
     },
 })
 export default class TeamManagement extends Vue {
-    public mode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
+    public overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
     private rawApiRuleset: any;
     private teamManagementSettings: TeamManagementSettings;
     public team: Team | null = null;
@@ -62,7 +62,7 @@ export default class TeamManagement extends Vue {
 
     public async handleRulesetChosen(rulesetId: number) {
         await this.setupRawRuleset(rulesetId);
-        this.mode = 'CHOOSE_ROSTER';
+        this.overallApplicationMode = 'CHOOSE_ROSTER';
     }
 
     private async setupRawRuleset(rulesetId: number) {
@@ -78,7 +78,7 @@ export default class TeamManagement extends Vue {
         this.setupTeamManagementSettings(rawApiRoster);
         this.setupNewTeam();
 
-        this.mode = 'TEAM';
+        this.overallApplicationMode = 'TEAM';
     }
 
     public async setupRosterIconManager(rawApiPositions: any[]) {
