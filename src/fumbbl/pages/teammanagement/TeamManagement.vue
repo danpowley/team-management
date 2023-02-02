@@ -67,7 +67,7 @@ export default class TeamManagement extends Vue {
 
         await this.setupRosterIconManager(rawApiRoster.positions);
         this.setupTeamManagementSettings(rawApiRoster);
-        this.setupNewTeam();
+        this.team = new Team(this.teamManagementSettings.minStartFans);
 
         this.overallApplicationMode = 'TEAM';
     }
@@ -156,10 +156,6 @@ export default class TeamManagement extends Vue {
         // data.options.teamSettings.skillsPerPlayer
 
         this.teamManagementSettings = new TeamManagementSettings(setupTeamManagementSettings);
-    }
-
-    private setupNewTeam() {
-        this.team = new Team(this.teamManagementSettings.minStartFans);
     }
 
     private async createPlayer(teamSheetEntryNumber: number, positionId: number): Promise<Player> {
