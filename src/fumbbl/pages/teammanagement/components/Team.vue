@@ -194,7 +194,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import { PlayerRowFoldOutMode, PositionDataForBuyingPlayer } from "../include/Interfaces";
+import { AddRemovePermissions, PlayerRowFoldOutMode, PositionDataForBuyingPlayer } from "../include/Interfaces";
 import TeamSheet from "../include/TeamSheet";
 import TeamSheetEntry from "../include/TeamSheetEntry";
 import PlayerComponent from "./Player.vue";
@@ -205,10 +205,6 @@ import PlayerComponent from "./Player.vue";
     },
     props: {
         teamManagementSettings: {
-            type: Object,
-            required: true,
-        },
-        addRemovePermissions: {
             type: Object,
             required: true,
         },
@@ -297,6 +293,10 @@ export default class TeamComponent extends Vue {
             id: 10000000000,
             name: 'Todo United',
         };
+    }
+
+    private get addRemovePermissions(): AddRemovePermissions {
+        return this.$props.teamManagementSettings.getAddRemovePermissions(this.$props.team);
     }
 
     private isFoldOutBuy(teamSheetEntryNumber: number): boolean {

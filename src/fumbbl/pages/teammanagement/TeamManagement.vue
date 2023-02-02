@@ -11,7 +11,6 @@
 
         <team v-if="overallApplicationMode === 'TEAM'"
             :team-management-settings="teamManagementSettings"
-            :add-remove-permissions="addRemovePermissions"
             :team="team"
             :roster-icon-manager="rosterIconManager"
             :fold-outs="foldOuts"
@@ -32,7 +31,7 @@ import Component from "vue-class-component";
 import ChooseRosterComponent from "./components/ChooseRoster.vue";
 import TeamComponent from "./components/Team.vue";
 import DemoSetupComponent from "./components/DemoSetup.vue";
-import { AddRemovePermissions, PlayerRowFoldOutMode, Position, PositionStats, SetupTeamManagementSettings } from "./include/Interfaces";
+import { PlayerRowFoldOutMode, Position, PositionStats, SetupTeamManagementSettings } from "./include/Interfaces";
 import RosterIconManager from "./include/RosterIconManager";
 import TeamManagementSettings from "./include/TeamManagementSettings";
 import Team from "./include/Team";
@@ -54,10 +53,6 @@ export default class TeamManagement extends Vue {
     public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
 
     async mounted() {
-    }
-
-    private get addRemovePermissions(): AddRemovePermissions {
-        return this.teamManagementSettings.getAddRemovePermissions(this.team);
     }
 
     public async handleRulesetChosen(rulesetId: number) {
