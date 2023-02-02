@@ -158,21 +158,10 @@ export default class TeamManagement extends Vue {
         this.teamManagementSettings = new TeamManagementSettings(setupTeamManagementSettings);
     }
 
-    private async createPlayer(teamSheetEntryNumber: number, positionId: number): Promise<Player> {
-        let position = this.teamManagementSettings.getPosition(positionId);
-
+    private async generatePlayerName(): Promise<string> {
         const result = await Axios.post('http://localhost:3000/api/name/generate/default');
         const playerName = result.data;
-
-        const player = new Player(
-            'NEW--' + teamSheetEntryNumber,
-            teamSheetEntryNumber,
-            playerName,
-            position,
-            this.rosterIconManager.getRandomIconRowVersionPosition(position.id),
-        );
-
-        return player;
+        return playerName;
     }
 
     public handleDragDropPlayer(dragDropData: any) {
@@ -205,7 +194,13 @@ export default class TeamManagement extends Vue {
     }
 
     public async handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
-        const newPlayer = await this.createPlayer(teamSheetEntryNumber, positionId);
+        const newPlayer = new Player(
+            'NEW--' + teamSheetEntryNumber,
+            teamSheetEntryNumber,
+            await this.generatePlayerName(),
+            this.teamManagementSettings.getPosition(positionId),
+            this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
+        );
         this.team.addPlayer(newPlayer);
     }
 
