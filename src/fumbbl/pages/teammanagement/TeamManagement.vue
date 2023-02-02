@@ -13,12 +13,10 @@
             :team-management-settings="teamManagementSettings"
             :team="team"
             :roster-icon-manager="rosterIconManager"
-            :fold-outs="foldOuts"
             @add-player="handleAddPlayer"
             @delete-player="handleDeletePlayer"
             @drag-drop-player="handleDragDropPlayer"
             @reset-create-team="handleResetCreateTeam"
-            @fold-out="handleFoldOut"
             @add-remove="handleAddRemove"
         ></team>
     </div>
@@ -50,7 +48,6 @@ export default class TeamManagement extends Vue {
     private teamManagementSettings: TeamManagementSettings;
     public team: Team | null = null;
     private rosterIconManager: RosterIconManager | null = null;
-    public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
 
     async mounted() {
     }
@@ -137,36 +134,6 @@ export default class TeamManagement extends Vue {
 
     private handleResetCreateTeam() {
         this.team.resetDuringCreate();
-    }
-
-    private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
-        if (playerRowFoldOutMode === 'CLOSED') {
-            this.closeFoldOutForTeamSheetEntryNumber(teamSheetEntryNumber);
-        } else if (! multipleOpenMode) {
-            this.foldOuts.buy = [];
-            this.foldOuts.more = [];
-        }
-
-        if (playerRowFoldOutMode === 'BUY') {
-            if (! this.foldOuts.buy.includes(teamSheetEntryNumber)) {
-                this.foldOuts.buy.push(teamSheetEntryNumber);
-            }
-        } else if (playerRowFoldOutMode === 'MORE') {
-            if (! this.foldOuts.more.includes(teamSheetEntryNumber)) {
-                this.foldOuts.more.push(teamSheetEntryNumber);
-            }
-        }
-    }
-
-    private closeFoldOutForTeamSheetEntryNumber(teamSheetEntryNumber: number) {
-        const buyIndex = this.foldOuts.buy.findIndex((teamSheetEntryNumberToCheck) => teamSheetEntryNumberToCheck === teamSheetEntryNumber);
-        if (buyIndex !== -1) {
-            this.foldOuts.buy.splice(buyIndex, 1);
-        }
-        const moreIndex = this.foldOuts.more.findIndex((teamSheetEntryNumberToCheck) => teamSheetEntryNumberToCheck === teamSheetEntryNumber);
-        if (moreIndex !== -1) {
-            this.foldOuts.more.splice(moreIndex, 1);
-        }
     }
 
     private handleAddRemove(whatToAdd: string, isAdd: boolean) {
