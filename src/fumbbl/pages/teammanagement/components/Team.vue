@@ -78,7 +78,7 @@
                         {{ team.getRerolls() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.rerolls.add">(<a href="#" @click.prevent="$emit('add-remove', 'reroll', true)">Add</a>)</template><template v-if="addRemovePermissions.rerolls.remove">(<a href="#" @click.prevent="$emit('add-remove', 'reroll', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.rerolls.add">(<a href="#" @click.prevent="doAddRemove('reroll', true)">Add</a>)</template><template v-if="addRemovePermissions.rerolls.remove">(<a href="#" @click.prevent="doAddRemove('reroll', false)">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -97,7 +97,7 @@
                         {{ team.getDedicatedFans() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.dedicatedFans.add">(<a href="#" @click.prevent="$emit('add-remove', 'dedicated-fans', true)">Add</a>)</template><template v-if="addRemovePermissions.dedicatedFans.remove">(<a href="#" @click.prevent="$emit('add-remove', 'dedicated-fans', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.dedicatedFans.add">(<a href="#" @click.prevent="doAddRemove('dedicated-fans', true)">Add</a>)</template><template v-if="addRemovePermissions.dedicatedFans.remove">(<a href="#" @click.prevent="doAddRemove('dedicated-fans', false)">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -116,7 +116,7 @@
                         {{ team.getAssistantCoaches() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.assistantCoaches.add">(<a href="#" @click.prevent="$emit('add-remove', 'assistant-coach', true)">Add</a>)</template><template v-if="addRemovePermissions.assistantCoaches.remove">(<a href="#" @click.prevent="$emit('add-remove', 'assistant-coach', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.assistantCoaches.add">(<a href="#" @click.prevent="doAddRemove('assistant-coach', true)">Add</a>)</template><template v-if="addRemovePermissions.assistantCoaches.remove">(<a href="#" @click.prevent="doAddRemove('assistant-coach', false)">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -135,7 +135,7 @@
                         {{ team.getCheerleaders() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.cheerleaders.add">(<a href="#" @click.prevent="$emit('add-remove', 'cheerleader', true)">Add</a>)</template><template v-if="addRemovePermissions.cheerleaders.remove">(<a href="#" @click.prevent="$emit('add-remove', 'cheerleader', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.cheerleaders.add">(<a href="#" @click.prevent="doAddRemove('cheerleader', true)">Add</a>)</template><template v-if="addRemovePermissions.cheerleaders.remove">(<a href="#" @click.prevent="doAddRemove('cheerleader', false)">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -154,7 +154,7 @@
                         {{ team.getApothecary() ? 'Yes' : 'No' }}
                     </div>
                     <div v-if="teamMode === 'CREATE' && teamManagementSettings.apothecaryAllowed" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.apothecary.add">(<a href="#" @click.prevent="$emit('add-remove', 'apothecary', true)">Add</a>)</template><template v-if="addRemovePermissions.apothecary.remove">(<a href="#" @click.prevent="$emit('add-remove', 'apothecary', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.apothecary.add">(<a href="#" @click.prevent="doAddRemove('apothecary', true)">Add</a>)</template><template v-if="addRemovePermissions.apothecary.remove">(<a href="#" @click.prevent="doAddRemove('apothecary', false)">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -193,11 +193,14 @@
 
 <script lang="ts">
 import Vue from "vue";
+import Axios from "axios";
 import Component from 'vue-class-component';
 import { AddRemovePermissions, PlayerRowFoldOutMode, PositionDataForBuyingPlayer } from "../include/Interfaces";
+import Team from "../include/Team";
 import TeamSheet from "../include/TeamSheet";
 import TeamSheetEntry from "../include/TeamSheetEntry";
 import PlayerComponent from "./Player.vue";
+import Player from "../include/Player";
 
 @Component({
     components: {
@@ -205,10 +208,6 @@ import PlayerComponent from "./Player.vue";
     },
     props: {
         teamManagementSettings: {
-            type: Object,
-            required: true,
-        },
-        team: {
             type: Object,
             required: true,
         },
@@ -229,6 +228,7 @@ import PlayerComponent from "./Player.vue";
 })
 export default class TeamComponent extends Vue {
     private teamMode: 'CREATE' | 'POST_GAME' | 'READY' = 'CREATE';
+    public team: Team | null = null;
     public teamSheet: TeamSheet = null;
 
     public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
@@ -241,6 +241,7 @@ export default class TeamComponent extends Vue {
     async mounted() {
         this.teamMode = 'CREATE';
 
+        this.team = new Team(this.$props.teamManagementSettings.minStartFans);
         this.refreshTeamSheet();
 
         // HACK: artificial delay needed for setting up drag and drop to be ready.
@@ -250,7 +251,7 @@ export default class TeamComponent extends Vue {
     }
 
     private get teamCost(): number {
-        return this.$props.teamManagementSettings.calculateTeamCost(this.$props.team);
+        return this.$props.teamManagementSettings.calculateTeamCost(this.team);
     }
 
     private get teamCreationBudgetRemaining(): number {
@@ -263,7 +264,7 @@ export default class TeamComponent extends Vue {
         for (const position of this.$props.teamManagementSettings.positions) {
             const positionQuantity = {
                 positionId: position.id,
-                quantity: this.$props.team.countPlayersOfPositionId(position.id),
+                quantity: this.team.countPlayersOfPositionId(position.id),
             };
             positionQuantities.push(positionQuantity);
         }
@@ -294,7 +295,7 @@ export default class TeamComponent extends Vue {
     }
 
     private get addRemovePermissions(): AddRemovePermissions {
-        return this.$props.teamManagementSettings.getAddRemovePermissions(this.$props.team);
+        return this.$props.teamManagementSettings.getAddRemovePermissions(this.team);
     }
 
     private isFoldOutBuy(teamSheetEntryNumber: number): boolean {
@@ -330,7 +331,7 @@ export default class TeamComponent extends Vue {
     public refreshTeamSheet() {
         this.teamSheet = new TeamSheet(
             this.$props.teamManagementSettings.maxPlayers,
-            this.$props.team.getPlayers(),
+            this.team.getPlayers(),
         );
     }
 
@@ -375,12 +376,40 @@ export default class TeamComponent extends Vue {
                     }
                 };
 
-                vueComponent.$emit('drag-drop-player', eventData);
+                vueComponent.handleDragDropPlayer(eventData);
                 e.stopPropagation();
                 return false;
             });
         });
+    }
 
+    public handleDragDropPlayer(dragDropData: any) {
+        if (dragDropData.source.playerNumber === dragDropData.target.playerNumber) {
+            return;
+        }
+
+        const emptyTarget = dragDropData.target.playerId === null;
+        const movingUp = dragDropData.source.playerNumber > dragDropData.target.playerNumber;
+
+        let sourcePlayer = null;
+        for (const player of this.team.getPlayers()) {
+            if (player.getPlayerNumber() === dragDropData.source.playerNumber) {
+                sourcePlayer = player;
+            }
+
+            if (! emptyTarget) {
+                if (movingUp) {
+                    if (player.getPlayerNumber() >= dragDropData.target.playerNumber && player.getPlayerNumber() < dragDropData.source.playerNumber) {
+                        player.increasePlayerNumber();
+                    }
+                } else {
+                    if (player.getPlayerNumber() <= dragDropData.target.playerNumber && player.getPlayerNumber() > dragDropData.source.playerNumber) {
+                        player.decreasePlayerNumber();
+                    }
+                }
+            }
+        }
+        sourcePlayer.setPlayerNumber(dragDropData.target.playerNumber);
     }
 
     public endDragDrop() {
@@ -422,15 +451,62 @@ export default class TeamComponent extends Vue {
     }
 
     private resetCreateTeam() {
-        this.$emit('reset-create-team');
+        this.team.resetDuringCreate();
     }
 
-    public handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
-        this.$emit('add-player', teamSheetEntryNumber, positionId);
+    private doAddRemove(whatToAdd: string, isAdd: boolean) {
+        if (whatToAdd === 'reroll') {
+            if (isAdd) {
+                this.team.addReroll();
+            } else {
+                this.team.removeReroll();
+            }
+        } else if (whatToAdd === 'dedicated-fans') {
+            if (isAdd) {
+                this.team.addDedicatedFans();
+            } else {
+                this.team.removeDedicatedFans();
+            }
+        } else if (whatToAdd === 'cheerleader') {
+            if (isAdd) {
+                this.team.addCheerleader();
+            } else {
+                this.team.removeCheerleader();
+            }
+        } else if (whatToAdd === 'assistant-coach') {
+            if (isAdd) {
+                this.team.addAssistantCoach();
+            } else {
+                this.team.removeAssistantCoach();
+            }
+        } else if (whatToAdd === 'apothecary') {
+            if (isAdd) {
+                this.team.addApothecary();
+            } else {
+                this.team.removeApothecary();
+            }
+        }
+    }
+
+    private async generatePlayerName(): Promise<string> {
+        const result = await Axios.post('http://localhost:3000/api/name/generate/default');
+        const playerName = result.data;
+        return playerName;
+    }
+
+    public async handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
+        const newPlayer = new Player(
+            'NEW--' + teamSheetEntryNumber,
+            teamSheetEntryNumber,
+            await this.generatePlayerName(),
+            this.$props.teamManagementSettings.getPosition(positionId),
+            this.$props.rosterIconManager.getRandomIconRowVersionPosition(positionId),
+        );
+        this.team.addPlayer(newPlayer);
     }
 
     public handleDeletePlayer(teamSheetEntryNumber: number) {
-        this.$emit('delete-player', teamSheetEntryNumber);
+        this.team.removePlayer(teamSheetEntryNumber);
     }
 
     private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
