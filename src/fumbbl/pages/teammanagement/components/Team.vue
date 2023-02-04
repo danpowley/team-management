@@ -355,41 +355,15 @@ export default class TeamComponent extends Vue {
                 const teamNumberFromDataAttribute = ~~dropTargetRow.dataset.teamNumber;
 
                 const emptyPlayer = dropTargetRow.dataset.playerId ? false : true;
-                vueComponent.handleDragDropPlayer(teamNumberFromDataAttribute, emptyPlayer);
+                vueComponent.team.movePlayer(
+                    vueComponent.teamSheet.getDragSourcePlayerNumber(),
+                    teamNumberFromDataAttribute,
+                    emptyPlayer,
+                );
                 e.stopPropagation();
                 return false;
             });
         });
-    }
-
-    public handleDragDropPlayer(dropTargetPlayerNumber: number, emptyTarget: boolean) {
-        const dragSourcePlayerNumber = this.teamSheet.getDragSourcePlayerNumber();
-
-        if (dragSourcePlayerNumber === dropTargetPlayerNumber) {
-            return;
-        }
-
-        const movingUp = dragSourcePlayerNumber > dropTargetPlayerNumber;
-
-        let sourcePlayer = null;
-        for (const player of this.team.getPlayers()) {
-            if (player.getPlayerNumber() === dragSourcePlayerNumber) {
-                sourcePlayer = player;
-            }
-
-            if (! emptyTarget) {
-                if (movingUp) {
-                    if (player.getPlayerNumber() >= dropTargetPlayerNumber && player.getPlayerNumber() < dragSourcePlayerNumber) {
-                        player.increasePlayerNumber();
-                    }
-                } else {
-                    if (player.getPlayerNumber() <= dropTargetPlayerNumber && player.getPlayerNumber() > dragSourcePlayerNumber) {
-                        player.decreasePlayerNumber();
-                    }
-                }
-            }
-        }
-        sourcePlayer.setPlayerNumber(dropTargetPlayerNumber);
     }
 
     public endDragDrop() {

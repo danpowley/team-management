@@ -119,4 +119,32 @@ export default class Team {
     public removeApothecary(): void {
         this.apothecary = false;
     }
+
+    public movePlayer(sourcePlayerNumber: number, targetPlayerNumber: number, emptyTarget: boolean) {
+        if (sourcePlayerNumber === targetPlayerNumber) {
+            return;
+        }
+
+        const movingUp = sourcePlayerNumber > targetPlayerNumber;
+
+        let sourcePlayer = null;
+        for (const player of this.getPlayers()) {
+            if (player.getPlayerNumber() === sourcePlayerNumber) {
+                sourcePlayer = player;
+            }
+
+            if (! emptyTarget) {
+                if (movingUp) {
+                    if (player.getPlayerNumber() >= targetPlayerNumber && player.getPlayerNumber() < sourcePlayerNumber) {
+                        player.increasePlayerNumber();
+                    }
+                } else {
+                    if (player.getPlayerNumber() <= targetPlayerNumber && player.getPlayerNumber() > sourcePlayerNumber) {
+                        player.decreasePlayerNumber();
+                    }
+                }
+            }
+        }
+        sourcePlayer.setPlayerNumber(targetPlayerNumber);
+    }
 }
