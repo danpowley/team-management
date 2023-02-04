@@ -36,4 +36,82 @@ export default class TeamSheet {
         }
         return entryNumbersWithPlayerBelow;
     }
+
+    private findTeamSheetEntry(teamSheetEntryNumber: number): TeamSheetEntry {
+        return this.teamSheetEntries.find(teamSheetEntry => teamSheetEntry.getNumber() === teamSheetEntryNumber);
+    }
+
+    public setDragSource(teamSheetEntryNumber: number): void {
+        this.teamSheetEntries.forEach(teamSheetEntry => teamSheetEntry.setIsDragSource(false));
+        const teamSheetEntry = this.findTeamSheetEntry(teamSheetEntryNumber);
+        teamSheetEntry.setIsDragSource(true);
+    }
+
+    public setDropTarget(teamSheetEntryNumber: number): void {
+        this.teamSheetEntries.forEach(teamSheetEntry => teamSheetEntry.setIsDropTarget(false));
+        const teamSheetEntry = this.findTeamSheetEntry(teamSheetEntryNumber);
+        teamSheetEntry.setIsDropTarget(true);
+    }
+
+    public clearDragDrop(): void {
+        this.teamSheetEntries.forEach(teamSheetEntry => {
+            teamSheetEntry.setIsDragSource(false);
+            teamSheetEntry.setIsDropTarget(false);
+        });
+    }
+
+    public clearAllDropTargets(): void {
+        this.teamSheetEntries.forEach(teamSheetEntry => {
+            teamSheetEntry.setIsDropTarget(false);
+        });
+    }
+
+    public isDragSource(teamSheetEntryNumber: number): boolean {
+        const teamSheetEntry = this.findTeamSheetEntry(teamSheetEntryNumber);
+        return teamSheetEntry.getIsDragSource();
+    }
+
+    public getDragSourcePlayerNumber(): number | null {
+        const teamSheetEntry = this.teamSheetEntries.find(teamSheetEntry => teamSheetEntry.getIsDragSource());
+        return teamSheetEntry ? teamSheetEntry.getNumber() : null;
+    }
+
+    public getDropTargetPlayerNumber(): number | null {
+        const teamSheetEntry = this.teamSheetEntries.find(teamSheetEntry => teamSheetEntry.getIsDropTarget());
+        return teamSheetEntry ? teamSheetEntry.getNumber() : null;
+    }
+
+    public useActiveSeperatorForDragDrop(teamSheetEntry: TeamSheetEntry): boolean {
+        const dragSourcePlayerNumber = this.getDragSourcePlayerNumber();
+        const dropTargetPlayerNumber = this.getDropTargetPlayerNumber();
+
+        let dragDirection: 'UP' | 'DOWN' | null = null;
+        const isMovingUpOrDown =
+            dropTargetPlayerNumber !== null
+            && dragSourcePlayerNumber !== null
+            && dropTargetPlayerNumber !== dragSourcePlayerNumber;
+
+        if (isMovingUpOrDown) {
+            dragDirection = dropTargetPlayerNumber > dragSourcePlayerNumber ? 'DOWN' : 'UP';
+        }
+
+        if (
+            dragDirection === 'DOWN' &&
+            dropTargetPlayerNumber === teamSheetEntry.getNumber() &&
+            teamSheetEntry.getPlayer() !== null
+        ) {
+            return true;
+        }
+
+        const isAboveDropTarget = dropTargetPlayerNumber !== null && dropTargetPlayerNumber - 1 === teamSheetEntry.getNumber();
+        if (
+            dragDirection === 'UP' &&
+            isAboveDropTarget &&
+            this.getEntryNumbersWithPlayerBelow().includes(teamSheetEntry.getNumber())
+        ) {
+            return true;
+        }
+
+        return false;
+    }
 }

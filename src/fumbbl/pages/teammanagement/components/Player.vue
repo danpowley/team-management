@@ -1,15 +1,15 @@
 <template>
     <div class="playerrow"
-        :draggable="isDragSource"
+        :draggable="teamSheetEntry.getIsDragSource()"
         :class="{
             playerinrow: teamSheetEntry.hasPlayer(),
-            dragsource: isDragSource,
-            droptarget: isDropTarget,
+            dragsource: teamSheetEntry.getIsDragSource(),
+            droptarget: teamSheetEntry.getIsDropTarget(),
         }"
         :data-team-number="teamSheetEntry.getNumber()"
         :data-player-id="teamSheetEntry.getPlayer() ? teamSheetEntry.getPlayer().getId() : ''"
     >
-        <template v-if="isFirstTeamNumber && teamSheetEntry.hasPlayer() && !isDragSource && isDropTarget">
+        <template v-if="teamSheetEntry.isFirst() && teamSheetEntry.hasPlayer() && !teamSheetEntry.getIsDragSource() && teamSheetEntry.getIsDropTarget()">
             <div class="seperator active"><div class="line"></div></div>
         </template>
         <template v-else>
@@ -18,7 +18,7 @@
         <div class="main">
             <template v-if="teamSheetEntry.hasPlayer()">
                 <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable()" @mouseup="endPlayerDraggable()">
-                    <template v-if="!isAnyPlayerDragInProgress || isDragSource">
+                    <template v-if="!isAnyPlayerDragInProgress || teamSheetEntry.getIsDragSource()">
                         <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
                             <title>draggable</title>
@@ -159,19 +159,7 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
             type: Boolean,
             required: true,
         },
-        isFirstTeamNumber: {
-            type: Boolean,
-            required: true,
-        },
         isAnyPlayerDragInProgress: {
-            type: Boolean,
-            required: true,
-        },
-        isDragSource: {
-            type: Boolean,
-            required: true,
-        },
-        isDropTarget: {
             type: Boolean,
             required: true,
         },

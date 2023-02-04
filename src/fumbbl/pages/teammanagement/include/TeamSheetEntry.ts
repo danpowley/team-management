@@ -3,6 +3,8 @@ import Player from "./Player";
 export default class TeamSheetEntry {
     private entryNumber: number;
     private entryPlayer: Player | null;
+    private isDragSource: boolean = false;
+    private isDropTarget: boolean = false;
 
     constructor(entryNumber: number, entryPlayer: Player | null) {
         this.entryNumber = entryNumber;
@@ -19,5 +21,25 @@ export default class TeamSheetEntry {
 
     public hasPlayer(): any {
         return this.entryPlayer !== null;
+    }
+
+    public isFirst(): boolean {
+        return this.entryNumber === 1;
+    }
+
+    public getIsDragSource(): boolean {
+        return this.isDragSource;
+    }
+
+    public setIsDragSource(isDragSource: boolean): void {
+        this.isDragSource = isDragSource;
+    }
+
+    public getIsDropTarget(): boolean {
+        return this.isDropTarget;
+    }
+
+    public setIsDropTarget(isDropTarget: boolean): void {
+        this.isDropTarget = isDropTarget;
     }
 }
