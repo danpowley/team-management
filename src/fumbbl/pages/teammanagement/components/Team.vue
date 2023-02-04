@@ -215,7 +215,6 @@ import Player from "../include/Player";
     watch: {
         team: {
             handler(newValue, oldValue) {
-                // maybe this can go, once team sheet does more (this.teamSheet = this.team.buildTeamSheet()???)
                 // @ts-ignore: Property does not exist on type 'Vue'.
                 this.refreshTeamSheet();
             },
@@ -290,34 +289,6 @@ export default class TeamComponent extends Vue {
         return this.$props.teamManagementSettings.getAddRemovePermissions(this.team);
     }
 
-    private isFoldOutBuy(teamSheetEntryNumber: number): boolean {
-        return this.foldOuts.buy.includes(teamSheetEntryNumber);
-    }
-
-    private isFoldOutMore(teamSheetEntryNumber: number): boolean {
-        return this.foldOuts.more.includes(teamSheetEntryNumber);
-    }
-
-    private get allFoldOutsClosed(): boolean {
-        return this.foldOuts.buy.length === 0 && this.foldOuts.more.length === 0;
-    }
-
-    private get rerollCostForMode(): number {
-        if (this.teamMode === 'CREATE') {
-            return this.$props.teamManagementSettings.rerollCostOnCreate;
-        } else {
-            return this.$props.teamManagementSettings.rerollCostFull;
-        }
-    }
-
-    public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
-        this.teamSheet.setDragSource(playerNumber);
-    }
-
-    public handleEndPlayerDraggable() {
-        this.teamSheet.clearDragDrop();
-    }
-
     public refreshTeamSheet() {
         this.teamSheet = new TeamSheet(
             this.$props.teamManagementSettings.maxPlayers,
@@ -364,6 +335,34 @@ export default class TeamComponent extends Vue {
                 return false;
             });
         });
+    }
+
+    private isFoldOutBuy(teamSheetEntryNumber: number): boolean {
+        return this.foldOuts.buy.includes(teamSheetEntryNumber);
+    }
+
+    private isFoldOutMore(teamSheetEntryNumber: number): boolean {
+        return this.foldOuts.more.includes(teamSheetEntryNumber);
+    }
+
+    private get allFoldOutsClosed(): boolean {
+        return this.foldOuts.buy.length === 0 && this.foldOuts.more.length === 0;
+    }
+
+    private get rerollCostForMode(): number {
+        if (this.teamMode === 'CREATE') {
+            return this.$props.teamManagementSettings.rerollCostOnCreate;
+        } else {
+            return this.$props.teamManagementSettings.rerollCostFull;
+        }
+    }
+
+    public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
+        this.teamSheet.setDragSource(playerNumber);
+    }
+
+    public handleEndPlayerDraggable() {
+        this.teamSheet.clearDragDrop();
     }
 
     public endDragDrop() {
