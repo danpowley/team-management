@@ -73,7 +73,7 @@
                         {{ team.getRerolls() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.rerolls.add">(<a href="#" @click.prevent="doAddRemove('reroll', true)">Add</a>)</template><template v-if="addRemovePermissions.rerolls.remove">(<a href="#" @click.prevent="doAddRemove('reroll', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.rerolls.add">(<a href="#" @click.prevent="addReroll()">Add</a>)</template><template v-if="addRemovePermissions.rerolls.remove">(<a href="#" @click.prevent="removeReroll()">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                         {{ team.getDedicatedFans() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.dedicatedFans.add">(<a href="#" @click.prevent="doAddRemove('dedicated-fans', true)">Add</a>)</template><template v-if="addRemovePermissions.dedicatedFans.remove">(<a href="#" @click.prevent="doAddRemove('dedicated-fans', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.dedicatedFans.add">(<a href="#" @click.prevent="addDedicatedFans()">Add</a>)</template><template v-if="addRemovePermissions.dedicatedFans.remove">(<a href="#" @click.prevent="removeDedicatedFans()">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -111,7 +111,7 @@
                         {{ team.getAssistantCoaches() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.assistantCoaches.add">(<a href="#" @click.prevent="doAddRemove('assistant-coach', true)">Add</a>)</template><template v-if="addRemovePermissions.assistantCoaches.remove">(<a href="#" @click.prevent="doAddRemove('assistant-coach', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.assistantCoaches.add">(<a href="#" @click.prevent="addAssistantCoach()">Add</a>)</template><template v-if="addRemovePermissions.assistantCoaches.remove">(<a href="#" @click.prevent="removeAssistantCoach()">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -130,7 +130,7 @@
                         {{ team.getCheerleaders() }}
                     </div>
                     <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.cheerleaders.add">(<a href="#" @click.prevent="doAddRemove('cheerleader', true)">Add</a>)</template><template v-if="addRemovePermissions.cheerleaders.remove">(<a href="#" @click.prevent="doAddRemove('cheerleader', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.cheerleaders.add">(<a href="#" @click.prevent="addCheerleader()">Add</a>)</template><template v-if="addRemovePermissions.cheerleaders.remove">(<a href="#" @click.prevent="removeCheerleader()">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -149,7 +149,7 @@
                         {{ team.getApothecary() ? 'Yes' : 'No' }}
                     </div>
                     <div v-if="teamMode === 'CREATE' && teamManagementSettings.apothecaryAllowed" class="newteamcontrols">
-                        <template v-if="addRemovePermissions.apothecary.add">(<a href="#" @click.prevent="doAddRemove('apothecary', true)">Add</a>)</template><template v-if="addRemovePermissions.apothecary.remove">(<a href="#" @click.prevent="doAddRemove('apothecary', false)">Remove</a>)</template>
+                        <template v-if="addRemovePermissions.apothecary.add">(<a href="#" @click.prevent="addApothecary()">Add</a>)</template><template v-if="addRemovePermissions.apothecary.remove">(<a href="#" @click.prevent="removeApothecary()">Remove</a>)</template>
                     </div>
                 </div>
             </div>
@@ -357,38 +357,44 @@ export default class TeamComponent extends Vue {
         this.team.resetDuringCreate();
     }
 
-    private doAddRemove(whatToAdd: string, isAdd: boolean) {
-        if (whatToAdd === 'reroll') {
-            if (isAdd) {
-                this.team.addReroll();
-            } else {
-                this.team.removeReroll();
-            }
-        } else if (whatToAdd === 'dedicated-fans') {
-            if (isAdd) {
-                this.team.addDedicatedFans();
-            } else {
-                this.team.removeDedicatedFans();
-            }
-        } else if (whatToAdd === 'cheerleader') {
-            if (isAdd) {
-                this.team.addCheerleader();
-            } else {
-                this.team.removeCheerleader();
-            }
-        } else if (whatToAdd === 'assistant-coach') {
-            if (isAdd) {
-                this.team.addAssistantCoach();
-            } else {
-                this.team.removeAssistantCoach();
-            }
-        } else if (whatToAdd === 'apothecary') {
-            if (isAdd) {
-                this.team.addApothecary();
-            } else {
-                this.team.removeApothecary();
-            }
-        }
+    private addReroll() {
+        this.team.addReroll();
+    }
+
+    private removeReroll() {
+        this.team.removeReroll();
+    }
+
+    private addDedicatedFans() {
+        this.team.addDedicatedFans();
+    }
+
+    private removeDedicatedFans() {
+        this.team.removeDedicatedFans();
+    }
+
+    private addAssistantCoach() {
+        this.team.addAssistantCoach();
+    }
+
+    private removeAssistantCoach() {
+        this.team.removeAssistantCoach();
+    }
+
+    private addCheerleader() {
+        this.team.addCheerleader();
+    }
+
+    private removeCheerleader() {
+        this.team.removeCheerleader();
+    }
+
+    private addApothecary() {
+        this.team.addApothecary();
+    }
+
+    private removeApothecary() {
+        this.team.removeApothecary();
     }
 
     private async generatePlayerName(): Promise<string> {
