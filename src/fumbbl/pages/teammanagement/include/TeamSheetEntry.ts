@@ -1,3 +1,4 @@
+import { PlayerRowFoldOutMode } from "./Interfaces";
 import Player from "./Player";
 
 export default class TeamSheetEntry {
@@ -5,6 +6,7 @@ export default class TeamSheetEntry {
     private entryPlayer: Player | null;
     private isDragSource: boolean = false;
     private isDropTarget: boolean = false;
+    private foldOut: PlayerRowFoldOutMode = 'CLOSED';
 
     constructor(entryNumber: number, entryPlayer: Player | null) {
         this.entryNumber = entryNumber;
@@ -41,5 +43,13 @@ export default class TeamSheetEntry {
 
     public setIsDropTarget(isDropTarget: boolean): void {
         this.isDropTarget = isDropTarget;
+    }
+
+    public getFoldOut(): PlayerRowFoldOutMode {
+        return this.foldOut;
+    }
+
+    public setFoldOut(foldOutValue: PlayerRowFoldOutMode): void {
+        this.foldOut = foldOutValue;
     }
 }

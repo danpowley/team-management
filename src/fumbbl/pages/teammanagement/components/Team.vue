@@ -39,9 +39,7 @@
                 <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
                     :team-mode="teamMode"
                     :team-sheet-entry="teamSheetEntry"
-                    :is-fold-out-buy="isFoldOutBuy(teamSheetEntry.getNumber())"
-                    :is-fold-out-more="isFoldOutMore(teamSheetEntry.getNumber())"
-                    :all-fold-outs-closed="allFoldOutsClosed"
+                    :all-fold-outs-closed="teamSheet.allFoldOutsClosed()"
                     :is-any-player-drag-in-progress="teamSheet.getDragSourcePlayerNumber() !== null"
                     :use-active-seperator-for-drag-drop="teamSheet.useActiveSeperatorForDragDrop(teamSheetEntry)"
                     :team-creation-budget-remaining="teamCreationBudgetRemaining"
@@ -225,9 +223,7 @@ import Player from "../include/Player";
 export default class TeamComponent extends Vue {
     private teamMode: 'CREATE' | 'POST_GAME' | 'READY' = 'CREATE';
     public team: Team | null = null;
-    public teamSheet: TeamSheet = null; // include fold outs here??
-
-    public foldOuts: {buy: number[], more: number[]} = {buy: [], more: []};
+    public teamSheet: TeamSheet = null;
 
     async mounted() {
         this.teamMode = 'CREATE';
@@ -337,18 +333,6 @@ export default class TeamComponent extends Vue {
         });
     }
 
-    private isFoldOutBuy(teamSheetEntryNumber: number): boolean {
-        return this.foldOuts.buy.includes(teamSheetEntryNumber);
-    }
-
-    private isFoldOutMore(teamSheetEntryNumber: number): boolean {
-        return this.foldOuts.more.includes(teamSheetEntryNumber);
-    }
-
-    private get allFoldOutsClosed(): boolean {
-        return this.foldOuts.buy.length === 0 && this.foldOuts.more.length === 0;
-    }
-
     private get rerollCostForMode(): number {
         if (this.teamMode === 'CREATE') {
             return this.$props.teamManagementSettings.rerollCostOnCreate;
@@ -429,33 +413,7 @@ export default class TeamComponent extends Vue {
     }
 
     private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
-        if (playerRowFoldOutMode === 'CLOSED') {
-            this.closeFoldOutForTeamSheetEntryNumber(teamSheetEntryNumber);
-        } else if (! multipleOpenMode) {
-            this.foldOuts.buy = [];
-            this.foldOuts.more = [];
-        }
-
-        if (playerRowFoldOutMode === 'BUY') {
-            if (! this.foldOuts.buy.includes(teamSheetEntryNumber)) {
-                this.foldOuts.buy.push(teamSheetEntryNumber);
-            }
-        } else if (playerRowFoldOutMode === 'MORE') {
-            if (! this.foldOuts.more.includes(teamSheetEntryNumber)) {
-                this.foldOuts.more.push(teamSheetEntryNumber);
-            }
-        }
-    }
-
-    private closeFoldOutForTeamSheetEntryNumber(teamSheetEntryNumber: number) {
-        const buyIndex = this.foldOuts.buy.findIndex((teamSheetEntryNumberToCheck) => teamSheetEntryNumberToCheck === teamSheetEntryNumber);
-        if (buyIndex !== -1) {
-            this.foldOuts.buy.splice(buyIndex, 1);
-        }
-        const moreIndex = this.foldOuts.more.findIndex((teamSheetEntryNumberToCheck) => teamSheetEntryNumberToCheck === teamSheetEntryNumber);
-        if (moreIndex !== -1) {
-            this.foldOuts.more.splice(moreIndex, 1);
-        }
+        this.teamSheet.updateFoldOut(teamSheetEntryNumber, playerRowFoldOutMode, multipleOpenMode);
     }
 }
 </script>

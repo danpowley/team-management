@@ -1,3 +1,4 @@
+import { PlayerRowFoldOutMode } from "./Interfaces";
 import Player from "./Player";
 import TeamSheetEntry from "./TeamSheetEntry";
 
@@ -113,5 +114,21 @@ export default class TeamSheet {
         }
 
         return false;
+    }
+
+    public allFoldOutsClosed() {
+        const firstWithFoldOut = this.teamSheetEntries.find(teamSheetEntry => teamSheetEntry.getFoldOut() !== 'CLOSED');
+        return firstWithFoldOut === undefined;
+    }
+
+    public updateFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
+        if (playerRowFoldOutMode !== 'CLOSED' && ! multipleOpenMode) {
+            this.teamSheetEntries.forEach(teamSheetEntry => {
+                teamSheetEntry.setFoldOut('CLOSED');
+            });
+        }
+
+        const teamSheetEntry = this.findTeamSheetEntry(teamSheetEntryNumber);
+        teamSheetEntry.setFoldOut(playerRowFoldOutMode);
     }
 }

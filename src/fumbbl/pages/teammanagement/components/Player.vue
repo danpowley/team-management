@@ -147,14 +147,6 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
             type: Object,
             required: true,
         },
-        isFoldOutBuy: {
-            type: Boolean,
-            required: true,
-        },
-        isFoldOutMore: {
-            type: Boolean,
-            required: true,
-        },
         allFoldOutsClosed: {
             type: Boolean,
             required: true,
@@ -194,6 +186,14 @@ export default class PlayerComponent extends Vue {
         this.$el.getElementsByClassName('foldout')[0].addEventListener('transitionend', () => {
             this.clearIntervalIdsScrollDuringCssTransition();
         });
+    }
+
+    private get isFoldOutBuy(): boolean {
+        return this.$props.teamSheetEntry.getFoldOut() === 'BUY';
+    }
+
+    private get isFoldOutMore(): boolean {
+        return this.$props.teamSheetEntry.getFoldOut() === 'MORE';
     }
 
     public getSeperatorClasses() {
@@ -242,7 +242,7 @@ export default class PlayerComponent extends Vue {
     }
 
     private toggleFoldOutMore(multipleOpenMode: boolean) {
-        if (this.$props.isFoldOutMore) {
+        if (this.isFoldOutMore) {
             this.performFoldOut('CLOSED', multipleOpenMode);
         } else {
             this.performFoldOut('MORE', multipleOpenMode);
