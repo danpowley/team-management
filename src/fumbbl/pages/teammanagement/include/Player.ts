@@ -1,10 +1,13 @@
+import { PlayerGender } from "./Interfaces";
+import UpdatePlayerDetails from "./UpdatePlayerDetails";
+
 export default class Player {
     static missNextGameInjury = 'm';
 
     private id: string;
     private playerNumber: number;
     private playerName: string;
-    private gender: 'Male' | 'Female' | 'Neutral' | 'NonBinary' = 'NonBinary';
+    private gender: PlayerGender = 'NEUTRAL';
     private iconRowVersionPosition: number; // allows selection of icon for display when position has multiple versions in the icon image
     private position: any; // NEEDS INTERFACE OR CLASS
     private injuries: string[] = []; // Type?
@@ -53,6 +56,10 @@ export default class Player {
         return this.playerName;
     }
 
+    public getGender(): PlayerGender {
+        return this.gender;
+    }
+
     public getPositionId(): number {
         return this.position.id;
     }
@@ -99,5 +106,10 @@ export default class Player {
 
     public decreasePlayerNumber() {
         this.playerNumber -= 1;
+    }
+
+    public updatePlayerDetails(updatePlayerDetails: UpdatePlayerDetails) {
+        this.playerName = updatePlayerDetails.getPlayerName();
+        this.gender = updatePlayerDetails.getGender();
     }
 }

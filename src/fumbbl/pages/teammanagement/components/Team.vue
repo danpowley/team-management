@@ -210,15 +210,6 @@ import Player from "../include/Player";
             required: true,
         },
     },
-    watch: {
-        team: {
-            handler(newValue, oldValue) {
-                // @ts-ignore: Property does not exist on type 'Vue'.
-                this.refreshTeamSheet();
-            },
-            deep: true
-        },
-    }
 })
 export default class TeamComponent extends Vue {
     private teamMode: 'CREATE' | 'POST_GAME' | 'READY' = 'CREATE';
@@ -327,6 +318,7 @@ export default class TeamComponent extends Vue {
                     teamNumberFromDataAttribute,
                     emptyPlayer,
                 );
+                vueComponent.refreshTeamSheet();
                 e.stopPropagation();
                 return false;
             });
@@ -412,10 +404,12 @@ export default class TeamComponent extends Vue {
             this.$props.rosterIconManager.getRandomIconRowVersionPosition(positionId),
         );
         this.team.addPlayer(newPlayer);
+        this.refreshTeamSheet();
     }
 
     public handleDeletePlayer(teamSheetEntryNumber: number) {
         this.team.removePlayer(teamSheetEntryNumber);
+        this.refreshTeamSheet();
     }
 
     private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {

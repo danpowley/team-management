@@ -118,8 +118,9 @@
         </div>
         <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
             <playerdetails v-if="(teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily"
-                :player="teamSheetEntry.getPlayer()"
+                :team-sheet-entry="teamSheetEntry"
                 @delete-player="handleDeletePlayer()"
+                @close="performFoldOut('CLOSED')"
             ></playerdetails>
         </div>
         <div class="seperator" :class="getSeperatorClasses()"><div class="line"></div></div>
@@ -208,6 +209,9 @@ export default class PlayerComponent extends Vue {
     private performFoldOut(playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode = false) {
         this.$emit('fold-out', this.$props.teamSheetEntry.getNumber(), playerRowFoldOutMode, multipleOpenMode);
         this.enableSmartScroll();
+        if (playerRowFoldOutMode === 'CLOSED') {
+            this.$props.teamSheetEntry.refreshUpdatePlayerDetails();
+        }
     }
 
     private enableSmartScroll() {

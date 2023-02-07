@@ -1,5 +1,7 @@
 export type PlayerRowFoldOutMode = 'BUY' | 'MORE' | 'CLOSED';
 
+export type PlayerGender = 'FEMALE' | 'MALE' | 'NEUTRAL' | 'NONBINARY';
+
 export interface Position {
     id: number,
     name: string,
