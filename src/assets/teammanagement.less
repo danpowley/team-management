@@ -52,26 +52,31 @@
 
   .team {
     .teamheader {
-      position: relative;
+      display: flex;
       background: @OldLace;
       margin-bottom: 10px;
       border-bottom: solid 1px @lightGrey;
       height: 128px;
-      text-align: center;
       .rosterlogo {
-        position: absolute;
-        top: 0;
-        left: 0;
+      }
+      .teamheadermain {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .teamheadermaincontent {
+          text-align: center;
+          input {
+            width: 200px;
+          }
+          .teamname {
+            font-size: 140%;
+          }
+          .rosterinfo {
+          }
+        }
       }
       .divisionlogo {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 128px;
-        height: 128px;
-      }
-      .teamname {
-        font-size: 140%;
       }
     }
     .createteamstats {
