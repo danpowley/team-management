@@ -1,6 +1,7 @@
 import Player from "./Player";
 
 export default class Team {
+    private name: string = '';
     private players: Player[] = [];
     private rerolls: number = 0;
     private minStartDedicatedFans: number = 0;
@@ -28,6 +29,10 @@ export default class Team {
         team.apothecary = this.apothecary;
 
         return team;
+    }
+
+    public getName(): string {
+        return this.name;
     }
 
     public getPlayers(): Player[] {

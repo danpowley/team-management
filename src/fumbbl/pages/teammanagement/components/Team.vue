@@ -3,7 +3,12 @@
         <div class="teamheader">
             <img class="rosterlogo" src="https://fumbbl.com/i/486276" alt="Roster logo">
             <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
-            <div><input v-if="teamMode === 'CREATE'"></div>
+            <div>
+                <input v-if="teamMode === 'CREATE'" v-model="team.name">
+                <div v-else class="teamname">
+                    {{ team.name }}
+                </div>
+            </div>
             <div align="center" style="margin-top: 0.5em;">
                 <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] {{ teamManagementSettings.rosterName }}
             </div>
