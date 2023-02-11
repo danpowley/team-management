@@ -173,4 +173,8 @@ export default class Team {
         }
         sourcePlayer.setPlayerNumber(targetPlayerNumber);
     }
+
+    public withinRedraftBudget(): boolean {
+        return true;
+    }
 }

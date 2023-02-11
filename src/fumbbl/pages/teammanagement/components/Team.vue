@@ -44,11 +44,12 @@
                 <div class="othercost">210k</div>
                 <div class="equals">=</div>
                 <div class="remainingbudget">-535k</div>
-                <div class="errormessage">Not enough money to cover team cost</div>
+                <div class="errormessage"><template v-if="!team.withinRedraftBudget()">⚠ Not enough money to cover team cost.</template></div>
             </div>
 
-            <div>
-                <a href="#" @click.prevent="restartRedraft()">Restart</a>
+            <div class="redraftactions">
+                <div class="restartredraft"><a href="#" @click.prevent="restartRedraft()">Restart redraft</a> (clears all changes)</div>
+                <div class="finishredraft" v-if="team.withinRedraftBudget()"><a href="#" @click.prevent="finishRedraft()">Finish redraft</a> (saves your changes)</div>
             </div>
         </div>
         <div class="playerrows">
@@ -440,6 +441,11 @@ export default class TeamComponent extends Vue {
         this.team = this.preRedraftTeam;
         this.beginRedraft();
         this.refreshTeamSheet();
+    }
+
+    public finishRedraft() {
+        this.preRedraftTeam = null;
+        this.teamMode = 'READY';
     }
 
     public getOriginalPlayerForRedraft(teamSheetEntryNumber: number): Player | null {
