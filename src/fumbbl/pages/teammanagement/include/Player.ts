@@ -56,6 +56,10 @@ export default class Player {
         return this.playerName;
     }
 
+    public getPosition(): any {
+        return this.position;
+    }
+
     public getGender(): PlayerGender {
         return this.gender;
     }
@@ -111,5 +115,26 @@ export default class Player {
     public updatePlayerDetails(updatePlayerDetails: UpdatePlayerDetails) {
         this.playerName = updatePlayerDetails.getPlayerName();
         this.gender = updatePlayerDetails.getGender();
+    }
+
+    private copyValuesForRedraft(sourcePlayer: Player) {
+        this.gender = sourcePlayer.getGender();
+        this.injuries = sourcePlayer.getInjuries();
+        this.skills = sourcePlayer.getSkills();
+        this.record = sourcePlayer.getRecord();
+    }
+
+    public createPreRedraftCopy(): Player {
+        const player = new Player(
+            this.getId(),
+            this.getPlayerNumber(),
+            this.getPlayerName(),
+            this.getPosition(),
+            this.getIconRowVersionPosition(),
+        );
+
+        player.copyValuesForRedraft(this);
+
+        return player;
     }
 }

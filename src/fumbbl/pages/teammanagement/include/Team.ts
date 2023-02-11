@@ -20,7 +20,7 @@ export default class Team {
             this.minStartDedicatedFans,
         );
         for (const player of this.players) {
-            team.addPlayer(player);
+            team.addPlayer(player.createPreRedraftCopy());
         }
         team.rerolls = this.rerolls;
         team.dedicatedFans = this.dedicatedFans;
