@@ -6,14 +6,14 @@
             <div>
                 <input v-if="teamMode === 'CREATE'" v-model="team.name">
                 <div v-else class="teamname">
-                    {{ team.name }}
+                    {{ team.name ? team.name : 'NO TEAM NAME CHOSEN' }}
                 </div>
             </div>
             <div align="center" style="margin-top: 0.5em;">
                 <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] {{ teamManagementSettings.rosterName }}
             </div>
-            <div>
-                Cheat: <a href="#" @click.prevent="teamMode = 'REDRAFT_REQUIRED'">Redraft required {{ teamMode }}</a>
+            <div v-if="teamMode !== 'REDRAFT_REQUIRED'">
+                <a href="#" @click.prevent="teamMode = 'REDRAFT_REQUIRED'" style="font-size: 50%;">Test redraft</a>
             </div>
         </div>
         <div v-if="teamMode === 'CREATE'" class="createteamstats">
