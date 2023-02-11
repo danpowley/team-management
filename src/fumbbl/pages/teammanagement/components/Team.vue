@@ -13,7 +13,7 @@
                     <div class="rosterinfo" style="margin-top: 0.5em;">
                         <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] {{ teamManagementSettings.rosterName }}
                     </div>
-                    <div v-if="teamMode !== 'REDRAFT'">
+                    <div v-if="teamMode === 'READY'">
                         <a href="#" @click.prevent="beginRedraft()" style="font-size: 50%;">Test redraft</a>
                     </div>
                 </div>
@@ -218,6 +218,21 @@
             <div class="lastopponent">
                 Last Opponent: <a href="#" :data-id="lastPlayedTeamData.id">{{ lastPlayedTeamData.name }}</a>
             </div>
+        </div>
+        <div v-if="teamMode === 'CREATE'" class="createteam">
+            <template v-if="teamManagementSettings.isValidForCreate(team)">
+                <button @click="createTeam()">Submit for approval</button>
+            </template>
+            <template v-else>
+                <div class="unabletocreate">
+                    <div class="createerrorstitle">⚠ The following issues need to be fixed before this team can be created:</div>
+                    <div v-for="error in teamManagementSettings.getErrorsForCreate(team)" :key="error" class="createerror">
+                        <template v-if="error === 'teamNameBlank'">Please enter a team name.</template>
+                        <template v-if="error === 'insufficentTreasury'">Insufficent treasury.</template>
+                        <template v-if="error === 'insufficentPlayers'">Less than minimum required starting players selected.</template>
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -430,6 +445,11 @@ export default class TeamComponent extends Vue {
         const result = await Axios.post('http://localhost:3000/api/name/generate/default');
         const playerName = result.data;
         return playerName;
+    }
+
+    public createTeam() {
+        this.teamMode = 'READY';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     public beginRedraft() {

@@ -207,4 +207,26 @@ export default class TeamManagementSettings {
 
         return rosterPositionDataForBuyingPlayer;
     }
+
+    public getErrorsForCreate(team: Team): string[] {
+        const errors: string[] = [];
+        if (team.getName().trim() === '') {
+            errors.push('teamNameBlank');
+        }
+
+        if (team.getPlayerCount() < this.startPlayers) {
+            errors.push('insufficentPlayers');
+        }
+
+        const teamCost = this.calculateTeamCost(team);
+        if (teamCost > this.startTreasury) {
+            errors.push('insufficientTreasury');
+        }
+
+        return errors;
+    }
+
+    public isValidForCreate(team: Team): boolean {
+        return this.getErrorsForCreate(team).length === 0;
+    }
 }

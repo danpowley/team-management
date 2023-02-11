@@ -54,6 +54,7 @@ export default class TeamManagement extends Vue {
         await this.setupRosterIconManager(rawApiRoster.positions);
         this.teamManagementSettings = new TeamManagementSettings(this.rawApiRuleset, rawApiRoster);
         this.overallApplicationMode = 'TEAM';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     public async setupRosterIconManager(rawApiPositions: any[]) {
