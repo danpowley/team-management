@@ -13,8 +13,8 @@
                     <div class="rosterinfo" style="margin-top: 0.5em;">
                         <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] {{ teamManagementSettings.rosterName }}
                     </div>
-                    <div v-if="teamMode !== 'REDRAFT_REQUIRED'">
-                        <a href="#" @click.prevent="teamMode = 'REDRAFT_REQUIRED'" style="font-size: 50%;">Test redraft</a>
+                    <div v-if="teamMode !== 'REDRAFT'">
+                        <a href="#" @click.prevent="beginRedraft()" style="font-size: 50%;">Test redraft</a>
                     </div>
                 </div>
             </div>
@@ -31,7 +31,7 @@
                 <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
             </div>
         </div>
-        <div v-if="teamMode === 'REDRAFT_REQUIRED'" class="redraft">
+        <div v-if="teamMode === 'REDRAFT'" class="redraft">
              <div class="redraftcalculation">
                 <div class="budgetlabel">Re-drafting Budget</div>
                 <div class="playercostlabel">Player (re-)hiring cost</div>
@@ -48,7 +48,7 @@
             </div>
 
             <div>
-                Your team requires Redraft <a href="#" @click.prevent="beginRedraft()">Begin redraft.</a>
+                <a href="#" @click.prevent="restartRedraft()">Restart</a>
             </div>
         </div>
         <div class="playerrows">
@@ -247,7 +247,7 @@ import Player from "../include/Player";
     },
 })
 export default class TeamComponent extends Vue {
-    private teamMode: 'CREATE' | 'POST_GAME' | 'READY' | 'RETIRED' | 'REDRAFT_REQUIRED' | 'REDRAFT_ACTIVE' | 'REDRAFT_REVIEW' = 'CREATE';
+    private teamMode: 'CREATE' | 'POST_GAME' | 'READY' | 'RETIRED' | 'REDRAFT' = 'CREATE';
     public team: Team | null = null;
     public teamSheet: TeamSheet | null = null;
     public preRedraftTeam: Team | null = null;
@@ -433,7 +433,13 @@ export default class TeamComponent extends Vue {
 
     public beginRedraft() {
         this.preRedraftTeam = this.team.createPreRedraftCopy();
-        this.teamMode = 'REDRAFT_ACTIVE';
+        this.teamMode = 'REDRAFT';
+    }
+
+    public restartRedraft() {
+        this.team = this.preRedraftTeam;
+        this.beginRedraft();
+        this.refreshTeamSheet();
     }
 
     public getOriginalPlayerForRedraft(teamSheetEntryNumber: number): Player | null {
