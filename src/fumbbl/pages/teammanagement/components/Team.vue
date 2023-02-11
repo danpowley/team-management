@@ -82,6 +82,9 @@
                     @add-player="handleAddPlayer"
                     @delete-player="handleDeletePlayer"
                     @make-player-draggable="handleMakePlayerDraggable"
+                    @drag-enter="handlePlayerDragEnter"
+                    @drop="handlePlayerDrop"
+                    @drag-end="handlePlayerDragEnd"
                     @end-player-draggable="handleEndPlayerDraggable"
                     @fold-out="handleFoldOut"
                     @redraft-keep-player="handleRedraftKeepPlayer"
@@ -273,11 +276,6 @@ export default class TeamComponent extends Vue {
 
         this.team = new Team(this.$props.teamManagementSettings.minStartFans);
         this.refreshTeamSheet();
-
-        // HACK: artificial delay needed for setting up drag and drop to be ready.
-        setTimeout(() => {
-            this.setupDragDrop();
-        }, 1000);
     }
 
     private get teamCost(): number {
@@ -335,48 +333,6 @@ export default class TeamComponent extends Vue {
         );
     }
 
-    public setupDragDrop() {
-        const vueComponent = this;
-        let rowsGroupedByTbody = document.querySelectorAll('.playerrow');
-        rowsGroupedByTbody.forEach(function (tbody) {
-            tbody.addEventListener('dragend', function (this: any, e) {
-                vueComponent.endDragDrop();
-            });
-
-            tbody.addEventListener('dragover', function (this: any, e) {
-                e.preventDefault();
-                return false;
-            });
-
-            tbody.addEventListener('dragenter', function (this: any, e) {
-                const dropTargetRow = this;
-
-                const teamNumberFromDataAttribute = ~~dropTargetRow.dataset.teamNumber;
-                if (! vueComponent.teamSheet.isDragSource(teamNumberFromDataAttribute)) {
-                    vueComponent.teamSheet.setDropTarget(teamNumberFromDataAttribute);
-                } else {
-                    vueComponent.teamSheet.clearAllDropTargets();
-                }
-            });
-
-            tbody.addEventListener('drop', function (this: any, e) {
-                const dropTargetRow = this;
-
-                const teamNumberFromDataAttribute = ~~dropTargetRow.dataset.teamNumber;
-
-                const emptyPlayer = dropTargetRow.dataset.playerId ? false : true;
-                vueComponent.team.movePlayer(
-                    vueComponent.teamSheet.getDragSourcePlayerNumber(),
-                    teamNumberFromDataAttribute,
-                    emptyPlayer,
-                );
-                vueComponent.refreshTeamSheet();
-                e.stopPropagation();
-                return false;
-            });
-        });
-    }
-
     private get rerollCostForMode(): number {
         if (this.teamMode === 'CREATE') {
             return this.$props.teamManagementSettings.rerollCostOnCreate;
@@ -387,6 +343,27 @@ export default class TeamComponent extends Vue {
 
     public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
         this.teamSheet.setDragSource(playerNumber);
+    }
+
+    public handlePlayerDragEnter(playerNumber: number) {
+        if (! this.teamSheet.isDragSource(playerNumber)) {
+            this.teamSheet.setDropTarget(playerNumber);
+        } else {
+            this.teamSheet.clearAllDropTargets();
+        }
+    }
+
+    public handlePlayerDrop(playerNumber: number, hasPlayer: boolean) {
+        this.team.movePlayer(
+            this.teamSheet.getDragSourcePlayerNumber(),
+            playerNumber,
+            ! hasPlayer,
+        );
+        this.refreshTeamSheet();
+    }
+
+    public handlePlayerDragEnd() {
+        this.endDragDrop();
     }
 
     public handleEndPlayerDraggable() {

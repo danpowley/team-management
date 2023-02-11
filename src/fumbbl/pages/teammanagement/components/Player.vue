@@ -6,8 +6,10 @@
             dragsource: teamSheetEntry.getIsDragSource(),
             droptarget: teamSheetEntry.getIsDropTarget(),
         }"
-        :data-team-number="teamSheetEntry.getNumber()"
-        :data-player-id="teamSheetEntry.getPlayer() ? teamSheetEntry.getPlayer().getId() : ''"
+        @dragenter="handleDragEnter()"
+        @dragover="handleDragOver($event)"
+        @drop="handleDrop($event)"
+        @dragend="handleDragEnd()"
     >
         <template v-if="teamSheetEntry.isFirst() && teamSheetEntry.hasPlayer() && !teamSheetEntry.getIsDragSource() && teamSheetEntry.getIsDropTarget()">
             <div class="seperator active"><div class="line"></div></div>
@@ -287,6 +289,25 @@ export default class PlayerComponent extends Vue {
 
         this.performFoldOut('CLOSED');
         this.$emit('delete-player', this.$props.teamSheetEntry.getNumber());
+    }
+
+    private handleDragEnter() {
+        this.$emit('drag-enter', this.$props.teamSheetEntry.getNumber());
+    }
+
+    private handleDragOver(event) {
+        event.preventDefault();
+        return false;
+    }
+
+    private handleDrop(event) {
+        this.$emit('drop', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.hasPlayer());
+        event.stopPropagation();
+        return false;
+    }
+
+    private handleDragEnd() {
+        this.$emit('drag-end');
     }
 
     public keepOrFire(event): void {
