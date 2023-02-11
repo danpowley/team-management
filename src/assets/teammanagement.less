@@ -120,6 +120,55 @@
       }
     }
 
+    .redraft {
+      position: sticky;
+      top: 0;
+
+      background-color: @OldLace;
+      border: solid 2px @Forest;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+
+      .redraftcalculation {
+        text-align: center;
+        display: grid;
+        grid-template-columns: 2fr 1fr 2fr 1fr 2fr 1fr 2fr;
+        grid-template-rows: 1fr 2fr 1fr;
+        gap: 10px 10px;
+        grid-template-areas:
+          "budgetlabel . playercostlabel . othercostlabel . remainingbudgetlabel"
+          "budget subtract1 playercost subtract2 othercost equals remainingbudget"
+          "errormessage errormessage errormessage errormessage errormessage errormessage errormessage";
+        .budgetlabel { grid-area: budgetlabel; }
+        .playercostlabel { grid-area: playercostlabel; }
+        .othercostlabel { grid-area: othercostlabel; }
+        .remainingbudgetlabel { grid-area: remainingbudgetlabel; }
+        .budget { grid-area: budget; }
+        .subtract1 { grid-area: subtract1; }
+        .playercost { grid-area: playercost; }
+        .subtract2 { grid-area: subtract2; }
+        .othercost { grid-area: othercost; }
+        .equals { grid-area: equals; }
+        .remainingbudget { grid-area: remainingbudget; }
+        .errormessage { grid-area: errormessage; }
+
+        .budget, .subtract1, .playercost, .subtract2, .othercost, .equals, .remainingbudget {
+          font-size: 130%;
+        }
+        .subtract1, .subtract2, .equals {
+          text-align: center;
+        }
+        .remainingbudget {
+          background-color: lighten(@Carmine, 50%);
+        }
+        .errormessage {
+          font-weight: bold;
+          color: @Carmine;
+        }
+      }
+    }
+
     .playerrows {
       // shared widths (we are emulating a table feel to a large extent)
       .playerrowsheader, .playerrow {

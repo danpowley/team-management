@@ -31,8 +31,25 @@
                 <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
             </div>
         </div>
-        <div v-if="teamMode === 'REDRAFT_REQUIRED'" class="createteamstats">
-            Your team requires Redraft <a href="#" @click.prevent="beginRedraft()">Begin redraft.</a>
+        <div v-if="teamMode === 'REDRAFT_REQUIRED'" class="redraft">
+             <div class="redraftcalculation">
+                <div class="budgetlabel">Re-drafting Budget</div>
+                <div class="playercostlabel">Player (re-)hiring cost</div>
+                <div class="othercostlabel">Team staff cost</div>
+                <div class="remainingbudgetlabel">Remaining budget</div>
+                <div class="budget">1145k</div>
+                <div class="subtract1">-</div>
+                <div class="playercost">1470k</div>
+                <div class="subtract2">-</div>
+                <div class="othercost">210k</div>
+                <div class="equals">=</div>
+                <div class="remainingbudget">-535k</div>
+                <div class="errormessage">Not enough money to cover team cost</div>
+            </div>
+
+            <div>
+                Your team requires Redraft <a href="#" @click.prevent="beginRedraft()">Begin redraft.</a>
+            </div>
         </div>
         <div class="playerrows">
             <div class="playerrowsheader">
