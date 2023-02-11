@@ -15,6 +15,13 @@
         <template v-else>
             <div class="seperator spacer"><div class="line"></div></div>
         </template>
+        <div v-if="originalPlayerForRedraft">
+            Original: {{ originalPlayerForRedraft.getPlayerName() }}
+            <select @change="keepOrFire($event)">
+                <option>KEEP</option>
+                <option>FIRE</option>
+            </select>
+        </div>
         <div class="main">
             <template v-if="teamSheetEntry.hasPlayer()">
                 <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable()" @mouseup="endPlayerDraggable()">
@@ -172,6 +179,11 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
             type: Object,
             required: true,
         },
+        originalPlayerForRedraft: {
+            validator: function (team) {
+                return typeof team === 'object' || team === null;
+            }
+        },
     },
     watch: {
     }
@@ -275,6 +287,18 @@ export default class PlayerComponent extends Vue {
 
         this.performFoldOut('CLOSED');
         this.$emit('delete-player', this.$props.teamSheetEntry.getNumber());
+    }
+
+    public keepOrFire(event): void {
+        const keepOrFire = event.target.value;
+
+        if (keepOrFire === 'KEEP') {
+            this.$emit('redraft-keep-player', this.$props.teamSheetEntry.getNumber());
+        }
+
+        if (keepOrFire === 'FIRE') {
+            this.$emit('redraft-fire-player', this.$props.teamSheetEntry.getNumber());
+        }
     }
 }
 </script>

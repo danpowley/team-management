@@ -14,6 +14,22 @@ export default class Team {
         this.dedicatedFans = minStartFans;
     }
 
+    public createPreRedraftCopy(): Team {
+        const team = new Team(
+            this.minStartDedicatedFans,
+        );
+        for (const player of this.players) {
+            team.addPlayer(player);
+        }
+        team.rerolls = this.rerolls;
+        team.dedicatedFans = this.dedicatedFans;
+        team.assistantCoaches = this.assistantCoaches;
+        team.cheerleaders = this.cheerleaders;
+        team.apothecary = this.apothecary;
+
+        return team;
+    }
+
     public getPlayers(): Player[] {
         return this.players;
     }
@@ -24,6 +40,11 @@ export default class Team {
 
     public addPlayer(player: Player): void {
         this.players.push(player);
+    }
+
+    public findPlayerByNumber(playerNumber: number): Player | null {
+        const player = this.players.find(player => player.getPlayerNumber() === playerNumber);
+        return player ? player : null;
     }
 
     public removePlayer(teamSheetEntryNumber: number): void {

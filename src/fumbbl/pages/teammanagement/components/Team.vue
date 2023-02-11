@@ -7,6 +7,9 @@
             <div align="center" style="margin-top: 0.5em;">
                 <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] {{ teamManagementSettings.rosterName }}
             </div>
+            <div>
+                Cheat: <a href="#" @click.prevent="teamMode = 'REDRAFT_REQUIRED'">Redraft required {{ teamMode }}</a>
+            </div>
         </div>
         <div v-if="teamMode === 'CREATE'" class="createteamstats">
             <div class="playerinfo">
@@ -18,6 +21,9 @@
             <div class="actions">
                 <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
             </div>
+        </div>
+        <div v-if="teamMode === 'REDRAFT_REQUIRED'" class="createteamstats">
+            Your team requires Redraft <a href="#" @click.prevent="beginRedraft()">Begin redraft.</a>
         </div>
         <div class="playerrows">
             <div class="playerrowsheader">
@@ -45,11 +51,14 @@
                     :team-creation-budget-remaining="teamCreationBudgetRemaining"
                     :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
                     :roster-icon-manager="rosterIconManager"
+                    :original-player-for-redraft="getOriginalPlayerForRedraft(teamSheetEntry.getNumber())"
                     @add-player="handleAddPlayer"
                     @delete-player="handleDeletePlayer"
                     @make-player-draggable="handleMakePlayerDraggable"
                     @end-player-draggable="handleEndPlayerDraggable"
                     @fold-out="handleFoldOut"
+                    @redraft-keep-player="handleRedraftKeepPlayer"
+                    @redraft-fire-player="handleRedraftFirePlayer"
                 ></player>
             </template>
         </div>
@@ -212,9 +221,10 @@ import Player from "../include/Player";
     },
 })
 export default class TeamComponent extends Vue {
-    private teamMode: 'CREATE' | 'POST_GAME' | 'READY' = 'CREATE';
+    private teamMode: 'CREATE' | 'POST_GAME' | 'READY' | 'RETIRED' | 'REDRAFT_REQUIRED' | 'REDRAFT_ACTIVE' | 'REDRAFT_REVIEW' = 'CREATE';
     public team: Team | null = null;
-    public teamSheet: TeamSheet = null;
+    public teamSheet: TeamSheet | null = null;
+    public preRedraftTeam: Team | null = null;
 
     async mounted() {
         this.teamMode = 'CREATE';
@@ -395,6 +405,18 @@ export default class TeamComponent extends Vue {
         return playerName;
     }
 
+    public beginRedraft() {
+        this.preRedraftTeam = this.team.createPreRedraftCopy();
+        this.teamMode = 'REDRAFT_ACTIVE';
+    }
+
+    public getOriginalPlayerForRedraft(teamSheetEntryNumber: number): Player | null {
+        if (this.preRedraftTeam === null) {
+            return null;
+        }
+        return this.preRedraftTeam.findPlayerByNumber(teamSheetEntryNumber);
+    }
+
     public async handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
         const newPlayer = new Player(
             'NEW--' + teamSheetEntryNumber,
@@ -414,6 +436,17 @@ export default class TeamComponent extends Vue {
 
     private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
         this.teamSheet.updateFoldOut(teamSheetEntryNumber, playerRowFoldOutMode, multipleOpenMode);
+    }
+
+    private handleRedraftKeepPlayer(teamSheetEntryNumber: number) {
+        const originalPlayer = this.preRedraftTeam.findPlayerByNumber(teamSheetEntryNumber);
+        this.team.addPlayer(originalPlayer);
+        this.refreshTeamSheet();
+    }
+
+    private handleRedraftFirePlayer(teamSheetEntryNumber: number) {
+        this.team.removePlayer(teamSheetEntryNumber);
+        this.refreshTeamSheet();
     }
 }
 </script>
