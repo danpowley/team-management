@@ -53,8 +53,9 @@
             </div>
         </div>
 
-        <div class="playermanagement">
+        <div :class="{showhirerookies: showHireRookies}">
             <hirerookies
+                v-if="showHireRookies"
                 :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
                 :roster-icon-manager="rosterIconManager"
                 :has-empty-team-sheet-entry="teamSheet.findFirstEmptyTeamSheetEntry() !== null"
@@ -102,7 +103,7 @@
                     </template>
                 </div>
                 <div class="playerrowsfooter">
-                    <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game)</div>
+                    <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game) <a href="#" @click.prevent="enableShowHireRookies()">Buy new player</a></div>
                     <div class="favouredof">Todo (Favoured of)</div>
                 </div>
             </div>
@@ -285,6 +286,8 @@ export default class TeamComponent extends Vue {
     public teamSheet: TeamSheet | null = null;
     public preRedraftTeam: Team | null = null;
 
+    private showHireRookies: boolean = false;
+
     async mounted() {
         this.teamMode = 'CREATE';
 
@@ -464,6 +467,10 @@ export default class TeamComponent extends Vue {
             return null;
         }
         return this.preRedraftTeam.findPlayerByNumber(teamSheetEntryNumber);
+    }
+
+    private enableShowHireRookies(): void {
+        this.showHireRookies = ! this.showHireRookies;
     }
 
     public async handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
