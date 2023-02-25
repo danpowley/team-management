@@ -201,6 +201,7 @@
             border-top-right-radius: 5px;
             .positionname {
               width: 70%;
+              .mixin_abbreviate();
             }
             .positionquantity {
               width: 15%;
@@ -226,7 +227,8 @@
               }
               .rookiestats {
                 border-collapse: collapse;
-                height: 10px;
+                height: 30px;
+                width: 160px;
                 th, td {
                   padding: 0;
                   border-left: solid @Quicksilver 1px;
@@ -246,16 +248,12 @@
                   padding-bottom: 0;
                 }
               }
-            }
-            .skillsandbuying {
-              display: flex;
-              .skills {
-                width: 83%;
-                font-size: 90%;
-              }
               .buying {
+                flex-grow: 1;
                 width: 17%;
-                text-align: right;
+                display: flex;
+                justify-content: right;
+                align-items: flex-start;
                 button {
                   font-size: 120%;
                   background-color: @Forest;
@@ -263,12 +261,16 @@
                   color: @White;
                   padding: 3px 7px;
                   margin-bottom: 4px;
+
                   &.disabled {
                     opacity: 0.3;
                     cursor: not-allowed;
                   }
                 }
               }
+            }
+            .skills {
+              font-size: 90%;
             }
             .quantityprogressouter {
               display: flex;
@@ -642,5 +644,10 @@
   }
   .errormessages {
     color: red;
+  }
+  .mixin_abbreviate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

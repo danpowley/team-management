@@ -2,7 +2,7 @@
     <div class="hirerookies">
         <div class="hirerookie" v-for="positionDataForBuyingPlayer in rosterPositionDataForBuyingPlayer" :key="positionDataForBuyingPlayer.positionId">
             <div class="rookieheader">
-                <div class="positionname">{{ positionDataForBuyingPlayer.position.name }}</div>
+                <div class="positionname" :title="positionDataForBuyingPlayer.position.name">{{ positionDataForBuyingPlayer.position.name }}</div>
                 <div class="positionquantity">{{ positionDataForBuyingPlayer.quantityHired }}/{{ positionDataForBuyingPlayer.position.quantityAllowed }}</div>
                 <div class="positioncost">{{ positionDataForBuyingPlayer.position.cost/1000 }}k</div>
             </div>
@@ -27,9 +27,6 @@
                             <td>{{ positionDataForBuyingPlayer.position.stats.Armour }}+</td>
                         </tr>
                     </table>
-                </div>
-                <div class="skillsandbuying">
-                    <div class="skills">{{ positionDataForBuyingPlayer.position.skills.join(', ') }}</div>
                     <div class="buying">
                         <button
                             @click="hireRookie(positionDataForBuyingPlayer)"
@@ -38,6 +35,7 @@
                         >Buy</button>
                     </div>
                 </div>
+                <div class="skills">{{ positionDataForBuyingPlayer.position.skills.join(', ') }}</div>
                 <div class="quantityprogressouter" v-if="positionDataForBuyingPlayer.position.quantityAllowed > 100">
                     <div class="quantityprogress">
                         <div v-for="item in positionDataForBuyingPlayer.position.quantityAllowed" :key="item" :class="{yes: item <= positionDataForBuyingPlayer.quantityHired, no: item > positionDataForBuyingPlayer.quantityHired}"></div>
