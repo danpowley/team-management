@@ -42,6 +42,11 @@ export default class TeamSheet {
         return this.teamSheetEntries.find(teamSheetEntry => teamSheetEntry.getNumber() === teamSheetEntryNumber);
     }
 
+    public findFirstEmptyTeamSheetEntry(): TeamSheetEntry | null {
+        const teamSheetEntry = this.teamSheetEntries.find(teamSheetEntry => ! teamSheetEntry.hasPlayer());
+        return teamSheetEntry ? teamSheetEntry : null;
+    }
+
     public setDragSource(teamSheetEntryNumber: number): void {
         this.teamSheetEntries.forEach(teamSheetEntry => teamSheetEntry.setIsDragSource(false));
         const teamSheetEntry = this.findTeamSheetEntry(teamSheetEntryNumber);

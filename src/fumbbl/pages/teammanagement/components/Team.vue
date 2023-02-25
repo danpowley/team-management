@@ -52,49 +52,60 @@
                 <div class="finishredraft" v-if="team.withinRedraftBudget()"><a href="#" @click.prevent="finishRedraft()">Finish redraft</a> (saves your changes)</div>
             </div>
         </div>
-        <div class="playerrows">
-            <div class="playerrowsheader">
-                <div class="cell draghandle"></div>
-                <div class="cell playernumber"></div>
-                <div class="cell playericoncontainer"></div>
-                <div class="cell playerdetails"></div>
-                <div class="cell statma">Ma</div>
-                <div class="cell statst">St</div>
-                <div class="cell statag">Ag</div>
-                <div class="cell statpa">Pa</div>
-                <div class="cell statav">Av</div>
-                <div class="cell skills">Skills</div>
-                <div class="cell injuries">Inj</div>
-                <div class="cell spp">SPP</div>
-                <div class="cell cost">Cost</div>
+
+        <div class="playermanagement">
+            <hirerookies
+                :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
+                :roster-icon-manager="rosterIconManager"
+                :has-empty-team-sheet-entry="teamSheet.findFirstEmptyTeamSheetEntry() !== null"
+                @hire-rookie="handleHireRookie"
+            ></hirerookies>
+            <div class="playerrowsouter">
+                <div class="playerrows">
+                    <div class="playerrowsheader">
+                        <div class="cell draghandle"></div>
+                        <div class="cell playernumber"></div>
+                        <div class="cell playericoncontainer"></div>
+                        <div class="cell playerdetails"></div>
+                        <div class="cell statma">Ma</div>
+                        <div class="cell statst">St</div>
+                        <div class="cell statag">Ag</div>
+                        <div class="cell statpa">Pa</div>
+                        <div class="cell statav">Av</div>
+                        <div class="cell skills">Skills</div>
+                        <div class="cell injuries">Inj</div>
+                        <div class="cell spp">SPP</div>
+                        <div class="cell cost">Cost</div>
+                    </div>
+                    <template v-if="teamSheet !== null">
+                        <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
+                            :team-mode="teamMode"
+                            :team-sheet-entry="teamSheetEntry"
+                            :all-fold-outs-closed="teamSheet.allFoldOutsClosed()"
+                            :is-any-player-drag-in-progress="teamSheet.getDragSourcePlayerNumber() !== null"
+                            :use-active-seperator-for-drag-drop="teamSheet.useActiveSeperatorForDragDrop(teamSheetEntry)"
+                            :team-creation-budget-remaining="teamCreationBudgetRemaining"
+                            :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
+                            :roster-icon-manager="rosterIconManager"
+                            :original-player-for-redraft="getOriginalPlayerForRedraft(teamSheetEntry.getNumber())"
+                            @add-player="handleAddPlayer"
+                            @delete-player="handleDeletePlayer"
+                            @make-player-draggable="handleMakePlayerDraggable"
+                            @drag-enter="handlePlayerDragEnter"
+                            @drop="handlePlayerDrop"
+                            @drag-end="handlePlayerDragEnd"
+                            @end-player-draggable="handleEndPlayerDraggable"
+                            @fold-out="handleFoldOut"
+                            @redraft-keep-player="handleRedraftKeepPlayer"
+                            @redraft-fire-player="handleRedraftFirePlayer"
+                        ></player>
+                    </template>
+                </div>
+                <div class="playerrowsfooter">
+                    <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game)</div>
+                    <div class="favouredof">Todo (Favoured of)</div>
+                </div>
             </div>
-            <template v-if="teamSheet !== null">
-                <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
-                    :team-mode="teamMode"
-                    :team-sheet-entry="teamSheetEntry"
-                    :all-fold-outs-closed="teamSheet.allFoldOutsClosed()"
-                    :is-any-player-drag-in-progress="teamSheet.getDragSourcePlayerNumber() !== null"
-                    :use-active-seperator-for-drag-drop="teamSheet.useActiveSeperatorForDragDrop(teamSheetEntry)"
-                    :team-creation-budget-remaining="teamCreationBudgetRemaining"
-                    :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
-                    :roster-icon-manager="rosterIconManager"
-                    :original-player-for-redraft="getOriginalPlayerForRedraft(teamSheetEntry.getNumber())"
-                    @add-player="handleAddPlayer"
-                    @delete-player="handleDeletePlayer"
-                    @make-player-draggable="handleMakePlayerDraggable"
-                    @drag-enter="handlePlayerDragEnter"
-                    @drop="handlePlayerDrop"
-                    @drag-end="handlePlayerDragEnd"
-                    @end-player-draggable="handleEndPlayerDraggable"
-                    @fold-out="handleFoldOut"
-                    @redraft-keep-player="handleRedraftKeepPlayer"
-                    @redraft-fire-player="handleRedraftFirePlayer"
-                ></player>
-            </template>
-        </div>
-        <div class="playerrowsfooter">
-            <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game)</div>
-            <div class="favouredof">Todo (Favoured of)</div>
         </div>
         <div class="teammanagement" :class="{newteam: teamMode === 'CREATE'}">
             <div class="teammanagementrow">
@@ -250,9 +261,12 @@ import TeamSheet from "../include/TeamSheet";
 import PlayerComponent from "./Player.vue";
 import Player from "../include/Player";
 
+import HireRookiesComponent from "./HireRookies.vue";
+
 @Component({
     components: {
         'player': PlayerComponent,
+        'hirerookies': HireRookiesComponent,
     },
     props: {
         teamManagementSettings: {
@@ -482,6 +496,14 @@ export default class TeamComponent extends Vue {
     private handleRedraftFirePlayer(teamSheetEntryNumber: number) {
         this.team.removePlayer(teamSheetEntryNumber);
         this.refreshTeamSheet();
+    }
+
+    private handleHireRookie(positionId: number) {
+        this.handleAddPlayer(this.findEmptyTeamSheetEntry(), positionId);
+    }
+
+    private findEmptyTeamSheetEntry(): number {
+        return this.teamSheet.findFirstEmptyTeamSheetEntry().getNumber();
     }
 }
 </script>
