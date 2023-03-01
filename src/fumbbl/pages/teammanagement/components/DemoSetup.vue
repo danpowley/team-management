@@ -1,8 +1,18 @@
 <template>
     <div class="demosetup">
+        <h2>Load demo team</h2>
         <div>
-            <input v-model="demoTeamId" type=text><button @click="loadDemoTeam()">load team</button>
+            <select v-model="coach" @change="setupTeams">
+                <option v-for="c in coachesForSelect" :key="c" :value="c">{{ c }}</option>
+            </select>
+            <select v-model="demoTeamId">
+                <option v-for="t in teamsForSelect" :key="t.id" :value="t.id">{{ t.name }}</option>
+            </select>
+            <button @click="loadDemoTeam()">Load team</button>
         </div>
+        <br>
+        <br>
+        <h2>Create empty demo team</h2>
         <div>
             <select v-model="divisionOrGroup" @change="setupRosters">
                 <option value="d-0">Please choose</option>
@@ -33,13 +43,16 @@ import Component from 'vue-class-component';
     }
 })
 export default class DemoSetupComponent extends Vue {
+    private coachesForSelect: any[] = ['HimalayaP1C7', 'Christer', 'PurpleChest', 'Malmir', 'Nelphine', 'Java', 'MerryZ'];
+    private coach: string = '';
+    private teamsForSelect: any[] = [];
+    public demoTeamId: number | null = null;
     private divisionOrGroup: string = '';
     private rostersForSelect: any[] = [];
     private rulesetId: number = 0;
     private rosterId: number = 0;
     public newTeamDivisionId: number | null = null;
     public newTeamLeagueId: number | null = null;
-    public demoTeamId: number | null = 1085077;
 
     private async setupRosters() {
         const bits = this.divisionOrGroup.split('-');
@@ -79,33 +92,28 @@ export default class DemoSetupComponent extends Vue {
         this.rostersForSelect = basicRosters;
     }
 
-    private resetDemo() {
-        this.newTeamDivisionId = null;
-        this.newTeamLeagueId = null;
+    private async setupTeams() {
+        const result = await Axios.post('https://fumbbl.com/api/coach/teams/' + this.coach);
+        const rawApiTeams = result.data.teams;
+        this.prepareTeams(rawApiTeams);
     }
 
-    public createForDivision(divisionId: number) {
-        this.resetDemo();
-        this.newTeamDivisionId = divisionId;
-        this.createNewTeam();
-    }
-
-    public createForGroup(groupId: number) {
-        this.resetDemo();
-        this.newTeamLeagueId = groupId;
-        this.createNewTeam();
-    }
-
-    public async createNewTeam() {
-        if (this.newTeamDivisionId) {
-            const result = await Axios.post('http://localhost:3000/api/division/get/' + this.newTeamDivisionId);
-            this.$emit('ruleset-chosen', result.data.rulesetId);
+    private async prepareTeams(rawApiTeams) {
+        const basicTeams = [];
+        for (const team of rawApiTeams) {
+            const teamId = ~~team.id;
+            const leagueInfo = team.league ? ` [${team.league}] ` : '';
+            basicTeams.push({id: teamId, name: `${team.division}${leagueInfo} (${team.status}): ${team.race} - ${team.name}`});
         }
 
-        if (this.newTeamLeagueId) {
-            const result = await Axios.post('http://localhost:3000/api/group/get/' + this.newTeamLeagueId);
-            this.$emit('ruleset-chosen', result.data.ruleset);
-        }
+        basicTeams.sort((a, b) => {
+            if (a.name === b.name) {
+                return 0;
+            }
+            return a.name > b.name ? 1 : -1;
+        });
+
+        this.teamsForSelect = basicTeams;
     }
 
     public createEmptyDemoTeam() {
