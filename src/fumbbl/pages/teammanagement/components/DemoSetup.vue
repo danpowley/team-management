@@ -60,14 +60,14 @@ export default class DemoSetupComponent extends Vue {
         const divisionOrGroupId = bits[1];
 
         if (isDivision) {
-            const result = await Axios.post('http://localhost:3000/api/division/get/' + divisionOrGroupId);
+            const result = await Axios.post('https://fumbbl.com/api/division/get/' + divisionOrGroupId);
             this.rulesetId = result.data.rulesetId;
         } else {
-            const result = await Axios.post('http://localhost:3000/api/group/get/' + divisionOrGroupId);
+            const result = await Axios.post('https://fumbbl.com/api/group/get/' + divisionOrGroupId);
             this.rulesetId = result.data.ruleset;
         }
 
-        const result2 = await Axios.post('http://localhost:3000/api/ruleset/get/' + this.rulesetId);
+        const result2 = await Axios.post('https://fumbbl.com/api/ruleset/get/' + this.rulesetId);
         const rawApiRuleset = result2.data;
         this.prepareBasicRosters(rawApiRuleset.rosters);
     }
