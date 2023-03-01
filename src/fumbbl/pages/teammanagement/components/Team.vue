@@ -263,6 +263,8 @@ import PlayerComponent from "./Player.vue";
 import Player from "../include/Player";
 
 import HireRookiesComponent from "./HireRookies.vue";
+import RosterIconManager from "../include/RosterIconManager";
+import TeamManagementSettings from "../include/TeamManagementSettings";
 
 @Component({
     components: {
@@ -270,17 +272,15 @@ import HireRookiesComponent from "./HireRookies.vue";
         'hirerookies': HireRookiesComponent,
     },
     props: {
-        teamManagementSettings: {
-            type: Object,
-            required: true,
-        },
-        rosterIconManager: {
+        demoTeamSettings: {
             type: Object,
             required: true,
         },
     },
 })
 export default class TeamComponent extends Vue {
+    private teamManagementSettings: TeamManagementSettings | null = null;
+    private rosterIconManager: RosterIconManager | null = null;
     private teamMode: 'CREATE' | 'POST_GAME' | 'READY' | 'RETIRED' | 'REDRAFT' = 'CREATE';
     public team: Team | null = null;
     public teamSheet: TeamSheet | null = null;
@@ -289,24 +289,64 @@ export default class TeamComponent extends Vue {
     private showHireRookies: boolean = false;
 
     async mounted() {
+        if (this.$props.demoTeamSettings.newTeam !== null) {
+            const rulesetId = this.$props.demoTeamSettings.newTeam.rulesetId;
+            const rosterId = this.$props.demoTeamSettings.newTeam.rosterId;
+            await this.setupForRulesetAndRoster(rulesetId, rosterId);
+            this.team = new Team(this.teamManagementSettings.minStartFans);
+        } else if (this.$props.demoTeamSettings.existingTeamId !== null) {
+            const result = await Axios.post('http://localhost:3000/api/team/get/' + this.$props.demoTeamSettings.existingTeamId);
+            const rawApiTeam = result.data;
+            await this.setupForRulesetAndRoster(rawApiTeam.ruleset, rawApiTeam.roster.id);
+            this.team = Team.fromApi(
+                rawApiTeam,
+                this.teamManagementSettings.minStartFans,
+                this.teamManagementSettings,
+                this.rosterIconManager,
+            );
+        } else {
+            throw new Error('Must be either new or existing configured.');
+        }
         this.teamMode = 'CREATE';
-
-        this.team = new Team(this.$props.teamManagementSettings.minStartFans);
         this.refreshTeamSheet();
     }
 
+    private async setupForRulesetAndRoster(rulesetId: number, rosterId: number) {
+        const resultA = await Axios.post('http://localhost:3000/api/ruleset/get/' + rulesetId);
+        const rawApiRuleset = resultA.data;
+
+        const resultB = await Axios.post('http://localhost:3000/api/roster/get/' + rosterId);
+        const rawApiRoster = resultB.data;
+
+        await this.setupRosterIconManager(rawApiRoster.positions);
+        this.teamManagementSettings = new TeamManagementSettings(rawApiRuleset, rawApiRoster);
+    }
+
+    public async setupRosterIconManager(rawApiPositions: any[]) {
+        const positionIconData = rawApiPositions.map((position: any) => {
+            return {
+                positionId: ~~position.id,
+                positionIcon: ~~position.icon,
+            };
+        });
+        const rosterIconManager = new RosterIconManager();
+        await rosterIconManager.prepareIconData(positionIconData);
+
+        this.rosterIconManager = rosterIconManager;
+    }
+
     private get teamCost(): number {
-        return this.$props.teamManagementSettings.calculateTeamCost(this.team);
+        return this.teamManagementSettings.calculateTeamCost(this.team);
     }
 
     private get teamCreationBudgetRemaining(): number {
-        return this.$props.teamManagementSettings.getRemainingBudget(this.teamCost);
+        return this.teamManagementSettings.getRemainingBudget(this.teamCost);
     }
 
     private get rosterPositionDataForBuyingPlayer(): PositionDataForBuyingPlayer[] {
         const positionQuantities: {positionId: number, quantity: number}[] = [];
 
-        for (const position of this.$props.teamManagementSettings.positions) {
+        for (const position of this.teamManagementSettings.positions) {
             const positionQuantity = {
                 positionId: position.id,
                 quantity: this.team.countPlayersOfPositionId(position.id),
@@ -314,7 +354,7 @@ export default class TeamComponent extends Vue {
             positionQuantities.push(positionQuantity);
         }
 
-        return this.$props.teamManagementSettings.getRosterPositionDataForBuyingPlayer(
+        return this.teamManagementSettings.getRosterPositionDataForBuyingPlayer(
             this.teamCreationBudgetRemaining,
             positionQuantities,
         );
@@ -340,21 +380,21 @@ export default class TeamComponent extends Vue {
     }
 
     private get addRemovePermissions(): AddRemovePermissions {
-        return this.$props.teamManagementSettings.getAddRemovePermissions(this.team);
+        return this.teamManagementSettings.getAddRemovePermissions(this.team);
     }
 
     public refreshTeamSheet() {
         this.teamSheet = new TeamSheet(
-            this.$props.teamManagementSettings.maxPlayers,
+            this.teamManagementSettings.maxPlayers,
             this.team.getPlayers(),
         );
     }
 
     private get rerollCostForMode(): number {
         if (this.teamMode === 'CREATE') {
-            return this.$props.teamManagementSettings.rerollCostOnCreate;
+            return this.teamManagementSettings.rerollCostOnCreate;
         } else {
-            return this.$props.teamManagementSettings.rerollCostFull;
+            return this.teamManagementSettings.rerollCostFull;
         }
     }
 
@@ -478,8 +518,8 @@ export default class TeamComponent extends Vue {
             'NEW--' + teamSheetEntryNumber,
             teamSheetEntryNumber,
             await this.generatePlayerName(),
-            this.$props.teamManagementSettings.getPosition(positionId),
-            this.$props.rosterIconManager.getRandomIconRowVersionPosition(positionId),
+            this.teamManagementSettings.getPosition(positionId),
+            this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
         );
         this.team.addPlayer(newPlayer);
         this.refreshTeamSheet();

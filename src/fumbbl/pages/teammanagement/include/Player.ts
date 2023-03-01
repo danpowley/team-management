@@ -1,4 +1,4 @@
-import { PlayerGender } from "./Interfaces";
+import { PlayerGender, Position } from "./Interfaces";
 import UpdatePlayerDetails from "./UpdatePlayerDetails";
 
 export default class Player {
@@ -38,6 +38,17 @@ export default class Player {
             mvps: 0,
             spp: 0,
         };
+    }
+
+    static fromApi(rawApiPlayer: any, position: Position, iconRowVersionPosition: number): Player {
+        const player = new Player(
+            rawApiPlayer.id,
+            rawApiPlayer.number,
+            rawApiPlayer.name,
+            position,
+            iconRowVersionPosition,
+        );
+        return player;
     }
 
     public getId(): string {

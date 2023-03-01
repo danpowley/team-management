@@ -1,4 +1,6 @@
 import Player from "./Player";
+import RosterIconManager from "./RosterIconManager";
+import TeamManagementSettings from "./TeamManagementSettings";
 
 export default class Team {
     private name: string = '';
@@ -13,6 +15,33 @@ export default class Team {
     constructor(minStartFans: number) {
         this.minStartDedicatedFans = minStartFans;
         this.dedicatedFans = minStartFans;
+    }
+
+    static fromApi(
+        rawApiTeam: any,
+        minStartDedicatedFans: number,
+        teamManagementSettings: TeamManagementSettings,
+        rosterIconManager: RosterIconManager,
+    ): Team {
+        const team = new Team(minStartDedicatedFans);
+        team.name = rawApiTeam.name;
+        team.rerolls = rawApiTeam.rerolls;
+        team.dedicatedFans = rawApiTeam.fanFactor;
+        team.assistantCoaches = rawApiTeam.assistantCoaches;
+        team.cheerleaders = rawApiTeam.cheerleaders;
+        team.apothecary = rawApiTeam.apothecary === 'Yes';
+
+        for (const rawApiPlayer of rawApiTeam.players) {
+            team.addPlayer(
+                Player.fromApi(
+                    rawApiPlayer,
+                    teamManagementSettings.getPosition(rawApiPlayer.positionId),
+                    rosterIconManager.getRandomIconRowVersionPosition(rawApiPlayer.positionId),
+                )
+            );
+        }
+
+        return team;
     }
 
     public createPreRedraftCopy(): Team {

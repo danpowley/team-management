@@ -31,7 +31,7 @@
             <br>
             <br>
             <div>
-                <input type=text><button>load team</button>
+                <input v-model="demoTeamId" type=text><button @click="loadDemoTeam()">load team</button>
             </div>
         </div>
     </div>
@@ -51,6 +51,7 @@ import Component from 'vue-class-component';
 export default class DemoSetupComponent extends Vue {
     public newTeamDivisionId: number | null = null;
     public newTeamLeagueId: number | null = null;
+    public demoTeamId: number | null = 1085077;
 
     private resetDemo() {
         this.newTeamDivisionId = null;
@@ -79,6 +80,10 @@ export default class DemoSetupComponent extends Vue {
             const result = await Axios.post('http://localhost:3000/api/group/get/' + this.newTeamLeagueId);
             this.$emit('ruleset-chosen', result.data.ruleset);
         }
+    }
+
+    public async loadDemoTeam() {
+        this.$emit('demo-team-chosen', this.demoTeamId);
     }
 }
 </script>
