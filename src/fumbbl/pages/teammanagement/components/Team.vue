@@ -295,7 +295,7 @@ export default class TeamComponent extends Vue {
             await this.setupForRulesetAndRoster(rulesetId, rosterId);
             this.team = new Team(this.teamManagementSettings.minStartFans);
         } else if (this.$props.demoTeamSettings.existingTeamId !== null) {
-            const result = await Axios.post('http://localhost:3000/api/team/get/' + this.$props.demoTeamSettings.existingTeamId);
+            const result = await Axios.post('https://fumbbl.com/api/team/get/' + this.$props.demoTeamSettings.existingTeamId);
             const rawApiTeam = result.data;
             await this.setupForRulesetAndRoster(rawApiTeam.ruleset, rawApiTeam.roster.id);
             this.team = Team.fromApi(
@@ -312,10 +312,10 @@ export default class TeamComponent extends Vue {
     }
 
     private async setupForRulesetAndRoster(rulesetId: number, rosterId: number) {
-        const resultA = await Axios.post('http://localhost:3000/api/ruleset/get/' + rulesetId);
+        const resultA = await Axios.post('https://fumbbl.com/api/ruleset/get/' + rulesetId);
         const rawApiRuleset = resultA.data;
 
-        const resultB = await Axios.post('http://localhost:3000/api/roster/get/' + rosterId);
+        const resultB = await Axios.post('https://fumbbl.com/api/roster/get/' + rosterId);
         const rawApiRoster = resultB.data;
 
         await this.setupRosterIconManager(rawApiRoster.positions);
@@ -476,7 +476,7 @@ export default class TeamComponent extends Vue {
     }
 
     private async generatePlayerName(): Promise<string> {
-        const result = await Axios.post('http://localhost:3000/api/name/generate/default');
+        const result = await Axios.post('https://fumbbl.com/api/name/generate/default');
         const playerName = result.data;
         return playerName;
     }
