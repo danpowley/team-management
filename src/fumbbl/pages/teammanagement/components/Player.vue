@@ -63,10 +63,10 @@
                     <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(teamSheetEntry.getPlayer().getPositionId(), teamSheetEntry.getPlayer().getIconRowVersionPosition())"></div>
                 </div>
                 <div class="cell playerdetails">
-                    <div class="playername">
+                    <div class="playername" :title="teamSheetEntry.getPlayer().getPlayerName()">
                         <a href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)">{{ teamSheetEntry.getPlayer().getPlayerName() }}</a>
                     </div>
-                    <div class="playerposition">{{ teamSheetEntry.getPlayer().getPositionName() }}</div>
+                    <div class="playerposition" :title="teamSheetEntry.getPlayer().getPositionName()">{{ teamSheetEntry.getPlayer().getPositionName() }}</div>
                 </div>
                 <div class="cell statma">
                     {{ teamSheetEntry.getPlayer().getPositionStats().Movement }}
@@ -84,10 +84,10 @@
                     {{ teamSheetEntry.getPlayer().getPositionStats().Armour }}+
                 </div>
                 <div class="cell skills">
-                    <div class="positionskills">
+                    <div class="positionskills" :title="teamSheetEntry.getPlayer().getPositionSkills().join(', ')">
                         {{ teamSheetEntry.getPlayer().getPositionSkills().join(', ') }}
                     </div>
-                    <div class="playerskills">
+                    <div class="playerskills" :title="teamSheetEntry.getPlayer().getSkills().join(', ')">
                         {{ teamSheetEntry.getPlayer().getSkills().join(', ') }}
                     </div>
                 </div>
