@@ -48,6 +48,7 @@ export default class Player {
             position,
             iconRowVersionPosition,
         );
+        player.injuries = rawApiPlayer.injuries.split(',').sort();
         return player;
     }
 

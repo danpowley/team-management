@@ -92,7 +92,7 @@
                     </div>
                 </div>
                 <div class="cell injuries">
-                    {{ teamSheetEntry.getPlayer().getInjuries().join(', ') }}
+                    {{ displayInjuries(teamSheetEntry.getPlayer().getInjuries()) }}
                 </div>
                 <div class="cell spp">
                     {{ teamSheetEntry.getPlayer().getRecord().spp }}
@@ -320,6 +320,28 @@ export default class PlayerComponent extends Vue {
         if (keepOrFire === 'FIRE') {
             this.$emit('redraft-fire-player', this.$props.teamSheetEntry.getNumber());
         }
+    }
+
+    private displayInjuries(injuries: string[]): string {
+        let niggleCount = 0;
+        const displayInjuries: string[] = [];
+
+        for (const injury of injuries) {
+            if (injury === 'n') {
+                niggleCount++;
+            } else {
+                displayInjuries.push(injury)
+            }
+        }
+        if (niggleCount > 0) {
+            if (niggleCount === 1) {
+                displayInjuries.push('n');
+            } else {
+                displayInjuries.push(`n${niggleCount}`);
+            }
+        }
+
+        return displayInjuries.sort().join(', ');
     }
 }
 </script>
