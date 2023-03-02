@@ -171,7 +171,7 @@
                     Treasury:
                 </div>
                 <div class="info left">
-                    todo
+                    {{ team.getTreasury()/1000 }}k
                 </div>
                 <div class="title right">
                     Cheerleaders:

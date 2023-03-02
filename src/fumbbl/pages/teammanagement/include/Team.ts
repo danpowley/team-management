@@ -5,6 +5,7 @@ import TeamManagementSettings from "./TeamManagementSettings";
 export default class Team {
     private name: string = '';
     private players: Player[] = [];
+    private treasury: number = 0;
     private rerolls: number = 0;
     private minStartDedicatedFans: number = 0;
     private dedicatedFans: number = 0;
@@ -25,6 +26,7 @@ export default class Team {
     ): Team {
         const team = new Team(minStartDedicatedFans);
         team.name = rawApiTeam.name;
+        team.treasury = rawApiTeam.treasury;
         team.rerolls = rawApiTeam.rerolls;
         team.dedicatedFans = rawApiTeam.fanFactor;
         team.assistantCoaches = rawApiTeam.assistantCoaches;
@@ -62,6 +64,10 @@ export default class Team {
 
     public getName(): string {
         return this.name;
+    }
+
+    public getTreasury(): number {
+        return this.treasury;
     }
 
     public getPlayers(): Player[] {
