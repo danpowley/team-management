@@ -27,8 +27,8 @@ export default class Player {
         this.position = position;
         this.iconRowVersionPosition = iconRowVersionPosition;
 
-        this.injuries = ['x', 'y', 'z'];
-        this.skills = ['skill1', 'skill2'];
+        this.injuries = [];
+        this.skills = [];
 
         this.record = {
             completions: 0,
@@ -48,7 +48,8 @@ export default class Player {
             position,
             iconRowVersionPosition,
         );
-        player.injuries = rawApiPlayer.injuries.split(',').sort();
+        player.injuries = rawApiPlayer.injuries.split(',');
+        player.skills = rawApiPlayer.skills;
         return player;
     }
 
