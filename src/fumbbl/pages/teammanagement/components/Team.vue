@@ -17,9 +17,6 @@
                         <img v-else-if="team.teamStatus.isRetired()" src="https://fumbbl.com/FUMBBL/Images/Retired_small.gif" alt="Roster" title="Retired">
                         <span :title="team.getDivision()"> [{{ team.getDivisionAbbreviated() }}]</span> {{ teamManagementSettings.rosterName }}
                     </div>
-                    <div v-if="teamMode === 'READY'">
-                        <a href="#" @click.prevent="beginRedraft()" style="font-size: 50%;">Test redraft</a>
-                    </div>
                 </div>
             </div>
             <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
@@ -35,7 +32,7 @@
                 <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
             </div>
         </div>
-        <div v-if="teamMode === 'REDRAFT'" class="redraft">
+        <div v-if="false" class="redraft">
              <div class="redraftcalculation">
                 <div class="budgetlabel">Re-drafting Budget</div>
                 <div class="playercostlabel">Player (re-)hiring cost</div>
@@ -48,12 +45,12 @@
                 <div class="othercost">210k</div>
                 <div class="equals">=</div>
                 <div class="remainingbudget">-535k</div>
-                <div class="errormessage"><template v-if="!team.withinRedraftBudget()">⚠ Not enough money to cover team cost.</template></div>
+                <div class="errormessage"><template v-if="true">⚠ Not enough money to cover team cost.</template></div>
             </div>
 
             <div class="redraftactions">
-                <div class="restartredraft"><a href="#" @click.prevent="restartRedraft()">Restart redraft</a> (clears all changes)</div>
-                <div class="finishredraft" v-if="team.withinRedraftBudget()"><a href="#" @click.prevent="finishRedraft()">Finish redraft</a> (saves your changes)</div>
+                <div class="restartredraft"><a href="#">Restart redraft</a> (clears all changes)</div>
+                <div class="finishredraft" v-if="true"><a href="#">Finish redraft</a> (saves your changes)</div>
             </div>
         </div>
 
@@ -91,7 +88,6 @@
                             :team-creation-budget-remaining="teamCreationBudgetRemaining"
                             :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
                             :roster-icon-manager="rosterIconManager"
-                            :original-player-for-redraft="getOriginalPlayerForRedraft(teamSheetEntry.getNumber())"
                             @add-player="handleAddPlayer"
                             @delete-player="handleDeletePlayer"
                             @make-player-draggable="handleMakePlayerDraggable"
@@ -100,8 +96,6 @@
                             @drag-end="handlePlayerDragEnd"
                             @end-player-draggable="handleEndPlayerDraggable"
                             @fold-out="handleFoldOut"
-                            @redraft-keep-player="handleRedraftKeepPlayer"
-                            @redraft-fire-player="handleRedraftFirePlayer"
                         ></player>
                     </template>
                 </div>
@@ -287,7 +281,6 @@ export default class TeamComponent extends Vue {
     private teamMode: 'CREATE' | 'POST_GAME' | 'READY' | 'RETIRED' | 'REDRAFT' = 'CREATE';
     public team: Team | null = null;
     public teamSheet: TeamSheet | null = null;
-    public preRedraftTeam: Team | null = null;
 
     private showHireRookies: boolean = false;
 
@@ -489,29 +482,6 @@ export default class TeamComponent extends Vue {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    public beginRedraft() {
-        this.preRedraftTeam = this.team.createPreRedraftCopy();
-        this.teamMode = 'REDRAFT';
-    }
-
-    public restartRedraft() {
-        this.team = this.preRedraftTeam;
-        this.beginRedraft();
-        this.refreshTeamSheet();
-    }
-
-    public finishRedraft() {
-        this.preRedraftTeam = null;
-        this.teamMode = 'READY';
-    }
-
-    public getOriginalPlayerForRedraft(teamSheetEntryNumber: number): Player | null {
-        if (this.preRedraftTeam === null) {
-            return null;
-        }
-        return this.preRedraftTeam.findPlayerByNumber(teamSheetEntryNumber);
-    }
-
     private enableShowHireRookies(): void {
         this.showHireRookies = ! this.showHireRookies;
     }
@@ -535,17 +505,6 @@ export default class TeamComponent extends Vue {
 
     private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
         this.teamSheet.updateFoldOut(teamSheetEntryNumber, playerRowFoldOutMode, multipleOpenMode);
-    }
-
-    private handleRedraftKeepPlayer(teamSheetEntryNumber: number) {
-        const originalPlayer = this.preRedraftTeam.findPlayerByNumber(teamSheetEntryNumber);
-        this.team.addPlayer(originalPlayer);
-        this.refreshTeamSheet();
-    }
-
-    private handleRedraftFirePlayer(teamSheetEntryNumber: number) {
-        this.team.removePlayer(teamSheetEntryNumber);
-        this.refreshTeamSheet();
     }
 
     private handleHireRookie(positionId: number) {

@@ -51,22 +51,6 @@ export default class Team {
         return team;
     }
 
-    public createPreRedraftCopy(): Team {
-        const team = new Team(
-            this.minStartDedicatedFans,
-        );
-        for (const player of this.players) {
-            team.addPlayer(player.createPreRedraftCopy());
-        }
-        team.rerolls = this.rerolls;
-        team.dedicatedFans = this.dedicatedFans;
-        team.assistantCoaches = this.assistantCoaches;
-        team.cheerleaders = this.cheerleaders;
-        team.apothecary = this.apothecary;
-
-        return team;
-    }
-
     public getDivision(): string {
         return this.division;
     }
@@ -220,9 +204,5 @@ export default class Team {
             }
         }
         sourcePlayer.setPlayerNumber(targetPlayerNumber);
-    }
-
-    public withinRedraftBudget(): boolean {
-        return true;
     }
 }

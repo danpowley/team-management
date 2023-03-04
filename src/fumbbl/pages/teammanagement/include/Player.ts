@@ -129,25 +129,4 @@ export default class Player {
         this.playerName = updatePlayerDetails.getPlayerName();
         this.gender = updatePlayerDetails.getGender();
     }
-
-    private copyValuesForRedraft(sourcePlayer: Player) {
-        this.gender = sourcePlayer.getGender();
-        this.injuries = sourcePlayer.getInjuries();
-        this.skills = sourcePlayer.getSkills();
-        this.record = sourcePlayer.getRecord();
-    }
-
-    public createPreRedraftCopy(): Player {
-        const player = new Player(
-            this.getId(),
-            this.getPlayerNumber(),
-            this.getPlayerName(),
-            this.getPosition(),
-            this.getIconRowVersionPosition(),
-        );
-
-        player.copyValuesForRedraft(this);
-
-        return player;
-    }
 }
