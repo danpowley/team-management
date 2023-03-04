@@ -149,10 +149,6 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
         'playerdetails': PlayerDetailsComponent,
     },
     props: {
-        teamMode: {
-            type: String,
-            required: true,
-        },
         teamSheetEntry: {
             type: Object,
             required: true,

@@ -84,7 +84,6 @@
                     </div>
                     <template v-if="teamSheet !== null">
                         <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
-                            :team-mode="teamMode"
                             :team-sheet-entry="teamSheetEntry"
                             :all-fold-outs-closed="teamSheet.allFoldOutsClosed()"
                             :is-any-player-drag-in-progress="teamSheet.getDragSourcePlayerNumber() !== null"
