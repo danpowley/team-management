@@ -1,5 +1,7 @@
+import { TeamStatusValue } from "./Interfaces";
+
 export default class TeamStatus {
-    private status: 'NEW' | 'ACTIVE' | 'PENDING_APPROVAL' | 'BLOCKED' | 'RETIRED' | 'WAITING_FOR_OPPONENT' | 'SKILL_ROLLS_PENDING' | 'POST_MATCH_SEQUENCE' | 'REDRAFTING' = 'NEW';
+    private status: TeamStatusValue = 'NEW';
 
     constructor(rawApiStatus?: string) {
         rawApiStatus = rawApiStatus !== undefined ? rawApiStatus : 'New';

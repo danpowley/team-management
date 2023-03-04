@@ -59,6 +59,10 @@ export default class Team {
         return this.division.charAt(0);
     }
 
+    public getTeamStatus(): TeamStatus {
+        return this.teamStatus;
+    }
+
     public getName(): string {
         return this.name;
     }

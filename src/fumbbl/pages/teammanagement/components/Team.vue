@@ -5,7 +5,7 @@
             <div class="teamheadermain">
                 <div class="teamheadermaincontent">
                     <div>
-                        <input v-if="teamMode === 'CREATE'" v-model="team.name">
+                        <input v-if="accessControl.canCreate()" v-model="team.name">
                         <div v-else class="teamname">
                             {{ team.name ? team.name : 'NO TEAM NAME CHOSEN' }}
                         </div>
@@ -21,7 +21,7 @@
             </div>
             <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
         </div>
-        <div v-if="teamMode === 'CREATE'" class="createteamstats">
+        <div v-if="accessControl.canCreate()" class="createteamstats">
             <div class="playerinfo">
                 <div class="currentplayercount">{{ team.getPlayerCount() }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required)</div>
             </div>
@@ -100,12 +100,12 @@
                     </template>
                 </div>
                 <div class="playerrowsfooter">
-                    <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game) <a href="#" @click.prevent="enableShowHireRookies()">Buy new player</a></div>
+                    <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game) <a href="#" v-if="accessControl.canEdit()" @click.prevent="enableShowHireRookies()">Buy new player</a></div>
                     <div class="favouredof">Todo (Favoured of)</div>
                 </div>
             </div>
         </div>
-        <div class="teammanagement" :class="{newteam: teamMode === 'CREATE'}">
+        <div class="teammanagement" :class="{editteam: accessControl.canEdit()}">
             <div class="teammanagementrow">
                 <div class="title left">
                     Coach:
@@ -120,7 +120,7 @@
                     <div class="data">
                         {{ team.getRerolls() }}
                     </div>
-                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                    <div v-if="accessControl.canEdit()" class="editteamcontrols">
                         <template v-if="addRemovePermissions.rerolls.add">(<a href="#" @click.prevent="addReroll()">Add</a>)</template><template v-if="addRemovePermissions.rerolls.remove">(<a href="#" @click.prevent="removeReroll()">Remove</a>)</template>
                     </div>
                 </div>
@@ -139,7 +139,7 @@
                     <div class="data">
                         {{ team.getDedicatedFans() }}
                     </div>
-                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                    <div v-if="accessControl.canEdit()" class="editteamcontrols">
                         <template v-if="addRemovePermissions.dedicatedFans.add">(<a href="#" @click.prevent="addDedicatedFans()">Add</a>)</template><template v-if="addRemovePermissions.dedicatedFans.remove">(<a href="#" @click.prevent="removeDedicatedFans()">Remove</a>)</template>
                     </div>
                 </div>
@@ -158,7 +158,7 @@
                     <div class="data">
                         {{ team.getAssistantCoaches() }}
                     </div>
-                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                    <div v-if="accessControl.canEdit()" class="editteamcontrols">
                         <template v-if="addRemovePermissions.assistantCoaches.add">(<a href="#" @click.prevent="addAssistantCoach()">Add</a>)</template><template v-if="addRemovePermissions.assistantCoaches.remove">(<a href="#" @click.prevent="removeAssistantCoach()">Remove</a>)</template>
                     </div>
                 </div>
@@ -177,7 +177,7 @@
                     <div class="data">
                         {{ team.getCheerleaders() }}
                     </div>
-                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                    <div v-if="accessControl.canEdit()" class="editteamcontrols">
                         <template v-if="addRemovePermissions.cheerleaders.add">(<a href="#" @click.prevent="addCheerleader()">Add</a>)</template><template v-if="addRemovePermissions.cheerleaders.remove">(<a href="#" @click.prevent="removeCheerleader()">Remove</a>)</template>
                     </div>
                 </div>
@@ -196,7 +196,7 @@
                     <div class="data">
                         {{ team.getApothecary() ? 'Yes' : 'No' }}
                     </div>
-                    <div v-if="teamMode === 'CREATE' && teamManagementSettings.apothecaryAllowed" class="newteamcontrols">
+                    <div v-if="accessControl.canEdit() && teamManagementSettings.apothecaryAllowed" class="editteamcontrols">
                         <template v-if="addRemovePermissions.apothecary.add">(<a href="#" @click.prevent="addApothecary()">Add</a>)</template><template v-if="addRemovePermissions.apothecary.remove">(<a href="#" @click.prevent="removeApothecary()">Remove</a>)</template>
                     </div>
                 </div>
@@ -215,7 +215,7 @@
                     <div class=data>
                         todo
                     </div>
-                    <div v-if="teamMode === 'CREATE'" class="newteamcontrols">
+                    <div v-if="accessControl.canEdit()" class="editteamcontrols">
                         <!-- deliberately empty -->
                     </div>
                 </div>
@@ -231,9 +231,9 @@
                 Last Opponent: <a href="#" :data-id="lastPlayedTeamData.id">{{ lastPlayedTeamData.name }}</a>
             </div>
         </div>
-        <div v-if="teamMode === 'CREATE'" class="createteam">
+        <div v-if="accessControl.canCreate()" class="createteam">
             <template v-if="teamManagementSettings.isValidForCreate(team)">
-                <button @click="createTeam()">Submit for approval</button>
+                <button>Submit for approval</button>
             </template>
             <template v-else>
                 <div class="unabletocreate">
@@ -254,6 +254,7 @@ import Vue from "vue";
 import Axios from "axios";
 import Component from 'vue-class-component';
 import { AddRemovePermissions, PlayerRowFoldOutMode, PositionDataForBuyingPlayer } from "../include/Interfaces";
+import AccessControl from "../include/AccessControl";
 import Team from "../include/Team";
 import TeamSheet from "../include/TeamSheet";
 import PlayerComponent from "./Player.vue";
@@ -276,9 +277,9 @@ import TeamManagementSettings from "../include/TeamManagementSettings";
     },
 })
 export default class TeamComponent extends Vue {
+    private accessControl: AccessControl | null = null;
     private teamManagementSettings: TeamManagementSettings | null = null;
     private rosterIconManager: RosterIconManager | null = null;
-    private teamMode: 'CREATE' | 'POST_GAME' | 'READY' | 'RETIRED' | 'REDRAFT' = 'CREATE';
     public team: Team | null = null;
     public teamSheet: TeamSheet | null = null;
 
@@ -303,7 +304,8 @@ export default class TeamComponent extends Vue {
         } else {
             throw new Error('Must be either new or existing configured.');
         }
-        this.teamMode = 'CREATE';
+
+        this.accessControl = new AccessControl(['OWNER'], this.team.getTeamStatus().getStatus());
         this.refreshTeamSheet();
     }
 
@@ -387,7 +389,7 @@ export default class TeamComponent extends Vue {
     }
 
     private get rerollCostForMode(): number {
-        if (this.teamMode === 'CREATE') {
+        if (this.team.getTeamStatus().isNew()) {
             return this.teamManagementSettings.rerollCostOnCreate;
         } else {
             return this.teamManagementSettings.rerollCostFull;
@@ -475,11 +477,6 @@ export default class TeamComponent extends Vue {
         const result = await Axios.post('https://fumbbl.com/api/name/generate/default');
         const playerName = result.data;
         return playerName;
-    }
-
-    public createTeam() {
-        this.teamMode = 'READY';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     private enableShowHireRookies(): void {
