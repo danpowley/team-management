@@ -11,7 +11,11 @@
                         </div>
                     </div>
                     <div class="rosterinfo" style="margin-top: 0.5em;">
-                        <img src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Explanation of team mode here"> [C] {{ teamManagementSettings.rosterName }}
+                        <img v-if="team.teamStatus.isNew()" src="https://fumbbl.com/FUMBBL/Images/New_small.gif" alt="Roster" title="New team">
+                        <img v-else-if="team.teamStatus.isActive()" src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Ready / View Roster">
+                        <img v-else-if="team.teamStatus.isPostMatch()" src="https://fumbbl.com/FUMBBL/Images/p_small.png" alt="Roster" title="Post match sequence">
+                        <img v-else-if="team.teamStatus.isRetired()" src="https://fumbbl.com/FUMBBL/Images/Retired_small.gif" alt="Roster" title="Retired">
+                        <span :title="team.getDivision()"> [{{ team.getDivisionAbbreviated() }}]</span> {{ teamManagementSettings.rosterName }}
                     </div>
                     <div v-if="teamMode === 'READY'">
                         <a href="#" @click.prevent="beginRedraft()" style="font-size: 50%;">Test redraft</a>

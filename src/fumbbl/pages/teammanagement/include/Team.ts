@@ -1,9 +1,12 @@
 import Player from "./Player";
 import RosterIconManager from "./RosterIconManager";
 import TeamManagementSettings from "./TeamManagementSettings";
+import TeamStatus from "./TeamStatus";
 
 export default class Team {
+    private teamStatus: TeamStatus = new TeamStatus();
     private name: string = '';
+    private division: string = '';
     private players: Player[] = [];
     private treasury: number = 0;
     private rerolls: number = 0;
@@ -25,6 +28,8 @@ export default class Team {
         rosterIconManager: RosterIconManager,
     ): Team {
         const team = new Team(minStartDedicatedFans);
+        team.teamStatus = new TeamStatus(rawApiTeam.status);
+        team.division = rawApiTeam.division;
         team.name = rawApiTeam.name;
         team.treasury = rawApiTeam.treasury;
         team.rerolls = rawApiTeam.rerolls;
@@ -60,6 +65,14 @@ export default class Team {
         team.apothecary = this.apothecary;
 
         return team;
+    }
+
+    public getDivision(): string {
+        return this.division;
+    }
+
+    public getDivisionAbbreviated(): string {
+        return this.division.charAt(0);
     }
 
     public getName(): string {
