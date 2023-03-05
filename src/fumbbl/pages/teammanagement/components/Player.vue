@@ -158,10 +158,6 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
             type: Boolean,
             required: true,
         },
-        teamCreationBudgetRemaining: {
-            type: Number,
-            required: true,
-        },
         rosterPositionDataForBuyingPlayer: {
             type: Array,
             required: true,

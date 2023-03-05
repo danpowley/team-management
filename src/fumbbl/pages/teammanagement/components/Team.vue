@@ -85,7 +85,6 @@
                             :all-fold-outs-closed="teamSheet.allFoldOutsClosed()"
                             :is-any-player-drag-in-progress="teamSheet.getDragSourcePlayerNumber() !== null"
                             :use-active-seperator-for-drag-drop="teamSheet.useActiveSeperatorForDragDrop(teamSheetEntry)"
-                            :team-creation-budget-remaining="teamCreationBudgetRemaining"
                             :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
                             :roster-icon-manager="rosterIconManager"
                             @add-player="handleAddPlayer"
