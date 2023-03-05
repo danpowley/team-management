@@ -16,9 +16,10 @@ export default class Team {
     private cheerleaders: number = 0;
     private apothecary: boolean = false;
 
-    constructor(minStartFans: number) {
+    constructor(minStartFans: number, treasury: number) {
         this.minStartDedicatedFans = minStartFans;
         this.dedicatedFans = minStartFans;
+        this.treasury = treasury;
     }
 
     static fromApi(
@@ -27,11 +28,10 @@ export default class Team {
         teamManagementSettings: TeamManagementSettings,
         rosterIconManager: RosterIconManager,
     ): Team {
-        const team = new Team(minStartDedicatedFans);
+        const team = new Team(minStartDedicatedFans, rawApiTeam.treasury);
         team.teamStatus = new TeamStatus(rawApiTeam.status);
         team.division = rawApiTeam.division;
         team.name = rawApiTeam.name;
-        team.treasury = rawApiTeam.treasury;
         team.rerolls = rawApiTeam.rerolls;
         team.dedicatedFans = rawApiTeam.fanFactor;
         team.assistantCoaches = rawApiTeam.assistantCoaches;

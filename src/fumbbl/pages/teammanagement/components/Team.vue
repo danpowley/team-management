@@ -289,7 +289,10 @@ export default class TeamComponent extends Vue {
             const rulesetId = this.$props.demoTeamSettings.newTeam.rulesetId;
             const rosterId = this.$props.demoTeamSettings.newTeam.rosterId;
             await this.setupForRulesetAndRoster(rulesetId, rosterId);
-            this.team = new Team(this.teamManagementSettings.minStartFans);
+            this.team = new Team(
+                this.teamManagementSettings.minStartFans,
+                this.teamManagementSettings.startTreasury,
+            );
         } else if (this.$props.demoTeamSettings.existingTeamId !== null) {
             const result = await Axios.post('https://fumbbl.com/api/team/get/' + this.$props.demoTeamSettings.existingTeamId);
             const rawApiTeam = result.data;
@@ -336,10 +339,6 @@ export default class TeamComponent extends Vue {
         return this.teamManagementSettings.calculateTeamCost(this.team);
     }
 
-    private get teamCreationBudgetRemaining(): number {
-        return this.teamManagementSettings.getRemainingBudget(this.teamCost);
-    }
-
     private get rosterPositionDataForBuyingPlayer(): PositionDataForBuyingPlayer[] {
         const positionQuantities: {positionId: number, quantity: number}[] = [];
 
@@ -352,7 +351,7 @@ export default class TeamComponent extends Vue {
         }
 
         return this.teamManagementSettings.getRosterPositionDataForBuyingPlayer(
-            this.teamCreationBudgetRemaining,
+            this.team.getTreasury(),
             positionQuantities,
         );
     }

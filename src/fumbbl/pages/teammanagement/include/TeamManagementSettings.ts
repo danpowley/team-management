@@ -145,10 +145,6 @@ export default class TeamManagementSettings {
         return positionCostsLookup;
     }
 
-    public getRemainingBudget(teamCost: number): number {
-        return this.settings.treasury.start - teamCost;
-    }
-
     public getAddRemovePermissions(team: any): AddRemovePermissions {
         return {
             rerolls: {
