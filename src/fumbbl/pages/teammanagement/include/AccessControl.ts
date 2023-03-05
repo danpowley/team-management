@@ -24,7 +24,7 @@ export default class AccessControl {
                 grantAccessToList: [
                     {
                         userRoles: ['OWNER', 'LEAGUE_STAFF', 'SITE_STAFF'],
-                        teamStatusValues: ['NEW', 'ACTIVE'],
+                        teamStatusValues: ['NEW', 'POST_MATCH_SEQUENCE'],
                     }
                 ]
             },
