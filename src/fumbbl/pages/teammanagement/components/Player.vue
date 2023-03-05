@@ -18,32 +18,34 @@
             <div class="seperator spacer"><div class="line"></div></div>
         </template>
         <div class="main">
-            <template v-if="teamSheetEntry.hasPlayer()">
-                <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable()" @mouseup="endPlayerDraggable()">
-                    <template v-if="!isAnyPlayerDragInProgress || teamSheetEntry.getIsDragSource()">
-                        <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                            width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
-                            <title>draggable</title>
-                            <rect x="10" y="6" width="4" height="4"/>
-                            <rect x="18" y="6" width="4" height="4"/>
-                            <rect x="10" y="14" width="4" height="4"/>
-                            <rect x="18" y="14" width="4" height="4"/>
-                            <rect x="10" y="22" width="4" height="4"/>
-                            <rect x="18" y="22" width="4" height="4"/>
-                            <rect id="_Transparent_Rectangle_" width="15" height="25" style="fill:none;"/>
-                        </svg>
-                    </template>
-                    <template v-else>
+            <template v-if="accessControl.canEdit()">
+                <template v-if="teamSheetEntry.hasPlayer()">
+                    <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable()" @mouseup="endPlayerDraggable()">
+                        <template v-if="!isAnyPlayerDragInProgress || teamSheetEntry.getIsDragSource()">
+                            <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                width="15px" height="25px" viewBox="0 0 32 32" xml:space="preserve">
+                                <title>draggable</title>
+                                <rect x="10" y="6" width="4" height="4"/>
+                                <rect x="18" y="6" width="4" height="4"/>
+                                <rect x="10" y="14" width="4" height="4"/>
+                                <rect x="18" y="14" width="4" height="4"/>
+                                <rect x="10" y="22" width="4" height="4"/>
+                                <rect x="18" y="22" width="4" height="4"/>
+                                <rect id="_Transparent_Rectangle_" width="15" height="25" style="fill:none;"/>
+                            </svg>
+                        </template>
+                        <template v-else>
+                            <div class="droptargetindicator">&#8982;</div>
+                        </template>
+                    </div>
+                    <div v-else class="cell draghandledisabled">
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="cell draghandle">
                         <div class="droptargetindicator">&#8982;</div>
-                    </template>
-                </div>
-                <div v-else class="cell draghandledisabled">
-                </div>
-            </template>
-            <template v-else>
-                <div class="cell draghandle">
-                    <div class="droptargetindicator">&#8982;</div>
-                </div>
+                    </div>
+                </template>
             </template>
             <div class="cell playernumber">
                 <span class="normalplayernumber">
