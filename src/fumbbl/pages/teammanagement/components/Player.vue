@@ -106,7 +106,8 @@
                         <span>Choose position to buy.</span> <a href="#" @click.prevent="performFoldOut('CLOSED')">Cancel</a>
                     </template>
                     <template v-else>
-                        <a href="#" @click.prevent="performFoldOut('BUY')">Buy player</a>
+                        <span>Empty</span>
+                        <!--<a href="#" @click.prevent="performFoldOut('BUY')">Buy player</a>-->
                     </template>
                 </div>
             </template>
