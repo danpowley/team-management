@@ -105,6 +105,22 @@ export default class TeamManagementSettings {
         return this.settings.rerolls.cost * 2;
     }
 
+    public get dedicatedFansCost(): number {
+        return this.settings.dedicatedFans.cost;
+    }
+
+    public get assistantCoachCost(): number {
+        return this.settings.sidelineStaff.assistantCoaches.cost;
+    }
+
+    public get cheerleaderCost(): number {
+        return this.settings.sidelineStaff.cheerleaders.cost;
+    }
+
+    public get apothecaryCost(): number {
+        return this.settings.sidelineStaff.apothecary.cost;
+    }
+
     public get apothecaryAllowed(): boolean {
         return this.settings.sidelineStaff.apothecary.allowed;
     }

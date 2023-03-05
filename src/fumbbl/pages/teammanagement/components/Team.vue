@@ -433,7 +433,9 @@ export default class TeamComponent extends Vue {
     }
 
     private addReroll() {
-        this.team.addReroll();
+        this.team.addReroll(
+            this.team.getTeamStatus().isNew() ? this.teamManagementSettings.rerollCostOnCreate : this.teamManagementSettings.rerollCostFull
+        );
     }
 
     private removeReroll() {
@@ -441,7 +443,9 @@ export default class TeamComponent extends Vue {
     }
 
     private addDedicatedFans() {
-        this.team.addDedicatedFans();
+        this.team.addDedicatedFans(
+            this.teamManagementSettings.dedicatedFansCost
+        );
     }
 
     private removeDedicatedFans() {
@@ -449,7 +453,9 @@ export default class TeamComponent extends Vue {
     }
 
     private addAssistantCoach() {
-        this.team.addAssistantCoach();
+        this.team.addAssistantCoach(
+            this.teamManagementSettings.assistantCoachCost
+        );
     }
 
     private removeAssistantCoach() {
@@ -457,7 +463,9 @@ export default class TeamComponent extends Vue {
     }
 
     private addCheerleader() {
-        this.team.addCheerleader();
+        this.team.addCheerleader(
+            this.teamManagementSettings.cheerleaderCost
+        );
     }
 
     private removeCheerleader() {
@@ -465,7 +473,9 @@ export default class TeamComponent extends Vue {
     }
 
     private addApothecary() {
-        this.team.addApothecary();
+        this.team.addApothecary(
+            this.teamManagementSettings.apothecaryCost
+        );
     }
 
     private removeApothecary() {
@@ -490,7 +500,7 @@ export default class TeamComponent extends Vue {
             this.teamManagementSettings.getPosition(positionId),
             this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
         );
-        this.team.addPlayer(newPlayer);
+        this.team.buyPlayer(newPlayer);
         this.refreshTeamSheet();
     }
 

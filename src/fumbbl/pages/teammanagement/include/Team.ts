@@ -83,6 +83,11 @@ export default class Team {
         this.players.push(player);
     }
 
+    public buyPlayer(player: Player): void {
+        this.addPlayer(player);
+        this.treasury -= player.getPositionCost();
+    }
+
     public findPlayerByNumber(playerNumber: number): Player | null {
         const player = this.players.find(player => player.getPlayerNumber() === playerNumber);
         return player ? player : null;
@@ -142,40 +147,45 @@ export default class Team {
         return this.players.length - this.countMissNextGamePlayers();
     }
 
-    public addReroll(): void {
+    public addReroll(cost: number): void {
         this.rerolls++;
+        this.treasury -= cost;
     }
 
     public removeReroll(): void {
         this.rerolls--;
     }
 
-    public addDedicatedFans(): void {
+    public addDedicatedFans(cost: number): void {
         this.dedicatedFans++;
+        this.treasury -= cost;
     }
 
     public removeDedicatedFans(): void {
         this.dedicatedFans--;
     }
 
-    public addAssistantCoach(): void {
+    public addAssistantCoach(cost: number): void {
         this.assistantCoaches++;
+        this.treasury -= cost;
     }
 
     public removeAssistantCoach(): void {
         this.assistantCoaches--;
     }
 
-    public addCheerleader(): void {
+    public addCheerleader(cost: number): void {
         this.cheerleaders++;
+        this.treasury -= cost;
     }
 
     public removeCheerleader(): void {
         this.cheerleaders--;
     }
 
-    public addApothecary(): void {
+    public addApothecary(cost: number): void {
         this.apothecary = true;
+        this.treasury -= cost;
     }
 
     public removeApothecary(): void {
