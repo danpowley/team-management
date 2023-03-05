@@ -1,6 +1,6 @@
 <template>
     <div class="playerdetails">
-        <div class="playerdetailssection playerdetailsedit">
+        <div class="playerdetailssection playerdetailsedit" v-if="canEdit">
             <a href="#" @click.prevent="$emit('delete-player')" style="float: right;">Remove player</a>
             <div class="title">Edit player details</div>
             <template v-if="updatePlayerDetails">
@@ -46,6 +46,10 @@ import UpdatePlayerDetails from "../include/UpdatePlayerDetails";
     components: {
     },
     props: {
+        canEdit: {
+            type: Boolean,
+            required: true,
+        },
         teamSheetEntry: {
             validator: function (teamSheetEntry) {
                 return typeof teamSheetEntry === 'object' || teamSheetEntry === null;

@@ -122,6 +122,7 @@
         <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
             <playerdetails v-if="(teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily"
                 :team-sheet-entry="teamSheetEntry"
+                :can-edit="accessControl.canEdit()"
                 @delete-player="handleDeletePlayer()"
                 @close="performFoldOut('CLOSED')"
             ></playerdetails>
@@ -144,6 +145,10 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
     },
     props: {
         teamSheetEntry: {
+            type: Object,
+            required: true,
+        },
+        accessControl: {
             type: Object,
             required: true,
         },

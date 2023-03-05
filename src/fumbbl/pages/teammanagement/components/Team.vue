@@ -82,6 +82,7 @@
                     <template v-if="teamSheet !== null">
                         <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
                             :team-sheet-entry="teamSheetEntry"
+                            :access-control="accessControl"
                             :all-fold-outs-closed="teamSheet.allFoldOutsClosed()"
                             :is-any-player-drag-in-progress="teamSheet.getDragSourcePlayerNumber() !== null"
                             :use-active-seperator-for-drag-drop="teamSheet.useActiveSeperatorForDragDrop(teamSheetEntry)"
