@@ -429,7 +429,11 @@ export default class TeamComponent extends Vue {
     }
 
     private resetCreateTeam() {
-        this.team.resetDuringCreate();
+        this.team = new Team(
+            this.teamManagementSettings.minStartFans,
+            this.teamManagementSettings.startTreasury,
+        );
+        this.refreshTeamSheet();
     }
 
     private addReroll() {

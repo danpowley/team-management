@@ -100,15 +100,6 @@ export default class Team {
         }
     }
 
-    public resetDuringCreate(): void {
-        this.players = [];
-        this.rerolls = 0;
-        this.dedicatedFans = this.minStartDedicatedFans;
-        this.assistantCoaches = 0;
-        this.cheerleaders = 0;
-        this.apothecary = false;
-    }
-
     public getRerolls(): number {
         return this.rerolls;
     }
