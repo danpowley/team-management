@@ -35,7 +35,7 @@
                 <div class="currentteamcost">{{ teamCost/1000 }}k</div> <div class="currentteamcostlabel">(Max {{ teamManagementSettings.startTreasury/1000 }}k)</div>
             </div>
             <div class="actions">
-                <a href="#" @click.prevent="resetCreateTeam()">Reset</a>
+                <button class="teambutton" @click.prevent="resetCreateTeam()">Reset</button>
             </div>
         </div>
         <div v-if="false" class="redraft">

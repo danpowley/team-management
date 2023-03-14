@@ -30,6 +30,7 @@
                     <div class="buying">
                         <button
                             @click="hireRookie(positionDataForBuyingPlayer)"
+                            class="teambutton"
                             :class="{disabled: ! canBuyPosition(positionDataForBuyingPlayer)}"
                             :title="reasonsCannotBuy(positionDataForBuyingPlayer).join('\r\n')"
                         >Buy</button>
