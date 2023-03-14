@@ -45,6 +45,9 @@ export interface PositionStats {
 export interface SetupTeamManagementSettings {
     roster: {
         name: string,
+        logoId: {
+            large: number,
+        }
     },
     treasury: {
         start: number,

@@ -1,7 +1,7 @@
 <template>
     <div class="team" v-if="team !== null">
         <div class="teamheader">
-            <img class="rosterlogo" src="https://fumbbl.com/i/486276" alt="Roster logo">
+            <img class="rosterlogo" :src="`https://fumbbl.com/i/${teamManagementSettings.logoIdLarge}`" :alt="`Roster logo for ${teamManagementSettings.rosterName}`" :title="`Roster logo for ${teamManagementSettings.rosterName}`">
             <div class="teamheadermain">
                 <div class="teamheadermaincontent">
                     <div>

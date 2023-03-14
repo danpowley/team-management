@@ -17,6 +17,9 @@ export default class TeamManagementSettings {
         const setupTeamManagementSettings: SetupTeamManagementSettings = {
             roster: {
                 name: rawApiRoster.name,
+                logoId: {
+                    large: rawApiRoster.logos[192],
+                }
             },
             treasury: {
                 start: rawApiRuleset.options.teamSettings.startTreasury,
@@ -79,6 +82,10 @@ export default class TeamManagementSettings {
 
     public get rosterName() {
         return this.settings.roster.name;
+    }
+
+    public get logoIdLarge() {
+        return this.settings.roster.logoId.large;
     }
 
     public get maxPlayers() {
