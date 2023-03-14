@@ -21,6 +21,12 @@
             </div>
             <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
         </div>
+        <div class="teamfluff">
+            <div class="teamflufflinks">
+                <span>(<a href="https://fumbbl.com/p/gallery3?team=1085077">Change Image</a>) </span>
+                <span>(<a href="https://fumbbl.com/p/team?op=editbio&amp;team_id=1085077">Edit Bio</a>) </span>
+            </div>
+        </div>
         <div v-if="accessControl.canCreate()" class="createteamstats">
             <div class="playerinfo">
                 <div class="currentplayercount">{{ team.getPlayerCount() }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required)</div>
