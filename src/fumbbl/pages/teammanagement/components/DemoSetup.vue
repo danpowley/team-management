@@ -54,6 +54,16 @@ export default class DemoSetupComponent extends Vue {
     public newTeamDivisionId: number | null = null;
     public newTeamLeagueId: number | null = null;
 
+    private get basicDivisionName(): 'Competitive' | 'Ranked' | 'League' {
+        if (this.divisionOrGroup === 'd-2') {
+            return 'Competitive';
+        } else if (this.divisionOrGroup === 'd-1') {
+            return 'Ranked';
+        } else {
+            return 'League';
+        }
+    }
+
     private async setupRosters() {
         const bits = this.divisionOrGroup.split('-');
         const isDivision = bits[0] === 'd';
@@ -117,7 +127,7 @@ export default class DemoSetupComponent extends Vue {
     }
 
     public createEmptyDemoTeam() {
-        this.$emit('create-empty-demo-team', this.rulesetId, this.rosterId);
+        this.$emit('create-empty-demo-team', this.basicDivisionName, this.rulesetId, this.rosterId);
     }
 
     public loadDemoTeam() {

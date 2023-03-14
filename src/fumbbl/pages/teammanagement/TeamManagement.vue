@@ -27,10 +27,10 @@ import DemoSetupComponent from "./components/DemoSetup.vue";
 export default class TeamManagement extends Vue {
     public overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
 
-    private demoTeamSettings: {existingTeamId: number | null, newTeam: {rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
+    private demoTeamSettings: {existingTeamId: number | null, newTeam: {division: string, rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
 
-    public handleCreateEmptyDemoTeam(rulesetId: number, rosterId: number) {
-        this.demoTeamSettings = {existingTeamId: null, newTeam: {rulesetId: rulesetId, rosterId: rosterId}};
+    public handleCreateEmptyDemoTeam(division: string, rulesetId: number, rosterId: number) {
+        this.demoTeamSettings = {existingTeamId: null, newTeam: {division: division, rulesetId: rulesetId, rosterId: rosterId}};
         this.overallApplicationMode = 'TEAM';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }

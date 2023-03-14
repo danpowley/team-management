@@ -19,7 +19,7 @@
                     </div>
                 </div>
             </div>
-            <img class="divisionlogo" src="https://fumbbl.com/i/677766" alt="Division logo">
+            <img class="divisionlogo" :src="divisionLogoImageUrl" :alt="`Division logo for ${team.getDivision()}.`" :title="`Division logo for ${team.getDivision()}.`">
         </div>
         <div class="teamfluff">
             <div class="teamflufflinks">
@@ -297,6 +297,7 @@ export default class TeamComponent extends Vue {
             const rosterId = this.$props.demoTeamSettings.newTeam.rosterId;
             await this.setupForRulesetAndRoster(rulesetId, rosterId);
             this.team = new Team(
+                this.$props.demoTeamSettings.newTeam.division,
                 this.teamManagementSettings.minStartFans,
                 this.teamManagementSettings.startTreasury,
             );
@@ -386,6 +387,16 @@ export default class TeamComponent extends Vue {
         return this.teamManagementSettings.getAddRemovePermissions(this.team);
     }
 
+    private get divisionLogoImageUrl(): string {
+        if (this.team.getDivision() === 'Competitive') {
+            return 'https://fumbbl.com/i/677766';
+        } else if (this.team.getDivision() === 'League') {
+            return 'https://fumbbl.com/FUMBBL/Images/Icons/league.png';
+        } else {
+            return 'https://fumbbl.com/FUMBBL/Images/Race/unknown_196.png';
+        }
+    }
+
     public refreshTeamSheet() {
         this.teamSheet = new TeamSheet(
             this.teamManagementSettings.maxPlayers,
@@ -436,6 +447,7 @@ export default class TeamComponent extends Vue {
 
     private resetCreateTeam() {
         this.team = new Team(
+            this.team.getDivision(),
             this.teamManagementSettings.minStartFans,
             this.teamManagementSettings.startTreasury,
         );
