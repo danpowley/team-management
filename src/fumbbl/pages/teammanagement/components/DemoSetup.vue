@@ -43,7 +43,7 @@ import Component from 'vue-class-component';
     }
 })
 export default class DemoSetupComponent extends Vue {
-    private coachesForSelect: any[] = ['HimalayaP1C7', 'Christer', 'PurpleChest', 'Malmir', 'Nelphine', 'Java', 'MerryZ'];
+    private coachesForSelect: any[] = ['HimalayaP1C7', 'Christer', 'PurpleChest', 'Malmir', 'Nelphine', 'Java', 'MerryZ', 'Mekutata'];
     private coach: string = '';
     private teamsForSelect: any[] = [];
     public demoTeamId: number | null = null;
