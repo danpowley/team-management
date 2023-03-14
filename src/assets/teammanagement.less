@@ -63,17 +63,30 @@
       .teamheadermain {
         flex-grow: 1;
         display: flex;
-        align-items: center;
         justify-content: center;
         .teamheadermaincontent {
-          text-align: center;
           input {
             width: 200px;
           }
           .teamname {
-            font-size: 140%;
+            display: flex;
+            justify-content: center;
+            .teamnamecontent {
+              display: flex;
+              column-gap: 5px;
+              align-items: center;
+              .teamnametext {
+                font-size: 250%;
+              }
+              .editteamname {
+                margin: 10px 0 10px 0;
+              }
+              .editlink {
+              }
+            }
           }
           .rosterinfo {
+            text-align: center;
           }
         }
       }

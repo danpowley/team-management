@@ -18,6 +18,7 @@ export default class Team {
 
     constructor(division: string, minStartFans: number, treasury: number) {
         this.division = division;
+        this.name = 'New demo team name';
         this.minStartDedicatedFans = minStartFans;
         this.dedicatedFans = minStartFans;
         this.treasury = treasury;
@@ -65,6 +66,10 @@ export default class Team {
 
     public getName(): string {
         return this.name;
+    }
+
+    public setName(teamName: string): void {
+        this.name = teamName;
     }
 
     public getTreasury(): number {

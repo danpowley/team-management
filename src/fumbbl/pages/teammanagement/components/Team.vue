@@ -4,10 +4,17 @@
             <img class="rosterlogo" :src="`https://fumbbl.com/i/${teamManagementSettings.logoIdLarge}`" :alt="`Roster logo for ${teamManagementSettings.rosterName}`" :title="`Roster logo for ${teamManagementSettings.rosterName}`">
             <div class="teamheadermain">
                 <div class="teamheadermaincontent">
-                    <div>
-                        <input v-if="accessControl.canCreate()" v-model="team.name">
-                        <div v-else class="teamname">
-                            {{ team.name ? team.name : 'NO TEAM NAME CHOSEN' }}
+                    <div class="teamname">
+                        <div class="teamnamecontent">
+                            <template v-if="editTeamName && accessControl.canCreate()">
+                                <input v-model="newTeamName" class="editteamname">
+                                <button class="teambutton" @click="saveNewTeamName()">Save</button>
+                                <a href="#" @click.prevent="cancelNewTeamName()">Cancel</a>
+                            </template>
+                            <template v-else>
+                                <div class="teamnametext">{{ team.name }}</div>
+                                <div v-if="accessControl.canCreate()" class="editlink"><a href="#" @click.prevent="enableTeamNameEdit()">edit name</a></div>
+                            </template>
                         </div>
                     </div>
                     <div class="rosterinfo" style="margin-top: 0.5em;">
@@ -288,6 +295,8 @@ export default class TeamComponent extends Vue {
     private rosterIconManager: RosterIconManager | null = null;
     public team: Team | null = null;
     public teamSheet: TeamSheet | null = null;
+    private editTeamName: boolean = false;
+    private newTeamName: string = '';
 
     private showHireRookies: boolean = false;
 
@@ -542,6 +551,22 @@ export default class TeamComponent extends Vue {
 
     private findEmptyTeamSheetEntry(): number {
         return this.teamSheet.findFirstEmptyTeamSheetEntry().getNumber();
+    }
+
+    private enableTeamNameEdit(): void {
+        this.editTeamName = true;
+        this.newTeamName = this.team.getName();
+    }
+
+    private saveNewTeamName(): void {
+        this.team.setName(this.newTeamName);
+        this.newTeamName = '';
+        this.editTeamName = false;
+    }
+
+    private cancelNewTeamName(): void {
+        this.newTeamName = '';
+        this.editTeamName = false;
     }
 }
 </script>
