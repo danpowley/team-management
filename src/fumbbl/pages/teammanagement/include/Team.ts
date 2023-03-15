@@ -1,12 +1,15 @@
+import { Coach } from "./Interfaces";
 import Player from "./Player";
 import RosterIconManager from "./RosterIconManager";
 import TeamManagementSettings from "./TeamManagementSettings";
 import TeamStatus from "./TeamStatus";
 
 export default class Team {
+    private id: number = 0;
     private teamStatus: TeamStatus = new TeamStatus();
     private name: string = '';
     private division: string = '';
+    private coach: Coach = null;
     private players: Player[] = [];
     private teamValue: number = 0;
     private currentTeamValue: number = 0;
@@ -21,6 +24,10 @@ export default class Team {
     constructor(division: string, minStartFans: number, treasury: number) {
         this.division = division;
         this.name = 'New demo team name';
+        this.coach = {
+            id: 0,
+            name: '________DEMO_COACH________',
+        };
         this.minStartDedicatedFans = minStartFans;
         this.dedicatedFans = minStartFans;
         this.treasury = treasury;
@@ -33,8 +40,13 @@ export default class Team {
         rosterIconManager: RosterIconManager,
     ): Team {
         const team = new Team(rawApiTeam.division, minStartDedicatedFans, rawApiTeam.treasury);
+        team.id = rawApiTeam.id;
         team.teamStatus = new TeamStatus(rawApiTeam.status);
         team.name = rawApiTeam.name;
+        team.coach = {
+            id: rawApiTeam.coach.id,
+            name: rawApiTeam.coach.name,
+        };
         team.teamValue = rawApiTeam.teamValue;
         team.currentTeamValue = rawApiTeam.currentTeamValue;
         team.rerolls = rawApiTeam.rerolls;
@@ -56,6 +68,10 @@ export default class Team {
         return team;
     }
 
+    public getId(): number {
+        return this.id;
+    }
+
     public getDivision(): string {
         return this.division;
     }
@@ -74,6 +90,10 @@ export default class Team {
 
     public setName(teamName: string): void {
         this.name = teamName;
+    }
+
+    public getCoach(): Coach {
+        return this.coach;
     }
 
     public getTeamValue(): number {

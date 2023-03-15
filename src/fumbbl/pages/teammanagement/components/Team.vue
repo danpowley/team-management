@@ -24,14 +24,35 @@
                         <img v-else-if="team.teamStatus.isRetired()" src="https://fumbbl.com/FUMBBL/Images/Retired_small.gif" alt="Roster" title="Retired">
                         <span :title="team.getDivision()"> [{{ team.getDivisionAbbreviated() }}]</span> {{ teamManagementSettings.rosterName }}
                     </div>
+                    <ul class="teamnav">
+                        <li v-if="false"><a href="/p/team?team_id=1085077">Refresh</a></li>
+                        <li v-if="accessControl.canViewHistory()" class="menu" @mouseenter="menuShow('show')" @mouseleave="menuHide('show')">
+                            <a href="#">Show<img src="https://fumbbl.com/FUMBBL/Images/Icons/disclosure.png"></a>
+                            <ul class="submenu" v-show="mainMenuShow === 'show'">
+                                <li><a :href="`https://fumbbl.com/p/team?op=log&team_id=${team.getId()}`">Log</a></li>
+                                <li><a :href="`https://fumbbl.com/p/team?op=view&showmatches=1&team_id=${team.getId()}`">Matches</a></li>
+                                <li><a :href="`https://fumbbl.com/p/team?op=view&showstats=1&team_id=${team.getId()}`">Stats</a></li>
+                                <li><a :href="`https://fumbbl.com/p/team?op=development&team_id=${team.getId()}`">Development</a></li>
+                                <li><a :href="`https://fumbbl.com/p/team?op=pastplayers&team_id=${team.getId()}`">Past Players</a></li>
+                                <li><a :href="`https://fumbbl.com/~${team.getCoach().name}/${team.getName()}`">View Roster</a></li>
+                                <li><a :href="`https://fumbbl.com/p/yearbook?team_id=${team.getId()}`">Yearbook</a></li>
+                            </ul>
+                        </li>
+                        <li class="menu" @mouseenter="menuShow('misc')" @mouseleave="menuHide('misc')">
+                            <a href="#">Misc<img src="https://fumbbl.com/FUMBBL/Images/Icons/disclosure.png"></a>
+                            <ul class="submenu" v-show="mainMenuShow === 'misc'">
+                                <li><a :href="`https://fumbbl.com/p/team?op=reportteam&team_id=${team.getId()}`">Report</a></li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </div>
             <img class="divisionlogo" :src="divisionLogoImageUrl" :alt="`Division logo for ${team.getDivision()}.`" :title="`Division logo for ${team.getDivision()}.`">
         </div>
         <div class="teamfluff">
             <div class="teamflufflinks">
-                <span>(<a href="https://fumbbl.com/p/gallery3?team=1085077">Change Image</a>) </span>
-                <span>(<a href="https://fumbbl.com/p/team?op=editbio&amp;team_id=1085077">Edit Bio</a>) </span>
+                <span>(<a :href="`https://fumbbl.com/p/gallery3?team=${team.getId()}`">Change Image</a>) </span>
+                <span>(<a :href="`https://fumbbl.com/p/team?op=editbio&amp;team_id=${team.getId()}`">Edit Bio</a>) </span>
             </div>
         </div>
         <div v-if="accessControl.canCreate()" class="createteamstats">
@@ -298,7 +319,17 @@ export default class TeamComponent extends Vue {
     private editTeamName: boolean = false;
     private newTeamName: string = '';
 
+    private mainMenuShow: string = 'none';
+
     private showHireRookies: boolean = false;
+
+    private menuShow(menu: string) {
+        this.mainMenuShow = menu;
+    }
+
+    private menuHide(menu: string) {
+        this.mainMenuShow = 'none';
+    }
 
     async mounted() {
         if (this.$props.demoTeamSettings.newTeam !== null) {

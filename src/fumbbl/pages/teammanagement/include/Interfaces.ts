@@ -18,6 +18,11 @@ export type PlayerRowFoldOutMode = 'BUY' | 'MORE' | 'CLOSED';
 
 export type PlayerGender = 'FEMALE' | 'MALE' | 'NEUTRAL' | 'NONBINARY';
 
+export interface Coach {
+    id: number,
+    name: string,
+};
+
 export interface Position {
     id: number,
     name: string,

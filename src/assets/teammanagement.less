@@ -13,6 +13,7 @@
 @cancelRed: #900;
 @darkBlue: #009;
 @lightGrey: #ddd;
+@teamMenuGreyBrown: #bcb29d;
 
 .teammanagement {
   margin-top: 20px;
@@ -56,7 +57,7 @@
       display: flex;
       background: @OldLace;
       margin-bottom: 10px;
-      border-bottom: solid 1px @lightGrey;
+      border-bottom: solid 1px @teamMenuGreyBrown;
       height: 128px;
       .rosterlogo {
       }
@@ -65,10 +66,13 @@
         display: flex;
         justify-content: center;
         .teamheadermaincontent {
+          display: flex;
+          flex-direction: column;
           input {
             width: 200px;
           }
           .teamname {
+            flex: 1 0 auto;
             display: flex;
             justify-content: center;
             .teamnamecontent {
@@ -86,7 +90,80 @@
             }
           }
           .rosterinfo {
+            flex: 1 0 auto;
             text-align: center;
+          }
+          .teamnav {
+            flex: 0 0 auto;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            line-height: 16px;
+            left: 0;
+            font-size: 14px;
+            color: @Carmine;
+            width: 100%;
+            a {
+              display: block;
+              height: 100%;
+              width: 100%;
+              color: inherit;
+              text-decoration: none;
+              &:hover {
+                background-color: #a5a39a
+              }
+            }
+            li {
+              display: inline-block;
+              list-style: none;
+              width: 120px;
+              padding: 0;
+              margin: 0;
+              font-weight: 700;
+              text-align: center;
+              height: 41px;
+              line-height: 31px;
+              img {
+                vertical-align: middle;
+              }
+              div {
+                color: #333; // not sure what this does yet
+              }
+            }
+            .submenu {
+              margin: 0;
+              padding: 0;
+              background: #f8f5e7;
+              border-bottom: solid 1px @teamMenuGreyBrown;
+              position: absolute;
+              z-index: 100;
+              font-size: 12px;
+              width: 120px;
+              li {
+                border: solid @teamMenuGreyBrown 1px;
+                border-top: 0;
+                border-bottom: 0;
+                a {
+                  padding: 5px;
+                }
+              }
+              .separator {
+                display: block;
+                height: 4px;
+                width: 100%;
+                overflow: hidden;
+                border-right: solid 1px @teamMenuGreyBrown;
+                border-left: solid 1px @teamMenuGreyBrown;
+                .line {
+                  display: block;
+                  height: 2px;
+                  background: @lightGrey;
+                  width: 80%;
+                  margin-left: 10%;
+                  margin-top: 1px;
+                }
+              }
+            }
           }
         }
       }
