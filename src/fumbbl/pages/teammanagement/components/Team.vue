@@ -214,7 +214,7 @@
                     </div>
                 </div>
             </div>
-            <div class="teammanagementrow">
+            <div v-if="accessControl.canViewHistory()" class="teammanagementrow">
                 <div class="title left">
                     Games this Season:
                 </div>
@@ -234,7 +234,7 @@
                 </div>
             </div>
         </div>
-        <div class="teamrecord">
+        <div v-if="accessControl.canViewHistory()" class="teamrecord">
             <div class="teamstats">
                 <div class="gamesplayed">Games Played:	{{ gamesPlayedStatDisplay }}</div>
                 <div class="tddiff">TD Diff: {{ tdDiffStatDisplay }}</div>

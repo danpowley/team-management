@@ -28,6 +28,15 @@ export default class AccessControl {
                     }
                 ]
             },
+            {
+                action: 'VIEW_HISTORY',
+                grantAccessToList: [
+                    {
+                        userRoles: ['OWNER', 'LEAGUE_STAFF', 'SITE_STAFF'],
+                        teamStatusValues: ['ACTIVE', 'POST_MATCH_SEQUENCE'],
+                    }
+                ]
+            },
         );
     }
 
@@ -68,5 +77,9 @@ export default class AccessControl {
 
     public canCreate(): boolean {
         return this.isGranted('CREATE');
+    }
+
+    public canViewHistory(): boolean {
+        return this.isGranted('VIEW_HISTORY');
     }
 }
