@@ -162,7 +162,7 @@
                     Current Team Value:
                 </div>
                 <div class="info left">
-                    todo
+                    {{ team.getCurrentTeamValue()/1000 }}k
                 </div>
                 <div class="title right">
                     Assistant Coaches:
@@ -200,7 +200,7 @@
                     Team Value:
                 </div>
                 <div class="info left">
-                    todo
+                    {{ team.getTeamValue()/1000 }}k
                 </div>
                 <div class="title right">
                     Apothecary:

@@ -8,6 +8,8 @@ export default class Team {
     private name: string = '';
     private division: string = '';
     private players: Player[] = [];
+    private teamValue: number = 0;
+    private currentTeamValue: number = 0;
     private treasury: number = 0;
     private rerolls: number = 0;
     private minStartDedicatedFans: number = 0;
@@ -33,6 +35,8 @@ export default class Team {
         const team = new Team(rawApiTeam.division, minStartDedicatedFans, rawApiTeam.treasury);
         team.teamStatus = new TeamStatus(rawApiTeam.status);
         team.name = rawApiTeam.name;
+        team.teamValue = rawApiTeam.teamValue;
+        team.currentTeamValue = rawApiTeam.currentTeamValue;
         team.rerolls = rawApiTeam.rerolls;
         team.dedicatedFans = rawApiTeam.fanFactor;
         team.assistantCoaches = rawApiTeam.assistantCoaches;
@@ -70,6 +74,14 @@ export default class Team {
 
     public setName(teamName: string): void {
         this.name = teamName;
+    }
+
+    public getTeamValue(): number {
+        return this.teamValue;
+    }
+
+    public getCurrentTeamValue(): number {
+        return this.currentTeamValue;
     }
 
     public getTreasury(): number {
