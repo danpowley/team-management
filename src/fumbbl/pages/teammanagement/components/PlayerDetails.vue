@@ -23,6 +23,7 @@
             </template>
         </div>
         <div class="playerdetailssection playerdetailsrecord">
+            <a :href="`https://fumbbl.com/p/player?player_id=${player.getId()}`" style="float: right;">Manage player</a>
             <div class="title">Details</div>
             <p>Todo: decide what to display here.</p>
             <ul>
