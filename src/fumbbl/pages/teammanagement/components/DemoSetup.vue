@@ -6,7 +6,7 @@
                 <option v-for="c in coachesForSelect" :key="c" :value="c">{{ c }}</option>
             </select>
             <select v-model="demoTeamId">
-                <option v-for="t in teamsForSelect" :key="t.id" :value="t.id">{{ t.name }}</option>
+                <option v-for="t in teamsForSelect" :key="t.id" :value="t.id">{{ t.name }} ({{ t.id }})</option>
             </select>
             <button @click="loadDemoTeam()">Load team</button>
         </div>
