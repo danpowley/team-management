@@ -29,6 +29,12 @@ export default class TeamManagement extends Vue {
 
     private demoTeamSettings: {existingTeamId: number | null, newTeam: {division: string, rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
 
+    mounted() {
+        // just some hacks to quickly load the page
+        this.handleCreateEmptyDemoTeam('Competitive', 4, 5141); // competitive amazons
+        // this.handleDemoTeamChosen(1107138); // bone wrappers
+    }
+
     public handleCreateEmptyDemoTeam(division: string, rulesetId: number, rosterId: number) {
         this.demoTeamSettings = {existingTeamId: null, newTeam: {division: division, rulesetId: rulesetId, rosterId: rosterId}};
         this.overallApplicationMode = 'TEAM';
