@@ -38,6 +38,9 @@
                                 <li><a :href="`https://fumbbl.com/p/yearbook?team_id=${team.getId()}`">Yearbook</a></li>
                             </ul>
                         </li>
+                        <li class="menu">
+                            <a :href="`https://fumbbl.com/p/teamoptions?id=${team.getId()}`">Team options</a>
+                        </li>
                         <li class="menu" @mouseenter="menuShow('misc')" @mouseleave="menuHide('misc')">
                             <a href="#">Misc<img src="https://fumbbl.com/FUMBBL/Images/Icons/disclosure.png"></a>
                             <ul class="submenu" v-show="mainMenuShow === 'misc'">
