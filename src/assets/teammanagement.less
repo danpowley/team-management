@@ -574,43 +574,6 @@
             display: block;
             transition: max-height 0.3s ease-in;
           }
-          &.foldoutbuy {
-            &.active {
-              // max height for this fold out depends on available positional quantity, so it is set in style attribute in template
-            }
-            .buyplayer {
-              margin: 5px 20px 20px 0;
-              .buyingpositionals {
-                width: 880px;
-                border-collapse: collapse;
-                border: solid @Quicksilver 1px;
-                td, th {
-                  border-bottom: solid @Quicksilver 1px;
-                  vertical-align: middle;
-                  background-color: @White;
-                }
-                th {
-                  font-weight: bold;
-                }
-                .buylink {
-                  width: 65px;
-                }
-                .positionname {
-                  width: 250px;
-                }
-                .quantityallowed {
-                  width: 65px;
-                }
-                .skills {
-                  width: 300px;
-                }
-              }
-              .positioniconcontainer {
-                display: flex;
-                justify-content: center;
-              }
-            }
-          }
           &.foldoutmore {
             &.active {
               // max height needed to make css transitions work

@@ -53,7 +53,7 @@
                 </span>
                 <div class="draggingnowindicator">&#8597;</div>
             </div>
-            <template v-if="teamSheetEntry.hasPlayer() && ! showBuyDialogTemporarily">
+            <template v-if="teamSheetEntry.hasPlayer()">
                 <div class="cell playericoncontainer">
                     <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(teamSheetEntry.getPlayer().getPositionId(), teamSheetEntry.getPlayer().getIconRowVersionPosition())"></div>
                 </div>
@@ -98,31 +98,17 @@
             </template>
             <template v-else>
                 <div class="emptyplayer">
-                    <template v-if="showBuyDialogTemporarily">
-                        Please wait, buying player...
-                    </template>
-                    <template v-else-if="showPlayerInfoFoldoutTemporarily">
+                    <template v-if="showPlayerInfoFoldoutTemporarily">
                         Please wait, removing player...
-                    </template>
-                    <template v-else-if="isFoldOutBuy">
-                        <span>Choose position to buy.</span> <a href="#" @click.prevent="performFoldOut('CLOSED')">Cancel</a>
                     </template>
                     <template v-else>
                         <span>Empty</span>
-                        <!--<a href="#" @click.prevent="performFoldOut('BUY')">Buy player</a>-->
                     </template>
                 </div>
             </template>
         </div>
-        <div class="foldout foldoutbuy" :class="{active: isFoldOutBuy}" :style="{maxHeight: isFoldOutBuy ? `${rosterPositionDataForBuyingPlayer.length * 65}px` : '0'}">
-            <buyplayer v-if="(teamSheetEntry.getPlayer() === null || showBuyDialogTemporarily) && ! showPlayerInfoFoldoutTemporarily"
-                :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
-                :roster-icon-manager="rosterIconManager"
-                @add-player="handleAddPlayer"
-            ></buyplayer>
-        </div>
         <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
-            <playerdetails v-if="(teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily) && ! showBuyDialogTemporarily"
+            <playerdetails v-if="teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily"
                 :team-sheet-entry="teamSheetEntry"
                 :can-edit="accessControl.canEdit()"
                 @delete-player="handleDeletePlayer()"
@@ -137,12 +123,10 @@
 import Vue from "vue";
 import Component from 'vue-class-component';
 import { PlayerRowFoldOutMode } from "../include/Interfaces";
-import BuyPlayerComponent from "./BuyPlayer.vue";
 import PlayerDetailsComponent from "./PlayerDetails.vue";
 
 @Component({
     components: {
-        'buyplayer': BuyPlayerComponent,
         'playerdetails': PlayerDetailsComponent,
     },
     props: {
@@ -166,10 +150,6 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
             type: Boolean,
             required: true,
         },
-        rosterPositionDataForBuyingPlayer: {
-            type: Array,
-            required: true,
-        },
         rosterIconManager: {
             type: Object,
             required: true,
@@ -180,7 +160,6 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
 })
 export default class PlayerComponent extends Vue {
     readonly delayForFoldoutAnimations = 600;
-    private showBuyDialogTemporarily: boolean = false;
     private showPlayerInfoFoldoutTemporarily: boolean = false;
     private intervalIdsScrollDuringCssTransition: number[] = [];
 
@@ -188,10 +167,6 @@ export default class PlayerComponent extends Vue {
         this.$el.getElementsByClassName('foldout')[0].addEventListener('transitionend', () => {
             this.clearIntervalIdsScrollDuringCssTransition();
         });
-    }
-
-    private get isFoldOutBuy(): boolean {
-        return this.$props.teamSheetEntry.getFoldOut() === 'BUY';
     }
 
     private get isFoldOutMore(): boolean {
@@ -260,15 +235,6 @@ export default class PlayerComponent extends Vue {
 
     public endPlayerDraggable() {
         this.$emit('end-player-draggable');
-    }
-
-    public handleAddPlayer(positionId: number) {
-        // prevent UI from updating until after the animation has updated.
-        this.showBuyDialogTemporarily = true;
-        setTimeout(() => {this.showBuyDialogTemporarily = false;}, this.delayForFoldoutAnimations);
-
-        this.performFoldOut('CLOSED');
-        this.$emit('add-player', this.$props.teamSheetEntry.getNumber(), positionId);
     }
 
     public handleDeletePlayer() {
