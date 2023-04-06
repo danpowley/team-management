@@ -60,6 +60,7 @@ export interface SetupTeamManagementSettings {
     players: {
         start: number,
         max: number,
+        maxBigGuys: number,
         positions: Position[],
     },
     dedicatedFans: {

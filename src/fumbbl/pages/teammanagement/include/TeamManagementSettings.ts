@@ -27,6 +27,7 @@ export default class TeamManagementSettings {
             players: {
                 start: rawApiRuleset.options.teamSettings.startPlayers,
                 max: rawApiRuleset.options.teamSettings.maxPlayers,
+                maxBigGuys: ~~rawApiRoster.maxBigGuys,
                 positions: rawApiRoster.positions.map((position: any) => {
                     return {
                         id: ~~position.id,
@@ -41,6 +42,7 @@ export default class TeamManagementSettings {
                             Armour: ~~position.stats.AV,
                         } as PositionStats,
                         quantityAllowed: ~~position.quantity,
+                        isBigGuy: position.type === 'BIGGUY',
                     } as Position;
                 }),
             },
