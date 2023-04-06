@@ -38,7 +38,7 @@
                                 <li><a :href="`https://fumbbl.com/p/yearbook?team_id=${team.getId()}`">Yearbook</a></li>
                             </ul>
                         </li>
-                        <li class="menu">
+                        <li v-if="team.getDivision() === 'League'" class="menu">
                             <a :href="`https://fumbbl.com/p/teamoptions?id=${team.getId()}`">Team options</a>
                         </li>
                         <li class="menu" @mouseenter="menuShow('misc')" @mouseleave="menuHide('misc')">
