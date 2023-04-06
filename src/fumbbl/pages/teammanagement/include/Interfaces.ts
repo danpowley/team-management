@@ -30,6 +30,7 @@ export interface Position {
     skills: string[],
     stats: PositionStats,
     quantityAllowed: number,
+    isBigGuy: boolean,
 };
 
 export interface PositionDataForBuyingPlayer {

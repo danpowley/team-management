@@ -67,12 +67,26 @@ import { PositionDataForBuyingPlayer } from "../include/Interfaces";
         hasEmptyTeamSheetEntry: {
             type: Boolean,
             required: true,
-        }
+        },
+        maxBigGuys: {
+            type: Number,
+            required: true,
+        },
     },
     watch: {
     }
 })
 export default class HireRookiesComponent extends Vue {
+
+    private get bigGuyCount(): number {
+        let bigGuyCount = 0;
+        for (const positionDataForBuyingPlayer of this.$props.rosterPositionDataForBuyingPlayer as PositionDataForBuyingPlayer[]) {
+            if (positionDataForBuyingPlayer.position.isBigGuy) {
+               bigGuyCount += positionDataForBuyingPlayer.quantityHired;
+            }
+        }
+        return bigGuyCount;
+    }
     private reasonsCannotBuy(positionDataForBuyingPlayer: PositionDataForBuyingPlayer): string[] {
         const errors: string[] = [];
         if (! this.$props.hasEmptyTeamSheetEntry) {
@@ -83,6 +97,9 @@ export default class HireRookiesComponent extends Vue {
         }
         if (! positionDataForBuyingPlayer.canAfford) {
             errors.push('Insufficient treasury.');
+        }
+        if (positionDataForBuyingPlayer.position.isBigGuy && this.bigGuyCount >= this.$props.maxBigGuys) {
+            errors.push('Maximum Big Guy limit reached.');
         }
         return errors;
     }

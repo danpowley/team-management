@@ -94,6 +94,10 @@ export default class TeamManagementSettings {
         return this.settings.players.max;
     }
 
+    public get maxBigGuys() {
+        return this.settings.players.maxBigGuys;
+    }
+
     public get startPlayers() {
         return this.settings.players.start;
     }

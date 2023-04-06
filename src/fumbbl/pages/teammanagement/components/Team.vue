@@ -97,6 +97,7 @@
                 :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
                 :roster-icon-manager="rosterIconManager"
                 :has-empty-team-sheet-entry="teamSheet.findFirstEmptyTeamSheetEntry() !== null"
+                :max-big-guys="teamManagementSettings.maxBigGuys"
                 @hire-rookie="handleHireRookie"
             ></hirerookies>
             <div class="playerrowsouter">
