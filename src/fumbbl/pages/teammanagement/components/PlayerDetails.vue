@@ -25,15 +25,32 @@
         <div class="playerdetailssection playerdetailsrecord">
             <a v-if="player" :href="`https://fumbbl.com/p/player?player_id=${player.getId()}`" style="float: right;">Manage player</a>
             <div class="title">Details</div>
-            <p>Todo: decide what to display here.</p>
-            <ul>
-                <li>Games played: [data unavailable]</li>
-                <li>Completions: {{ player ? player.getRecord().completions : '0' }}</li>
-                <li>Touchdowns: {{ player ? player.getRecord().touchdowns : '0' }}</li>
-                <li>Interceptions: {{ player ? player.getRecord().interceptions : '0' }}</li>
-                <li>Casualties: {{ player ? player.getRecord().casualties : '0' }}</li>
-                <li>MVPs: {{ player ? player.getRecord().mvps : '0' }}</li>
-            </ul>
+            <table class="playerstats">
+                <tr>
+                    <td>0</td>
+                    <td>Games played: [data unavailable]</td>
+                </tr>
+                <tr>
+                    <td>{{ player ? player.getRecord().completions : '0' }}</td>
+                    <td>Completions</td>
+                </tr>
+                <tr>
+                    <td>{{ player ? player.getRecord().touchdowns : '0' }}</td>
+                    <td>Touchdowns</td>
+                </tr>
+                <tr>
+                    <td>{{ player ? player.getRecord().interceptions : '0' }}</td>
+                    <td>Interceptions</td>
+                </tr>
+                <tr>
+                    <td>{{ player ? player.getRecord().casualties : '0' }}</td>
+                    <td>Casualties</td>
+                </tr>
+                <tr>
+                    <td>{{ player ? player.getRecord().mvps : '0' }}</td>
+                    <td>MVPs</td>
+                </tr>
+            </table>
         </div>
     </div>
 </template>
