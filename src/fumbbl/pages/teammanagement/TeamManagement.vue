@@ -31,7 +31,13 @@ export default class TeamManagement extends Vue {
 
     mounted() {
         // just some hacks to quickly load the page
-        this.handleCreateEmptyDemoTeam('Competitive', 4, 5141); // competitive amazons
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 5141); // competitive amazons
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4957); // competitive chaos chosen
+        this.handleCreateEmptyDemoTeam('Competitive', 4, 4959); // competitive dark elves
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4958); // competitive chaos renegades
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4974); // competitive orc
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4978); // competitive underworld denizens
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4972); // competitive old world alliances
         // this.handleDemoTeamChosen(1107138); // bone wrappers
     }
 
