@@ -6,6 +6,7 @@
             <template v-if="updatePlayerDetails">
                 <label :for="'playerName_' + teamSheetEntry.getNumber()">Name</label>
                 <input :id="'playerName_' + teamSheetEntry.getNumber()" v-model="updatePlayerDetails.playerName" type="text">
+                <a href="#" @click.prevent="generatePlayerName"><img src="https://fumbbl.com/FUMBBL/Images/Icons/reroll_light.png"></a>
                 <label :for="'gender_' + teamSheetEntry.getNumber()">Gender</label>
                 <select :id="'gender_' + teamSheetEntry.getNumber()" v-model="updatePlayerDetails.gender">
                     <option value="FEMALE">Female</option>
@@ -59,6 +60,7 @@
 import Vue from "vue";
 import Component from 'vue-class-component';
 import UpdatePlayerDetails from "../include/UpdatePlayerDetails";
+import Axios from "axios";
 
 @Component({
     components: {
@@ -72,6 +74,10 @@ import UpdatePlayerDetails from "../include/UpdatePlayerDetails";
             validator: function (teamSheetEntry) {
                 return typeof teamSheetEntry === 'object' || teamSheetEntry === null;
             }
+        },
+        nameGenerator: {
+            type: String,
+            required: true,
         },
     },
 })
@@ -95,6 +101,12 @@ export default class PlayerDetailsComponent extends Vue {
             this.$props.teamSheetEntry.saveUpdatePlayerDetails();
             this.$emit('close');
         }
+    }
+
+    private async generatePlayerName(): Promise<void> {
+        const result = await Axios.post(`https://fumbbl.com/api/name/generate/${this.$props.nameGenerator}/${this.updatePlayerDetails.getGender().toLowerCase()}`);
+        const playerName = result.data;
+        this.updatePlayerDetails.setPlayerName(playerName);
     }
 }
 </script>

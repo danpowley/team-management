@@ -13,6 +13,10 @@ export default class UpdatePlayerDetails {
         return this.playerName;
     }
 
+    public setPlayerName(playerName: string): void {
+        this.playerName = playerName;
+    }
+
     public getGender(): PlayerGender | null {
         return this.gender;
     }

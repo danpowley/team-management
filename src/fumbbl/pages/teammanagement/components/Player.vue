@@ -111,6 +111,7 @@
             <playerdetails v-if="teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily"
                 :team-sheet-entry="teamSheetEntry"
                 :can-edit="accessControl.canEdit()"
+                :name-generator="nameGenerator"
                 @delete-player="handleDeletePlayer()"
                 @close="performFoldOut('CLOSED')"
             ></playerdetails>
@@ -152,6 +153,10 @@ import PlayerDetailsComponent from "./PlayerDetails.vue";
         },
         rosterIconManager: {
             type: Object,
+            required: true,
+        },
+        nameGenerator: {
+            type: String,
             required: true,
         },
     },

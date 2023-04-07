@@ -125,6 +125,7 @@
                             :is-any-player-drag-in-progress="teamSheet.getDragSourcePlayerNumber() !== null"
                             :use-active-seperator-for-drag-drop="teamSheet.useActiveSeperatorForDragDrop(teamSheetEntry)"
                             :roster-icon-manager="rosterIconManager"
+                            :name-generator="teamManagementSettings.nameGenerator"
                             @add-player="handleAddPlayer"
                             @delete-player="handleDeletePlayer"
                             @make-player-draggable="handleMakePlayerDraggable"
