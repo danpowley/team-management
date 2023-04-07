@@ -33,7 +33,7 @@ export default class TeamManagementSettings {
                         id: ~~position.id,
                         name: position.title,
                         cost: ~~position.cost,
-                        skills: position.skills,
+                        skills: this.cleanupSkills(position.skills),
                         stats: {
                             Movement: ~~position.stats.MA,
                             Strength: ~~position.stats.ST,
@@ -80,6 +80,19 @@ export default class TeamManagementSettings {
         // data.options.teamSettings.skillsPerPlayer
 
         this.settings = setupTeamManagementSettings;
+    }
+
+    private cleanupSkills(skills: string[]) {
+        const cleanSkills: string[] = [];
+        for (const skill of skills) {
+            if (skill.includes(' (')) {
+                const cleanSkill = skill.substring(0, skill.indexOf(' ('));
+                cleanSkills.push(cleanSkill);
+            } else {
+                cleanSkills.push(skill);
+            }
+        }
+        return cleanSkills;
     }
 
     public get rosterName() {
