@@ -1,25 +1,29 @@
 <template>
     <div class="playerdetails">
         <div class="playerdetailssection playerdetailsedit" v-if="canEdit">
-            <a href="#" @click.prevent="$emit('delete-player')" style="float: right;">Remove player</a>
             <div class="title">Edit player details</div>
             <template v-if="updatePlayerDetails">
-                <label :for="'playerName_' + teamSheetEntry.getNumber()">Name</label>
-                <input :id="'playerName_' + teamSheetEntry.getNumber()" v-model="updatePlayerDetails.playerName" type="text">
-                <a href="#" @click.prevent="generatePlayerName"><img src="https://fumbbl.com/FUMBBL/Images/Icons/reroll_light.png"></a>
-                <label :for="'gender_' + teamSheetEntry.getNumber()">Gender</label>
-                <select :id="'gender_' + teamSheetEntry.getNumber()" v-model="updatePlayerDetails.gender">
-                    <option value="FEMALE">Female</option>
-                    <option value="MALE">Male</option>
-                    <option value="NEUTRAL">Neutral</option>
-                    <option value="NONBINARY">Non-Binary</option>
-                </select>
+                <div class="playername">
+                    <label :for="'playerName_' + teamSheetEntry.getNumber()">Name</label>
+                    <input :id="'playerName_' + teamSheetEntry.getNumber()" v-model="updatePlayerDetails.playerName" type="text">
+                    <a href="#" @click.prevent="generatePlayerName">Generate random name</a>
+                </div>
+                <div class="playergender">
+                    <label :for="'gender_' + teamSheetEntry.getNumber()">Gender</label>
+                    <select :id="'gender_' + teamSheetEntry.getNumber()" v-model="updatePlayerDetails.gender">
+                        <option value="FEMALE">Female</option>
+                        <option value="MALE">Male</option>
+                        <option value="NEUTRAL">Neutral</option>
+                        <option value="NONBINARY">Non-Binary</option>
+                    </select>
+                </div>
                 <div v-for="error in updatePlayerDetailsErrors" :key="error" class="errormessages">
                     <div v-if="error === 'empty_name'">Please enter a name.</div>
                     <div v-if="error === 'empty_gender'">Please select a Gender.</div>
                 </div>
                 <div>
-                    <button @click="saveUpdatedPlayerDetails">Save</button>
+                    <button class="teambutton" @click="saveUpdatedPlayerDetails">Save</button>
+                    <button class="teambutton" @click.prevent="$emit('delete-player')" style="float: right;">Remove player</button>
                 </div>
             </template>
         </div>
