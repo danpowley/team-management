@@ -132,8 +132,15 @@ export default class Team {
 
     public removePlayer(teamSheetEntryNumber: number): void {
         const index = this.players.findIndex((player) => player.getPlayerNumber() === teamSheetEntryNumber);
+        const player = this.findPlayerByNumber(teamSheetEntryNumber);
+        const treasuryRefundForNewTeam = player.getPosition().cost;
+
         if (index !== -1) {
             this.players.splice(index, 1);
+        }
+
+        if (this.teamStatus.isNew()) {
+            this.treasury += treasuryRefundForNewTeam;
         }
     }
 
