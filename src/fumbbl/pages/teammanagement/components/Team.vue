@@ -362,6 +362,25 @@ export default class TeamComponent extends Vue {
         this.refreshTeamSheet();
     }
 
+    private created() {
+        window.addEventListener("keydown", this.handleKeyDown);
+    }
+
+    private destroyed() {
+        window.removeEventListener("keydown", this.handleKeyDown);
+    }
+
+    private handleKeyDown(event: KeyboardEvent) {
+        if (event.ctrlKey || event.metaKey) {
+            if (this.accessControl.canEdit()) {
+                if (event.key === "$") {
+                    event.preventDefault();
+                    this.enableShowHireRookies();
+                }
+            }
+        }
+    }
+
     private async setupForRulesetAndRoster(rulesetId: number, rosterId: number) {
         const resultA = await Axios.post('https://fumbbl.com/api/ruleset/get/' + rulesetId);
         const rawApiRuleset = resultA.data;

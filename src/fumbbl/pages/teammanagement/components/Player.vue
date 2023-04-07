@@ -169,6 +169,23 @@ export default class PlayerComponent extends Vue {
         });
     }
 
+    private created() {
+        window.addEventListener("keydown", this.handleKeyDown);
+    }
+
+    private destroyed() {
+        window.removeEventListener("keydown", this.handleKeyDown);
+    }
+
+    private handleKeyDown(event: KeyboardEvent) {
+        if (event.key === "Escape") {
+            if (this.isFoldOutMore) {
+                event.preventDefault();
+                this.performFoldOut('CLOSED', true);
+            }
+        }
+    }
+
     private get isFoldOutMore(): boolean {
         return this.$props.teamSheetEntry.getFoldOut() === 'MORE';
     }
