@@ -9,7 +9,7 @@ export default class Player {
     private playerName: string;
     private gender: PlayerGender = 'NEUTRAL';
     private iconRowVersionPosition: number; // allows selection of icon for display when position has multiple versions in the icon image
-    private position: any; // NEEDS INTERFACE OR CLASS
+    private position: Position;
     private injuries: string[] = []; // Type?
     private skills: string[] = [];
     private record: any = null;
@@ -72,7 +72,7 @@ export default class Player {
         return this.playerName;
     }
 
-    public getPosition(): any {
+    public getPosition(): Position {
         return this.position;
     }
 
@@ -84,7 +84,7 @@ export default class Player {
         return this.position.id;
     }
 
-    public getPositionName(): number {
+    public getPositionName(): string {
         return this.position.name;
     }
 
