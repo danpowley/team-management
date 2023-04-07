@@ -20,12 +20,14 @@ export default class Player {
         playerName: string,
         position: any,
         iconRowVersionPosition: number,
+        gender: PlayerGender,
     ) {
         this.id = id;
         this.playerNumber = playerNumber;
         this.playerName = playerName;
         this.position = position;
         this.iconRowVersionPosition = iconRowVersionPosition;
+        this.gender = gender;
 
         this.injuries = [];
         this.skills = [];
@@ -47,6 +49,7 @@ export default class Player {
             rawApiPlayer.name,
             position,
             iconRowVersionPosition,
+            rawApiPlayer.gender.toUpperCase(),
         );
         player.injuries = rawApiPlayer.injuries.split(',');
         player.skills = rawApiPlayer.skills;

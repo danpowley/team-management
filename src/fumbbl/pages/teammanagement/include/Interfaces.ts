@@ -31,6 +31,7 @@ export interface Position {
     stats: PositionStats,
     quantityAllowed: number,
     isBigGuy: boolean,
+    defaultGender: string,
 };
 
 export interface PositionDataForBuyingPlayer {
@@ -62,6 +63,7 @@ export interface SetupTeamManagementSettings {
         start: number,
         max: number,
         maxBigGuys: number,
+        nameGenerator: string,
         positions: Position[],
     },
     dedicatedFans: {

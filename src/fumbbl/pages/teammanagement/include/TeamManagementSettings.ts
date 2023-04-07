@@ -28,6 +28,7 @@ export default class TeamManagementSettings {
                 start: rawApiRuleset.options.teamSettings.startPlayers,
                 max: rawApiRuleset.options.teamSettings.maxPlayers,
                 maxBigGuys: ~~rawApiRoster.maxBigGuys,
+                nameGenerator: rawApiRoster.nameGenerator,
                 positions: rawApiRoster.positions.map((position: any) => {
                     return {
                         id: ~~position.id,
@@ -43,6 +44,7 @@ export default class TeamManagementSettings {
                         } as PositionStats,
                         quantityAllowed: ~~position.quantity,
                         isBigGuy: position.type === 'BIGGUY',
+                        defaultGender: position.gender,
                     } as Position;
                 }),
             },
@@ -109,6 +111,10 @@ export default class TeamManagementSettings {
 
     public get maxBigGuys() {
         return this.settings.players.maxBigGuys;
+    }
+
+    public get nameGenerator() {
+        return this.settings.players.nameGenerator;
     }
 
     public get startPlayers() {

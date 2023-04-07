@@ -290,7 +290,12 @@
 import Vue from "vue";
 import Axios from "axios";
 import Component from 'vue-class-component';
-import { AddRemovePermissions, PlayerRowFoldOutMode, PositionDataForBuyingPlayer } from "../include/Interfaces";
+import {
+    AddRemovePermissions,
+    PlayerGender,
+    PlayerRowFoldOutMode,
+    PositionDataForBuyingPlayer
+} from "../include/Interfaces";
 import AccessControl from "../include/AccessControl";
 import Team from "../include/Team";
 import TeamSheet from "../include/TeamSheet";
@@ -566,8 +571,8 @@ export default class TeamComponent extends Vue {
         this.team.removeApothecary();
     }
 
-    private async generatePlayerName(): Promise<string> {
-        const result = await Axios.post('https://fumbbl.com/api/name/generate/default');
+    private async generatePlayerName(gender: PlayerGender): Promise<string> {
+        const result = await Axios.post(`https://fumbbl.com/api/name/generate/${this.teamManagementSettings.nameGenerator}/${gender.toLowerCase()}`);
         const playerName = result.data;
         return playerName;
     }
@@ -578,15 +583,26 @@ export default class TeamComponent extends Vue {
     }
 
     public async handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
+        const position = this.teamManagementSettings.getPosition(positionId);
+        const gender = this.getGender(position.defaultGender);
         const newPlayer = new Player(
             'NEW--' + teamSheetEntryNumber,
             teamSheetEntryNumber,
-            await this.generatePlayerName(),
+            await this.generatePlayerName(gender),
             this.teamManagementSettings.getPosition(positionId),
             this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
+            gender,
         );
         this.team.buyPlayer(newPlayer);
         this.refreshTeamSheet();
+    }
+
+    private getGender(defaultGender: string): PlayerGender {
+        const availableGenders: PlayerGender[] = ['FEMALE', 'MALE', 'NEUTRAL', 'NONBINARY'];
+        if (availableGenders.includes(defaultGender.toUpperCase() as PlayerGender)) {
+            return defaultGender.toUpperCase() as PlayerGender;
+        }
+        return availableGenders[Math.floor(Math.random()*availableGenders.length)];
     }
 
     public handleDeletePlayer(teamSheetEntryNumber: number) {
