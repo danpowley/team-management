@@ -378,7 +378,7 @@ export default class TeamComponent extends Vue {
 
     private handleKeyDown(event: KeyboardEvent) {
         if (event.ctrlKey || event.metaKey) {
-            if (this.accessControl.canEdit()) {
+            if (this.accessControl && this.accessControl.canEdit()) {
                 if (event.key === "$") {
                     event.preventDefault();
                     this.enableShowHireRookies();
