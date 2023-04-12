@@ -48,6 +48,7 @@ export default class TeamManagement extends Vue {
         // this.handleDemoTeamChosen(1105756); // norse chaos
         // this.handleDemoTeamChosen(1054459); // chaos dwarves
         // this.handleDemoTeamChosen(1056435); // norse old wild
+        // this.handleDemoTeamChosen(714168); // flying sandwiches
 
         // NEW TEAMS
         // this.handleDemoTeamChosen(1121103); // NEW NORSE
