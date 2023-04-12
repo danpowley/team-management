@@ -32,13 +32,31 @@ export default class TeamManagement extends Vue {
     mounted() {
         // just some hacks to quickly load the page
         // this.handleCreateEmptyDemoTeam('Competitive', 4, 5141); // competitive amazons
-        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4957); // competitive chaos chosen
         // this.handleCreateEmptyDemoTeam('Competitive', 4, 4959); // competitive dark elves
         // this.handleCreateEmptyDemoTeam('Competitive', 4, 4958); // competitive chaos renegades
         // this.handleCreateEmptyDemoTeam('Competitive', 4, 4974); // competitive orc
         // this.handleCreateEmptyDemoTeam('Competitive', 4, 4978); // competitive underworld denizens
-        this.handleCreateEmptyDemoTeam('Competitive', 4, 4972); // competitive old world alliances
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4972); // competitive old world alliances
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 5142); // competitive chaos dwarves
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4957); // competitive chaos chosen
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 5144); // competitive norse
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4970); // competitive nurgle
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 5145); // competitive tomb kings
+        // this.handleCreateEmptyDemoTeam('Competitive', 4, 4962); // competitive goblins
         // this.handleDemoTeamChosen(1107138); // bone wrappers
+        // this.handleDemoTeamChosen(1089119); // chaos chosen
+        // this.handleDemoTeamChosen(1105756); // norse chaos
+        // this.handleDemoTeamChosen(1054459); // chaos dwarves
+        // this.handleDemoTeamChosen(1056435); // norse old wild
+
+        // NEW TEAMS
+        // this.handleDemoTeamChosen(1121103); // NEW NORSE
+        // this.handleDemoTeamChosen(1121104); // NEW CHAOS CHOSEN
+        // this.handleDemoTeamChosen(1121102); // NEW CHAOS DWARF
+        // this.handleDemoTeamChosen(1121101); // NEW NURGLE
+        // this.handleDemoTeamChosen(1121106); // NEW TOMB KINGS
+        // this.handleDemoTeamChosen(1121509); // NEW CHAOS CHOSEN
+
     }
 
     public handleCreateEmptyDemoTeam(division: string, rulesetId: number, rosterId: number) {
