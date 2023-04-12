@@ -702,13 +702,21 @@
             }
             &.right {
               width: 28%;
-              display: flex;
-              .data {
-                width: 30%;
-              }
-              .editteamcontrols {
-                width: 70%;
-                text-align: right;
+              .adremovecontainer {
+                display: flex;
+                justify-content: center;
+                .addremove {
+                  display: flex;
+                  .add, .remove {
+                    width: 70px;
+                    &.disabled {
+                      opacity: 0.2;
+                    }
+                  }
+                  .currentvalue {
+                    width: 50px;
+                  }
+                }
               }
             }
           }

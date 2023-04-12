@@ -160,12 +160,14 @@
                     Re-Rolls ({{ rerollCostForMode/1000 }}k):
                 </div>
                 <div class="info right">
-                    <div class="data">
-                        {{ team.getRerolls() }}
-                    </div>
-                    <div v-if="accessControl.canEdit()" class="editteamcontrols">
-                        <template v-if="addRemovePermissions.rerolls.add">(<a href="#" @click.prevent="addReroll()">Add</a>)</template><template v-if="addRemovePermissions.rerolls.remove">(<a href="#" @click.prevent="removeReroll()">Remove</a>)</template>
-                    </div>
+                    <addremove
+                        :current-value="team.getRerolls().toString()"
+                        :can-edit="accessControl.canEdit()"
+                        :can-add="addRemovePermissions.rerolls.add"
+                        :can-remove="addRemovePermissions.rerolls.remove"
+                        @add="addReroll"
+                        @remove="removeReroll"
+                    ></addremove>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -179,12 +181,14 @@
                     Dedicated Fans:
                 </div>
                 <div class="info right">
-                    <div class="data">
-                        {{ team.getDedicatedFans() }}
-                    </div>
-                    <div v-if="accessControl.canEdit()" class="editteamcontrols">
-                        <template v-if="addRemovePermissions.dedicatedFans.add">(<a href="#" @click.prevent="addDedicatedFans()">Add</a>)</template><template v-if="addRemovePermissions.dedicatedFans.remove">(<a href="#" @click.prevent="removeDedicatedFans()">Remove</a>)</template>
-                    </div>
+                    <addremove
+                        :current-value="team.getDedicatedFans().toString()"
+                        :can-edit="accessControl.canEdit()"
+                        :can-add="addRemovePermissions.dedicatedFans.add"
+                        :can-remove="addRemovePermissions.dedicatedFans.remove"
+                        @add="addDedicatedFans"
+                        @remove="removeDedicatedFans"
+                    ></addremove>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -198,12 +202,14 @@
                     Assistant Coaches:
                 </div>
                 <div class="info right">
-                    <div class="data">
-                        {{ team.getAssistantCoaches() }}
-                    </div>
-                    <div v-if="accessControl.canEdit()" class="editteamcontrols">
-                        <template v-if="addRemovePermissions.assistantCoaches.add">(<a href="#" @click.prevent="addAssistantCoach()">Add</a>)</template><template v-if="addRemovePermissions.assistantCoaches.remove">(<a href="#" @click.prevent="removeAssistantCoach()">Remove</a>)</template>
-                    </div>
+                    <addremove
+                        :current-value="team.getAssistantCoaches().toString()"
+                        :can-edit="accessControl.canEdit()"
+                        :can-add="addRemovePermissions.assistantCoaches.add"
+                        :can-remove="addRemovePermissions.assistantCoaches.remove"
+                        @add="addAssistantCoach"
+                        @remove="removeAssistantCoach"
+                    ></addremove>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -217,12 +223,14 @@
                     Cheerleaders:
                 </div>
                 <div class="info right">
-                    <div class="data">
-                        {{ team.getCheerleaders() }}
-                    </div>
-                    <div v-if="accessControl.canEdit()" class="editteamcontrols">
-                        <template v-if="addRemovePermissions.cheerleaders.add">(<a href="#" @click.prevent="addCheerleader()">Add</a>)</template><template v-if="addRemovePermissions.cheerleaders.remove">(<a href="#" @click.prevent="removeCheerleader()">Remove</a>)</template>
-                    </div>
+                    <addremove
+                        :current-value="team.getCheerleaders().toString()"
+                        :can-edit="accessControl.canEdit()"
+                        :can-add="addRemovePermissions.cheerleaders.add"
+                        :can-remove="addRemovePermissions.cheerleaders.remove"
+                        @add="addCheerleader"
+                        @remove="removeCheerleader"
+                    ></addremove>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -236,12 +244,14 @@
                     Apothecary:
                 </div>
                 <div class="info right">
-                    <div class="data">
-                        {{ team.getApothecary() ? 'Yes' : 'No' }}
-                    </div>
-                    <div v-if="accessControl.canEdit() && teamManagementSettings.apothecaryAllowed" class="editteamcontrols">
-                        <template v-if="addRemovePermissions.apothecary.add">(<a href="#" @click.prevent="addApothecary()">Add</a>)</template><template v-if="addRemovePermissions.apothecary.remove">(<a href="#" @click.prevent="removeApothecary()">Remove</a>)</template>
-                    </div>
+                    <addremove
+                        :current-value="team.getApothecary() ? 'Yes' : 'No'"
+                        :can-edit="accessControl.canEdit() && teamManagementSettings.apothecaryAllowed"
+                        :can-add="addRemovePermissions.apothecary.add"
+                        :can-remove="addRemovePermissions.apothecary.remove"
+                        @add="addApothecary"
+                        @remove="removeApothecary"
+                    ></addremove>
                 </div>
             </div>
             <div v-if="accessControl.canViewHistory()" class="teammanagementrow">
@@ -312,12 +322,14 @@ import HireRookiesComponent from "./HireRookies.vue";
 import RosterIconManager from "../include/RosterIconManager";
 import TeamManagementSettings from "../include/TeamManagementSettings";
 import SpecialRulesComponent from "./SpecialRules.vue";
+import AddRemoveComponent from "./AddRemove.vue";
 
 @Component({
     components: {
         'player': PlayerComponent,
         'hirerookies': HireRookiesComponent,
         'specialrules': SpecialRulesComponent,
+        'addremove': AddRemoveComponent,
     },
     props: {
         demoTeamSettings: {
