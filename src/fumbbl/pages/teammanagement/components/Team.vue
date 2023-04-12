@@ -1,5 +1,5 @@
 <template>
-    <div class="team" v-if="team !== null">
+    <div class="team" v-if="team !== null && accessControl !== null">
         <div class="teamheader">
             <img class="rosterlogo" :src="`https://fumbbl.com/i/${teamManagementSettings.logoIdLarge}`" :alt="`Roster logo for ${teamManagementSettings.rosterName}`" :title="`Roster logo for ${teamManagementSettings.rosterName}`">
             <div class="teamheadermain">
@@ -139,7 +139,12 @@
                 </div>
                 <div class="playerrowsfooter">
                     <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game) <a href="#" v-if="accessControl.canEdit()" @click.prevent="enableShowHireRookies()">Buy new player</a></div>
-                    <div class="favouredof">Todo (Favoured of)</div>
+                    <specialrules
+                        :team-id="team.getId()"
+                        :can-edit="accessControl.canCreate()"
+                        :raw-api-special-rules="rawApiSpecialRules"
+                        @rules-updated="handleSpecialRulesUpdated"
+                    ></specialrules>
                 </div>
             </div>
         </div>
@@ -306,11 +311,13 @@ import Player from "../include/Player";
 import HireRookiesComponent from "./HireRookies.vue";
 import RosterIconManager from "../include/RosterIconManager";
 import TeamManagementSettings from "../include/TeamManagementSettings";
+import SpecialRulesComponent from "./SpecialRules.vue";
 
 @Component({
     components: {
         'player': PlayerComponent,
         'hirerookies': HireRookiesComponent,
+        'specialrules': SpecialRulesComponent,
     },
     props: {
         demoTeamSettings: {
@@ -327,6 +334,8 @@ export default class TeamComponent extends Vue {
     public teamSheet: TeamSheet | null = null;
     private editTeamName: boolean = false;
     private newTeamName: string = '';
+
+    private rawApiSpecialRules: {fromRoster: any, fromTeam: any} = {fromRoster: null, fromTeam: null};
 
     private mainMenuShow: string = 'none';
 
@@ -351,21 +360,26 @@ export default class TeamComponent extends Vue {
                 this.teamManagementSettings.startTreasury,
             );
         } else if (this.$props.demoTeamSettings.existingTeamId !== null) {
-            const result = await Axios.post('https://fumbbl.com/api/team/get/' + this.$props.demoTeamSettings.existingTeamId);
-            const rawApiTeam = result.data;
-            await this.setupForRulesetAndRoster(rawApiTeam.ruleset, rawApiTeam.roster.id);
-            this.team = Team.fromApi(
-                rawApiTeam,
-                this.teamManagementSettings.minStartFans,
-                this.teamManagementSettings,
-                this.rosterIconManager,
-            );
+            await this.reloadTeam();
         } else {
             throw new Error('Must be either new or existing configured.');
         }
 
         this.accessControl = new AccessControl(['OWNER'], this.team.getTeamStatus().getStatus());
         this.refreshTeamSheet();
+    }
+
+    private async reloadTeam() {
+        const result = await Axios.post('https://fumbbl.com/api/team/get/' + this.$props.demoTeamSettings.existingTeamId);
+        const rawApiTeam = result.data;
+        this.rawApiSpecialRules.fromTeam = rawApiTeam.specialRules;
+        await this.setupForRulesetAndRoster(rawApiTeam.ruleset, rawApiTeam.roster.id);
+        this.team = Team.fromApi(
+            rawApiTeam,
+            this.teamManagementSettings.minStartFans,
+            this.teamManagementSettings,
+            this.rosterIconManager,
+        );
     }
 
     private created() {
@@ -393,6 +407,8 @@ export default class TeamComponent extends Vue {
 
         const resultB = await Axios.post('https://fumbbl.com/api/roster/get/' + rosterId);
         const rawApiRoster = resultB.data;
+
+        this.rawApiSpecialRules.fromRoster = rawApiRoster.specialRules;
 
         await this.setupRosterIconManager(rawApiRoster.positions);
         this.teamManagementSettings = new TeamManagementSettings(rawApiRuleset, rawApiRoster);
@@ -637,6 +653,10 @@ export default class TeamComponent extends Vue {
     private cancelNewTeamName(): void {
         this.newTeamName = '';
         this.editTeamName = false;
+    }
+
+    private handleSpecialRulesUpdated() {
+        this.reloadTeam();
     }
 }
 </script>
