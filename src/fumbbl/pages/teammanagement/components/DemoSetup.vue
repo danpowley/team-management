@@ -1,5 +1,10 @@
 <template>
     <div class="demosetup">
+        <div class="quickteams">
+            <div v-for="t in quickTeamsForSelect" :key="t.id">
+                <a @click.prevent="loadQuickTeam(t.id)" href="#" :class="t.quickClasses.join(' ')">{{ t.quickName }}</a>
+            </div>
+        </div>
         <h2>Load demo team</h2>
         <div>
             <select v-model="coach" @change="setupTeams">
@@ -46,6 +51,7 @@ export default class DemoSetupComponent extends Vue {
     private coachesForSelect: any[] = ['HimalayaP1C7', 'Christer', 'PurpleChest', 'Malmir', 'Nelphine', 'Java', 'MerryZ', 'Mekutata', 'Jopotzuki', 'iena'];
     private coach: string = '';
     private teamsForSelect: any[] = [];
+    private quickTeamsForSelect: any[] = [];
     public demoTeamId: number | null = null;
     private divisionOrGroup: string = '';
     private rostersForSelect: any[] = [];
@@ -54,6 +60,9 @@ export default class DemoSetupComponent extends Vue {
     public newTeamDivisionId: number | null = null;
     public newTeamLeagueId: number | null = null;
 
+    async mounted() {
+        await this.setupQuickTeam();
+    }
     private get basicDivisionName(): 'Competitive' | 'Ranked' | 'League' {
         if (this.divisionOrGroup === 'd-2') {
             return 'Competitive';
@@ -102,18 +111,25 @@ export default class DemoSetupComponent extends Vue {
         this.rostersForSelect = basicRosters;
     }
 
+    private async setupQuickTeam() {
+        const result = await Axios.post('https://fumbbl.com/api/coach/teams/HimalayaP1C7');
+        const rawApiTeams = result.data.teams;
+        this.quickTeamsForSelect = await this.convertToBasicTeams(rawApiTeams);
+    }
+
     private async setupTeams() {
         const result = await Axios.post('https://fumbbl.com/api/coach/teams/' + this.coach);
         const rawApiTeams = result.data.teams;
-        this.prepareTeams(rawApiTeams);
+        this.teamsForSelect = await this.convertToBasicTeams(rawApiTeams);
     }
 
-    private async prepareTeams(rawApiTeams) {
+    private async convertToBasicTeams(rawApiTeams): Promise<any[]> {
         const basicTeams = [];
         for (const team of rawApiTeams) {
             const teamId = ~~team.id;
             const leagueInfo = team.league ? ` [${team.league}] ` : '';
-            basicTeams.push({id: teamId, name: `${team.division}${leagueInfo} (${team.status}): ${team.race} - ${team.name}`});
+            const quickName = `${team.race} ----- (${team.name})`;
+            basicTeams.push({id: teamId, name: `${team.division}${leagueInfo} (${team.status}): ${team.race} - ${team.name}`, quickClasses: [team.division, team.status], quickName: quickName});
         }
 
         basicTeams.sort((a, b) => {
@@ -123,11 +139,15 @@ export default class DemoSetupComponent extends Vue {
             return a.name > b.name ? 1 : -1;
         });
 
-        this.teamsForSelect = basicTeams;
+        return basicTeams;
     }
 
     public createEmptyDemoTeam() {
         this.$emit('create-empty-demo-team', this.basicDivisionName, this.rulesetId, this.rosterId);
+    }
+
+    public loadQuickTeam(teamId: number) {
+        this.$emit('demo-team-chosen', teamId);
     }
 
     public loadDemoTeam() {
