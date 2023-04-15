@@ -55,7 +55,7 @@
                     <td>MVPs</td>
                 </tr>
             </table>
-            <button class="teambutton" @click.prevent="$emit('delete-player')" style="float: right;">{{ canCreate ? 'Remove' : 'Retire' }}</button>
+            <button v-if="canEdit" class="teambutton" @click.prevent="$emit('delete-player')" style="float: right;">{{ canCreate ? 'Remove' : 'Retire' }}</button>
         </div>
     </div>
 </template>
