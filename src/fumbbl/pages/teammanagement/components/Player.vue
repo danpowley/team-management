@@ -110,6 +110,7 @@
         <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
             <playerdetails v-if="teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily"
                 :team-sheet-entry="teamSheetEntry"
+                :can-create="accessControl.canCreate()"
                 :can-edit="accessControl.canEdit()"
                 :name-generator="nameGenerator"
                 @delete-player="handleDeletePlayer()"

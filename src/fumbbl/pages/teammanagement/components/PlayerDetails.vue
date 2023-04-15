@@ -23,7 +23,6 @@
                 </div>
                 <div>
                     <button class="teambutton" @click="saveUpdatedPlayerDetails">Save</button>
-                    <button class="teambutton" @click.prevent="$emit('delete-player')" style="float: right;">Remove player</button>
                 </div>
             </template>
         </div>
@@ -56,6 +55,7 @@
                     <td>MVPs</td>
                 </tr>
             </table>
+            <button class="teambutton" @click.prevent="$emit('delete-player')" style="float: right;">{{ canCreate ? 'Remove' : 'Retire' }}</button>
         </div>
     </div>
 </template>
@@ -70,6 +70,10 @@ import Axios from "axios";
     components: {
     },
     props: {
+        canCreate: {
+            type: Boolean,
+            required: true,
+        },
         canEdit: {
             type: Boolean,
             required: true,
