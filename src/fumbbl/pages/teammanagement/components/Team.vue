@@ -297,6 +297,9 @@
                 <button @click="modals.deleteTeam = true" class="teambutton">Delete Team</button>
             </div>
         </div>
+        <div v-if="accessControl.canRetireTeam()" class="retireteam">
+            <button @click="modals.retireTeam = true" class="teambutton">Retire Team</button>
+        </div>
         <modal
             v-show="modals.submitForApproval === true"
             :buttons-config="{'close': 'Oops, let me go back and check!', 'continue': 'Yes, my team complies'}"
@@ -344,7 +347,22 @@
 
             <template v-slot:body>
                 <p>Are you sure you want to delete the following team?</p>
-                <p>{{ team.getName() }}</p>
+                <p>Team: <strong>{{ team.getName() }}</strong> ({{ teamManagementSettings.rosterName }})</p>
+            </template>
+        </modal>
+        <modal
+            v-show="modals.retireTeam === true"
+            :buttons-config="{'close': 'Cancel', 'continue': 'Retire Team'}"
+            @close="modals.retireTeam = false"
+            @continue="modals.retireTeam = false"
+        >
+            <template v-slot:header>
+                Retire team?
+            </template>
+
+            <template v-slot:body>
+                <p>Are you sure you want to retire the following team?</p>
+                <p>Team: <strong>{{ team.getName() }}</strong> ({{ teamManagementSettings.rosterName }})</p>
             </template>
         </modal>
     </div>
@@ -407,10 +425,12 @@ export default class TeamComponent extends Vue {
         submitForApproval: boolean,
         errorsForCreate: boolean,
         deleteTeam: boolean,
+        retireTeam: boolean,
     } = {
         submitForApproval: false,
         errorsForCreate: false,
         deleteTeam: false,
+        retireTeam: false,
     };
 
     private menuShow(menu: string) {

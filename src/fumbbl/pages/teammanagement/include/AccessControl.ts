@@ -29,6 +29,15 @@ export default class AccessControl {
                 ]
             },
             {
+                action: 'RETIRE_TEAM',
+                grantAccessToList: [
+                    {
+                        userRoles: ['OWNER', 'LEAGUE_STAFF', 'SITE_STAFF'],
+                        teamStatusValues: ['ACTIVE'],
+                    }
+                ]
+            },
+            {
                 action: 'VIEW_HISTORY',
                 grantAccessToList: [
                     {
@@ -73,6 +82,10 @@ export default class AccessControl {
 
     public canEdit(): boolean {
         return this.isGrantedAny(['CREATE', 'EDIT']);
+    }
+
+    public canRetireTeam(): boolean {
+        return this.isGrantedAny(['RETIRE_TEAM']);
     }
 
     public canCreate(): boolean {
