@@ -127,7 +127,8 @@
                             :roster-icon-manager="rosterIconManager"
                             :name-generator="teamManagementSettings.nameGenerator"
                             @add-player="handleAddPlayer"
-                            @delete-player="handleDeletePlayer"
+                            @remove-player="handleRemovePlayer"
+                            @retire-player="handleRetirePlayer"
                             @make-player-draggable="handleMakePlayerDraggable"
                             @drag-enter="handlePlayerDragEnter"
                             @drop="handlePlayerDrop"
@@ -724,9 +725,14 @@ export default class TeamComponent extends Vue {
         return availableGenders[Math.floor(Math.random()*availableGenders.length)];
     }
 
-    public handleDeletePlayer(teamSheetEntryNumber: number) {
+    public handleRemovePlayer(teamSheetEntryNumber: number) {
         this.team.removePlayer(teamSheetEntryNumber);
+        // TODO: Call API to remove player
         this.refreshTeamSheet();
+    }
+
+    public handleRetirePlayer(teamSheetEntryNumber: number) {
+        // TODO: Call API to retire player
     }
 
     private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {

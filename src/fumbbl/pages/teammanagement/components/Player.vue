@@ -113,7 +113,8 @@
                 :can-create="accessControl.canCreate()"
                 :can-edit="accessControl.canEdit()"
                 :name-generator="nameGenerator"
-                @delete-player="handleDeletePlayer()"
+                @remove-player="handleRemovePlayer()"
+                @retire-player="handleRetirePlayer()"
                 @close="performFoldOut('CLOSED')"
             ></playerdetails>
         </div>
@@ -260,12 +261,21 @@ export default class PlayerComponent extends Vue {
         this.$emit('end-player-draggable');
     }
 
-    public handleDeletePlayer() {
+    public closeFoldOutWithAnimationDelay() {
         this.showPlayerInfoFoldoutTemporarily = true;
         setTimeout(() => {this.showPlayerInfoFoldoutTemporarily = false;}, this.delayForFoldoutAnimations);
 
         this.performFoldOut('CLOSED');
-        this.$emit('delete-player', this.$props.teamSheetEntry.getNumber());
+    }
+
+    public handleRemovePlayer() {
+        this.closeFoldOutWithAnimationDelay();
+        this.$emit('remove-player', this.$props.teamSheetEntry.getNumber());
+    }
+
+    public handleRetirePlayer() {
+        this.closeFoldOutWithAnimationDelay();
+        this.$emit('retire-player', this.$props.teamSheetEntry.getNumber());
     }
 
     private handleDragEnter() {
