@@ -286,7 +286,7 @@
         </div>
         <div v-if="accessControl.canCreate()" class="createteam">
             <template v-if="teamManagementSettings.isValidForCreate(team)">
-                <button>Submit for approval</button>
+                <button @click="modals.submitForApproval = true">Submit for approval</button>
             </template>
             <template v-else>
                 <div class="unabletocreate">
@@ -298,7 +298,40 @@
                     </div>
                 </div>
             </template>
+            <div>
+                <button @click="modals.deleteTeam = true">Delete Team</button>
+            </div>
         </div>
+        <modal
+            v-show="modals.submitForApproval === true"
+            :buttons-config="{'close': 'Oops, let me go back and check!', 'continue': 'Yes, my team complies'}"
+            @close="modals.submitForApproval = false"
+            @continue="modals.submitForApproval = false"
+        >
+            <template v-slot:header>
+                * * * Important Notice * * *
+            </template>
+
+            <template v-slot:body>
+                <p>Before you activate your team, please make sure your team complies with our <a href="https://fumbbl.com/note/Christer/NamesAndImages" target="_blank">Team Naming Policy</a>.</p>
+                <p>Failure to follow these rules may result in your account being suspended for some time, depending on the severity of the transgression. The staff and the community are constantly monitoring teams and we do take this seriously. So, please make sure your team is in accordance with the rules before activating it.</p>
+            </template>
+        </modal>
+        <modal
+            v-show="modals.deleteTeam === true"
+            :buttons-config="{'close': 'Cancel', 'continue': 'Delete Team'}"
+            @close="modals.deleteTeam = false"
+            @continue="modals.deleteTeam = false"
+        >
+            <template v-slot:header>
+                Delete team?
+            </template>
+
+            <template v-slot:body>
+                <p>Are you sure you want to delete the following team?</p>
+                <p>{{ team.getName() }}</p>
+            </template>
+        </modal>
     </div>
 </template>
 
@@ -323,6 +356,7 @@ import RosterIconManager from "../include/RosterIconManager";
 import TeamManagementSettings from "../include/TeamManagementSettings";
 import SpecialRulesComponent from "./SpecialRules.vue";
 import AddRemoveComponent from "./AddRemove.vue";
+import ModalComponent from "./Modal.vue";
 
 @Component({
     components: {
@@ -330,6 +364,7 @@ import AddRemoveComponent from "./AddRemove.vue";
         'hirerookies': HireRookiesComponent,
         'specialrules': SpecialRulesComponent,
         'addremove': AddRemoveComponent,
+        'modal': ModalComponent,
     },
     props: {
         demoTeamSettings: {
@@ -352,6 +387,14 @@ export default class TeamComponent extends Vue {
     private mainMenuShow: string = 'none';
 
     private showHireRookies: boolean = false;
+
+    private modals: {
+        submitForApproval: boolean,
+        deleteTeam: boolean,
+    } = {
+        submitForApproval: false,
+        deleteTeam: false,
+    };
 
     private menuShow(menu: string) {
         this.mainMenuShow = menu;
