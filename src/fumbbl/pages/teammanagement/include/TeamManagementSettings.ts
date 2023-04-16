@@ -259,7 +259,7 @@ export default class TeamManagementSettings {
         }
 
         if (team.getPlayerCount() < this.startPlayers) {
-            errors.push('insufficentPlayers');
+            errors.push('insufficientPlayers');
         }
 
         const teamCost = this.calculateTeamCost(team);

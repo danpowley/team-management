@@ -285,21 +285,16 @@
             </div>
         </div>
         <div v-if="accessControl.canCreate()" class="createteam">
-            <template v-if="teamManagementSettings.isValidForCreate(team)">
-                <button @click="modals.submitForApproval = true">Submit for approval</button>
-            </template>
-            <template v-else>
-                <div class="unabletocreate">
-                    <div class="createerrorstitle">⚠ The following issues need to be fixed before this team can be created:</div>
-                    <div v-for="error in teamManagementSettings.getErrorsForCreate(team)" :key="error" class="createerror">
-                        <template v-if="error === 'teamNameBlank'">Please enter a team name.</template>
-                        <template v-if="error === 'insufficentTreasury'">Insufficent treasury.</template>
-                        <template v-if="error === 'insufficentPlayers'">Less than minimum required starting players selected.</template>
-                    </div>
-                </div>
-            </template>
-            <div>
-                <button @click="modals.deleteTeam = true">Delete Team</button>
+            <div class="submitforapproval">
+                <template v-if="teamManagementSettings.isValidForCreate(team)">
+                    <button @click="modals.submitForApproval = true" class="teambutton">Submit for approval</button>
+                </template>
+                <template v-else>
+                    <button @click="modals.errorsForCreate = true" class="teambutton">Submit for approval</button>
+                </template>
+            </div>
+            <div class="deleteteam">
+                <button @click="modals.deleteTeam = true" class="teambutton">Delete Team</button>
             </div>
         </div>
         <modal
@@ -315,6 +310,26 @@
             <template v-slot:body>
                 <p>Before you activate your team, please make sure your team complies with our <a href="https://fumbbl.com/note/Christer/NamesAndImages" target="_blank">Team Naming Policy</a>.</p>
                 <p>Failure to follow these rules may result in your account being suspended for some time, depending on the severity of the transgression. The staff and the community are constantly monitoring teams and we do take this seriously. So, please make sure your team is in accordance with the rules before activating it.</p>
+            </template>
+        </modal>
+        <modal
+            v-show="modals.errorsForCreate === true"
+            :buttons-config="{'close': 'Close'}"
+            @close="modals.errorsForCreate = false"
+        >
+            <template v-slot:header>
+                Unable to create team.
+            </template>
+
+            <template v-slot:body>
+                <p>Sorry we are unable to create your team, please review the errors listed below.</p>
+                <ul>
+                    <li v-for="error in teamManagementSettings.getErrorsForCreate(team)" :key="error">
+                        <template v-if="error === 'teamNameBlank'">Team name is blank.</template>
+                        <template v-if="error === 'insufficientTreasury'">Insufficient treasury for chosen players and sideline staff.</template>
+                        <template v-if="error === 'insufficientPlayers'">Less than minimum required starting players selected.</template>
+                    </li>
+                </ul>
             </template>
         </modal>
         <modal
@@ -390,9 +405,11 @@ export default class TeamComponent extends Vue {
 
     private modals: {
         submitForApproval: boolean,
+        errorsForCreate: boolean,
         deleteTeam: boolean,
     } = {
         submitForApproval: false,
+        errorsForCreate: false,
         deleteTeam: false,
     };
 
