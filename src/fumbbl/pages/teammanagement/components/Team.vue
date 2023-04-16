@@ -165,6 +165,8 @@
                         :can-edit="accessControl.canEdit()"
                         :can-add="addRemovePermissions.rerolls.add"
                         :can-remove="addRemovePermissions.rerolls.remove"
+                        :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
+                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
                         @add="addReroll"
                         @remove="removeReroll"
                     ></addremove>
@@ -186,6 +188,8 @@
                         :can-edit="accessControl.canEdit()"
                         :can-add="addRemovePermissions.dedicatedFans.add"
                         :can-remove="addRemovePermissions.dedicatedFans.remove"
+                        :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
+                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
                         @add="addDedicatedFans"
                         @remove="removeDedicatedFans"
                     ></addremove>
@@ -207,6 +211,8 @@
                         :can-edit="accessControl.canEdit()"
                         :can-add="addRemovePermissions.assistantCoaches.add"
                         :can-remove="addRemovePermissions.assistantCoaches.remove"
+                        :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
+                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
                         @add="addAssistantCoach"
                         @remove="removeAssistantCoach"
                     ></addremove>
@@ -228,6 +234,8 @@
                         :can-edit="accessControl.canEdit()"
                         :can-add="addRemovePermissions.cheerleaders.add"
                         :can-remove="addRemovePermissions.cheerleaders.remove"
+                        :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
+                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
                         @add="addCheerleader"
                         @remove="removeCheerleader"
                     ></addremove>
@@ -249,6 +257,8 @@
                         :can-edit="accessControl.canEdit() && teamManagementSettings.apothecaryAllowed"
                         :can-add="addRemovePermissions.apothecary.add"
                         :can-remove="addRemovePermissions.apothecary.remove"
+                        :label-add="accessControl.canCreate() ? 'Add' : 'Hire'"
+                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Fire'"
                         @add="addApothecary"
                         @remove="removeApothecary"
                     ></addremove>
