@@ -48,7 +48,7 @@ import Component from 'vue-class-component';
             required: false,
         },
         modalSize: {
-            type: Object,
+            type: String,
             required: false,
             default: 'medium',
         }
