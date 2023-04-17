@@ -822,7 +822,7 @@
     height: 100%;
     z-index: 3;
     background-color: rgb(0, 0, 0);
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
 
     .modal {
       position: relative;
@@ -831,9 +831,20 @@
       border: solid 2px @Forest;
       padding: 20px;
       margin: auto;
-      width: 750px;
       max-height: 90%;
       overflow: auto;
+
+      &.modalsmall {
+        width: 450px;
+      }
+
+      &.modalmedium {
+        width: 750px;
+      }
+
+      &.modallarge {
+        width: 900px;
+      }
 
       .modalheader {
         font-size: 120%;
@@ -860,6 +871,8 @@
       }
 
       .modalbuttons {
+        display: flex;
+        justify-content: center;
         button {
           margin-right: 20px;
         }

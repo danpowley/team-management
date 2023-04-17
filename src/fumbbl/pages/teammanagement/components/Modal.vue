@@ -2,6 +2,7 @@
     <transition name="modal-fade">
         <div class="modalbackdrop">
             <div class="modal"
+                 :class="getModalClasses()"
                  role="dialog"
                  aria-labelledby="modalTitle"
                  aria-describedby="modalDescription"
@@ -22,7 +23,9 @@
                 </section>
 
                 <section class="modalbuttons" v-if="buttonsConfig">
-                    <button v-for="(label, eventName) in buttonsConfig" class="teambutton" @click="$emit(eventName)">{{ label }}</button>
+                    <div>
+                        <button v-for="(label, eventName) in buttonsConfig" class="teambutton" @click="$emit(eventName)">{{ label }}</button>
+                    </div>
                 </section>
             </div>
         </div>
@@ -44,11 +47,24 @@ import Component from 'vue-class-component';
             type: Object,
             required: false,
         },
+        modalSize: {
+            type: Object,
+            required: false,
+            default: 'medium',
+        }
     },
 })
 export default class ModalComponent extends Vue {
     private close() {
         this.$emit('close');
+    }
+
+    private getModalClasses(): any {
+        return {
+            modalsmall: this.$props.modalSize === 'small',
+            modalmedium: this.$props.modalSize === 'medium',
+            modallarge: this.$props.modalSize === 'large',
+        }
     }
 }
 </script>

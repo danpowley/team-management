@@ -62,6 +62,7 @@
         <modal
             v-show="modals.retirePlayer === true"
             :buttons-config="{'close': 'Close', 'retire': 'Retire player'}"
+            :modal-size="'small'"
             @close="modals.retirePlayer = false"
             @retire="modals.retirePlayer = false; $emit('retire-player')"
         >

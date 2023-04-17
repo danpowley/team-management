@@ -314,6 +314,7 @@
         <modal
             v-show="modals.submitForApproval === true"
             :buttons-config="{'close': 'Oops, let me go back and check!', 'continue': 'Yes, my team complies'}"
+            :modal-size="'small'"
             @close="modals.submitForApproval = false"
             @continue="modals.submitForApproval = false"
         >
@@ -329,6 +330,7 @@
         <modal
             v-show="modals.errorsForCreate === true"
             :buttons-config="{'close': 'Close'}"
+            :modal-size="'small'"
             @close="modals.errorsForCreate = false"
         >
             <template v-slot:header>
@@ -349,6 +351,7 @@
         <modal
             v-show="modals.deleteTeam === true"
             :buttons-config="{'close': 'Cancel', 'continue': 'Delete Team'}"
+            :modal-size="'small'"
             @close="modals.deleteTeam = false"
             @continue="modals.deleteTeam = false"
         >
@@ -364,6 +367,7 @@
         <modal
             v-show="modals.retireTeam === true"
             :buttons-config="{'close': 'Cancel', 'continue': 'Retire Team'}"
+            :modal-size="'small'"
             @close="modals.retireTeam = false"
             @continue="modals.retireTeam = false"
         >
