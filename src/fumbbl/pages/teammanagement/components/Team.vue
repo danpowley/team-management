@@ -63,10 +63,7 @@
                 <div class="currentplayercount">{{ team.getPlayerCount() }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required)</div>
             </div>
             <div class="costinfo">
-                <div class="currentteamcost">{{ teamCost/1000 }}k</div> <div class="currentteamcostlabel">(Max {{ teamManagementSettings.startTreasury/1000 }}k)</div>
-            </div>
-            <div class="actions">
-                <button class="teambutton" @click.prevent="resetCreateTeam()">Reset</button>
+                <div class="currentteamcostlabel">Treasury spent (Max {{ teamManagementSettings.startTreasury/1000 }}k)</div> <div class="currentteamcost">{{ teamCost/1000 }}k</div>
             </div>
         </div>
         <div v-if="false" class="redraft">
@@ -634,15 +631,6 @@ export default class TeamComponent extends Vue {
 
     public endDragDrop() {
         this.teamSheet.clearDragDrop();
-    }
-
-    private resetCreateTeam() {
-        this.team = new Team(
-            this.team.getDivision(),
-            this.teamManagementSettings.minStartFans,
-            this.teamManagementSettings.startTreasury,
-        );
-        this.refreshTeamSheet();
     }
 
     private addReroll() {
