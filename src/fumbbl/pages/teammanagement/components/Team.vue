@@ -294,7 +294,10 @@
         </div>
         <div v-if="accessControl.canCreate()" class="createteam">
             <div class="submitforapproval">
-                <template v-if="teamManagementSettings.isValidForCreate(team)">
+                <template v-if="editTeamName">
+                    NOTE: The submit for approval button is hidden whilst you are editing the team name above.
+                </template>
+                <template v-else-if="teamManagementSettings.isValidForCreate(team)">
                     <button @click="modals.submitForApproval = true" class="teambutton">Submit for approval</button>
                 </template>
                 <template v-else>
