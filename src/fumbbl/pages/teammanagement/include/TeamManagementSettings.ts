@@ -141,6 +141,14 @@ export default class TeamManagementSettings {
         return this.settings.dedicatedFans.cost;
     }
 
+    public get dedicatedFansStartValues(): number[] {
+        const startValues: number[] = [];
+        for (let i = this.settings.dedicatedFans.minStart; i <= this.settings.dedicatedFans.maxStart; i++) {
+            startValues.push(i);
+        }
+        return startValues;
+    }
+
     public get assistantCoachCost(): number {
         return this.settings.sidelineStaff.assistantCoaches.cost;
     }
@@ -198,10 +206,6 @@ export default class TeamManagementSettings {
             rerolls: {
                 add: team.rerolls < this.settings.rerolls.max,
                 remove: team.rerolls > 0,
-            },
-            dedicatedFans: {
-                add: team.dedicatedFans < this.settings.dedicatedFans.maxStart,
-                remove: team.dedicatedFans > this.settings.dedicatedFans.minStart,
             },
             assistantCoaches: {
                 add: team.assistantCoaches < this.settings.sidelineStaff.assistantCoaches.max,

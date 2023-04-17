@@ -97,10 +97,6 @@ export interface AddRemovePermissions {
         add: boolean,
         remove: boolean,
     },
-    dedicatedFans: {
-        add: boolean,
-        remove: boolean,
-    },
     assistantCoaches: {
         add: boolean,
         remove: boolean,

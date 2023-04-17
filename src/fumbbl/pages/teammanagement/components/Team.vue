@@ -181,16 +181,14 @@
                     Dedicated Fans:
                 </div>
                 <div class="info right">
-                    <addremove
-                        :current-value="team.getDedicatedFans().toString()"
-                        :can-edit="accessControl.canEdit()"
-                        :can-add="addRemovePermissions.dedicatedFans.add"
-                        :can-remove="addRemovePermissions.dedicatedFans.remove"
-                        :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
-                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
-                        @add="addDedicatedFans"
-                        @remove="removeDedicatedFans"
-                    ></addremove>
+                    <template v-if="accessControl.canCreate()">
+                        <select v-model.number="team.dedicatedFans" @change="updateDedicatedFans()">
+                            <option v-for="dedicatedFansStartValue in this.teamManagementSettings.dedicatedFansStartValues">{{ dedicatedFansStartValue }}</option>
+                        </select>
+                    </template>
+                    <template v-else>
+                        {{ team.getDedicatedFans() }}
+                    </template>
                 </div>
             </div>
             <div class="teammanagementrow">
@@ -636,6 +634,10 @@ export default class TeamComponent extends Vue {
         this.teamSheet.clearDragDrop();
     }
 
+    private updateDedicatedFans() {
+        // TODO: call API to store new dedicated fans value
+    }
+
     private addReroll() {
         this.team.addReroll(
             this.team.getTeamStatus().isNew() ? this.teamManagementSettings.rerollCostOnCreate : this.teamManagementSettings.rerollCostFull
@@ -644,16 +646,6 @@ export default class TeamComponent extends Vue {
 
     private removeReroll() {
         this.team.removeReroll();
-    }
-
-    private addDedicatedFans() {
-        this.team.addDedicatedFans(
-            this.teamManagementSettings.dedicatedFansCost
-        );
-    }
-
-    private removeDedicatedFans() {
-        this.team.removeDedicatedFans();
     }
 
     private addAssistantCoach() {
