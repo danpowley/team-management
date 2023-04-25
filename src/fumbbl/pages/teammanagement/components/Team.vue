@@ -161,12 +161,14 @@
                     <addremove
                         :current-value="team.getRerolls().toString()"
                         :can-edit="accessControl.canEdit()"
+                        :can-remove-immediately="accessControl.canCreate()"
                         :can-add="addRemovePermissions.rerolls.add"
                         :can-remove="addRemovePermissions.rerolls.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
                         :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
                         @add="addReroll"
-                        @remove="removeReroll"
+                        @remove-with-confirm="modals.removeReroll = true"
+                        @remove-immediately="removeReroll"
                     ></addremove>
                 </div>
             </div>
@@ -205,12 +207,14 @@
                     <addremove
                         :current-value="team.getAssistantCoaches().toString()"
                         :can-edit="accessControl.canEdit()"
+                        :can-remove-immediately="accessControl.canCreate()"
                         :can-add="addRemovePermissions.assistantCoaches.add"
                         :can-remove="addRemovePermissions.assistantCoaches.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
                         :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
                         @add="addAssistantCoach"
-                        @remove="removeAssistantCoach"
+                        @remove-with-confirm="modals.removeAssistantCoach = true"
+                        @remove-immediately="removeAssistantCoach"
                     ></addremove>
                 </div>
             </div>
@@ -228,12 +232,14 @@
                     <addremove
                         :current-value="team.getCheerleaders().toString()"
                         :can-edit="accessControl.canEdit()"
+                        :can-remove-immediately="accessControl.canCreate()"
                         :can-add="addRemovePermissions.cheerleaders.add"
                         :can-remove="addRemovePermissions.cheerleaders.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
                         :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
                         @add="addCheerleader"
-                        @remove="removeCheerleader"
+                        @remove-with-confirm="modals.removeCheerleader = true"
+                        @remove-immediately="removeCheerleader"
                     ></addremove>
                 </div>
             </div>
@@ -251,12 +257,14 @@
                     <addremove
                         :current-value="team.getApothecary() ? 'Yes' : 'No'"
                         :can-edit="accessControl.canEdit() && teamManagementSettings.apothecaryAllowed"
+                        :can-remove-immediately="accessControl.canCreate()"
                         :can-add="addRemovePermissions.apothecary.add"
                         :can-remove="addRemovePermissions.apothecary.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Hire'"
                         :label-remove="accessControl.canCreate() ? 'Remove' : 'Fire'"
                         @add="addApothecary"
-                        @remove="removeApothecary"
+                        @remove-with-confirm="modals.removeApothecary = true"
+                        @remove-immediately="removeApothecary"
                     ></addremove>
                 </div>
             </div>
@@ -309,6 +317,66 @@
         <div v-if="accessControl.canRetireTeam()" class="retireteam">
             <button @click="modals.retireTeam = true" class="teambutton">Retire Team</button>
         </div>
+        <modal
+            v-show="modals.removeReroll === true"
+            :buttons-config="{'close': 'Cancel', 'remove': 'Remove'}"
+            :modal-size="'small'"
+            @close="modals.removeReroll = false"
+            @remove="removeReroll"
+        >
+            <template v-slot:header>
+                Discard reroll
+            </template>
+
+            <template v-slot:body>
+                <p>Are you sure you wish to discard this reroll? This cannot be undone.</p>
+            </template>
+        </modal>
+        <modal
+            v-show="modals.removeAssistantCoach === true"
+            :buttons-config="{'close': 'Cancel', 'remove': 'Remove'}"
+            :modal-size="'small'"
+            @close="modals.removeAssistantCoach = false"
+            @remove="removeAssistantCoach"
+        >
+            <template v-slot:header>
+                Discard assistant coach
+            </template>
+
+            <template v-slot:body>
+                <p>Are you sure you wish to discard this assistant coach? This cannot be undone.</p>
+            </template>
+        </modal>
+        <modal
+            v-show="modals.removeCheerleader === true"
+            :buttons-config="{'close': 'Cancel', 'remove': 'Remove'}"
+            :modal-size="'small'"
+            @close="modals.removeCheerleader = false"
+            @remove="removeCheerleader"
+        >
+            <template v-slot:header>
+                Discard cheerleader
+            </template>
+
+            <template v-slot:body>
+                <p>Are you sure you wish to discard this cheerleader? This cannot be undone.</p>
+            </template>
+        </modal>
+        <modal
+            v-show="modals.removeApothecary === true"
+            :buttons-config="{'close': 'Cancel', 'remove': 'Remove'}"
+            :modal-size="'small'"
+            @close="modals.removeApothecary = false"
+            @remove="removeApothecary"
+        >
+            <template v-slot:header>
+                Fire apothecary
+            </template>
+
+            <template v-slot:body>
+                <p>Are you sure you wish to fire this apothecary? This cannot be undone.</p>
+            </template>
+        </modal>
         <modal
             v-show="modals.submitForApproval === true"
             :buttons-config="{'close': 'Oops, let me go back and check!', 'continue': 'Yes, my team complies'}"
@@ -439,11 +507,19 @@ export default class TeamComponent extends Vue {
         errorsForCreate: boolean,
         deleteTeam: boolean,
         retireTeam: boolean,
+        removeReroll: boolean,
+        removeAssistantCoach: boolean,
+        removeCheerleader: boolean,
+        removeApothecary: boolean,
     } = {
         submitForApproval: false,
         errorsForCreate: false,
         deleteTeam: false,
         retireTeam: false,
+        removeReroll: false,
+        removeAssistantCoach: false,
+        removeCheerleader: false,
+        removeApothecary: false,
     };
 
     private menuShow(menu: string) {
@@ -646,6 +722,7 @@ export default class TeamComponent extends Vue {
 
     private removeReroll() {
         this.team.removeReroll();
+        this.modals.removeReroll = false;
     }
 
     private addAssistantCoach() {
@@ -656,6 +733,7 @@ export default class TeamComponent extends Vue {
 
     private removeAssistantCoach() {
         this.team.removeAssistantCoach();
+        this.modals.removeAssistantCoach = false;
     }
 
     private addCheerleader() {
@@ -666,6 +744,7 @@ export default class TeamComponent extends Vue {
 
     private removeCheerleader() {
         this.team.removeCheerleader();
+        this.modals.removeCheerleader = false;
     }
 
     private addApothecary() {
@@ -676,6 +755,7 @@ export default class TeamComponent extends Vue {
 
     private removeApothecary() {
         this.team.removeApothecary();
+        this.modals.removeApothecary = false;
     }
 
     private async generatePlayerName(gender: PlayerGender): Promise<string> {

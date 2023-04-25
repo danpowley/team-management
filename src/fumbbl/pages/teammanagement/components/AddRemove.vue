@@ -6,7 +6,7 @@
             </div>
             <template v-else>
                 <template v-if="canRemove">
-                    <button class="teambutton remove" @click.prevent="$emit('remove')">{{ labelRemove }}</button>
+                    <button class="teambutton remove" @click.prevent="$emit(canRemoveImmediately ? 'remove-immediately' : 'remove-with-confirm')">{{ labelRemove }}</button>
                 </template>
                 <template v-else>
                     <button class="teambutton remove disabled" disabled="disabled">{{ labelRemove }}</button>
@@ -36,6 +36,10 @@ import Component from 'vue-class-component';
             required: true,
         },
         canEdit: {
+            type: Boolean,
+            required: true,
+        },
+        canRemoveImmediately: {
             type: Boolean,
             required: true,
         },
