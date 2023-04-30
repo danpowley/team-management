@@ -13,7 +13,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Axios from "axios";
 import Component from "vue-class-component";
 import TeamComponent from "./components/Team.vue";
 import DemoSetupComponent from "./components/DemoSetup.vue";
