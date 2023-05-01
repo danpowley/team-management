@@ -16,6 +16,8 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import TeamComponent from "./components/Team.vue";
 import DemoSetupComponent from "./components/DemoSetup.vue";
+import FumbblApi from "./include/FumbblApi";
+import FumbblApiDev from "./include/FumbblApiDev";
 
 @Component({
     components: {
@@ -24,11 +26,19 @@ import DemoSetupComponent from "./components/DemoSetup.vue";
     },
 })
 export default class TeamManagement extends Vue {
+    private isDevMode: boolean = true;
+    private fumbblApi: FumbblApi = null;
     public overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
 
     private demoTeamSettings: {existingTeamId: number | null, newTeam: {division: string, rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
 
     mounted() {
+        if (this.isDevMode) {
+            this.fumbblApi = new FumbblApiDev();
+        } else {
+            this.fumbblApi = new FumbblApi();
+        }
+
         // just some hacks to quickly load the page
         // this.handleCreateEmptyDemoTeam('Competitive', 4, 5141); // competitive amazons
         // this.handleCreateEmptyDemoTeam('Competitive', 4, 4959); // competitive dark elves
