@@ -1,6 +1,7 @@
 <template>
     <div class="teammanagement">
-        <demosetup v-if="overallApplicationMode === 'DEMO_SETUP'"
+        <demosetup v-if="overallApplicationMode === 'DEMO_SETUP' && fumbblApi !== null"
+            :fumbbl-api="fumbblApi"
             @create-empty-demo-team="handleCreateEmptyDemoTeam"
             @demo-team-chosen="handleDemoTeamChosen"
         ></demosetup>

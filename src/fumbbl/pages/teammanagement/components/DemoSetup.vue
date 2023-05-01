@@ -38,13 +38,17 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Axios from "axios";
 import Component from 'vue-class-component';
+import FumbblApi from "../include/FumbblApi";
 
 @Component({
     components: {
     },
     props: {
+        fumbblApi: {
+            type: Object,
+            required: true,
+        },
     }
 })
 export default class DemoSetupComponent extends Vue {
@@ -63,6 +67,11 @@ export default class DemoSetupComponent extends Vue {
     async mounted() {
         await this.setupQuickTeam();
     }
+
+    private getFumbblApi(): FumbblApi {
+        return this.$props.fumbblApi;
+    }
+
     private get basicDivisionName(): 'Competitive' | 'Ranked' | 'League' {
         if (this.divisionOrGroup === 'd-2') {
             return 'Competitive';
@@ -76,19 +85,16 @@ export default class DemoSetupComponent extends Vue {
     private async setupRosters() {
         const bits = this.divisionOrGroup.split('-');
         const isDivision = bits[0] === 'd';
-        const divisionOrGroupId = bits[1];
+        const divisionOrGroupId = ~~bits[1];
 
         if (isDivision) {
-            const result = await Axios.post('https://fumbbl.com/api/division/get/' + divisionOrGroupId);
-            this.rulesetId = result.data.rulesetId;
+            this.rulesetId = await this.getFumbblApi().getRulesetIdForDivision(divisionOrGroupId);
         } else {
-            const result = await Axios.post('https://fumbbl.com/api/group/get/' + divisionOrGroupId);
-            this.rulesetId = result.data.ruleset;
+            this.rulesetId = await this.getFumbblApi().getRulesetIdForGroup(divisionOrGroupId);
         }
 
-        const result2 = await Axios.post('https://fumbbl.com/api/ruleset/get/' + this.rulesetId);
-        const rawApiRuleset = result2.data;
-        this.prepareBasicRosters(rawApiRuleset.rosters);
+        const rawApiRuleset = await this.getFumbblApi().getRuleset(this.rulesetId);
+        await this.prepareBasicRosters(rawApiRuleset.rosters);
     }
 
     private async prepareBasicRosters(rawBasicRosters) {
@@ -112,14 +118,12 @@ export default class DemoSetupComponent extends Vue {
     }
 
     private async setupQuickTeam() {
-        const result = await Axios.post('https://fumbbl.com/api/coach/teams/HimalayaP1C7');
-        const rawApiTeams = result.data.teams;
+        const rawApiTeams = await this.getFumbblApi().getTeamsForCoach('HimalayaP1C7');
         this.quickTeamsForSelect = await this.convertToBasicTeams(rawApiTeams);
     }
 
     private async setupTeams() {
-        const result = await Axios.post('https://fumbbl.com/api/coach/teams/' + this.coach);
-        const rawApiTeams = result.data.teams;
+        const rawApiTeams = this.getFumbblApi().getTeamsForCoach(this.coach);
         this.teamsForSelect = await this.convertToBasicTeams(rawApiTeams);
     }
 
