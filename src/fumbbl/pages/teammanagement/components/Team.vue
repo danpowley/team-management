@@ -452,7 +452,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Axios from "axios";
 import Component from 'vue-class-component';
 import {
     AddRemovePermissions,
@@ -561,8 +560,7 @@ export default class TeamComponent extends Vue {
     }
 
     private async reloadTeam() {
-        const result = await Axios.post('https://fumbbl.com/api/team/get/' + this.$props.demoTeamSettings.existingTeamId);
-        const rawApiTeam = result.data;
+        const rawApiTeam = await this.getFumbblApi().getTeam(this.$props.demoTeamSettings.existingTeamId);
         this.rawApiSpecialRules.fromTeam = rawApiTeam.specialRules;
         await this.setupForRulesetAndRoster(rawApiTeam.ruleset, rawApiTeam.roster.id);
         this.team = Team.fromApi(
@@ -593,11 +591,8 @@ export default class TeamComponent extends Vue {
     }
 
     private async setupForRulesetAndRoster(rulesetId: number, rosterId: number) {
-        const resultA = await Axios.post('https://fumbbl.com/api/ruleset/get/' + rulesetId);
-        const rawApiRuleset = resultA.data;
-
-        const resultB = await Axios.post('https://fumbbl.com/api/roster/get/' + rosterId);
-        const rawApiRoster = resultB.data;
+        const rawApiRuleset = await this.getFumbblApi().getRuleset(rulesetId);
+        const rawApiRoster = await this.getFumbblApi().getRoster(rosterId);
 
         this.rawApiSpecialRules.fromRoster = rawApiRoster.specialRules;
 
@@ -769,9 +764,7 @@ export default class TeamComponent extends Vue {
     }
 
     private async generatePlayerName(gender: PlayerGender): Promise<string> {
-        const result = await Axios.post(`https://fumbbl.com/api/name/generate/${this.teamManagementSettings.nameGenerator}/${gender.toLowerCase()}`);
-        const playerName = result.data;
-        return playerName;
+        return await this.getFumbblApi().generatePlayerName(this.teamManagementSettings.nameGenerator, gender);
     }
 
     private enableShowHireRookies(): void {
