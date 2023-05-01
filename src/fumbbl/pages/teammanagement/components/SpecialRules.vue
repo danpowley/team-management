@@ -55,12 +55,16 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from 'vue-class-component';
-import Axios from "axios";
+import FumbblApi from "../include/FumbblApi";
 
 @Component({
     components: {
     },
     props: {
+        fumbblApi: {
+            type: Object,
+            required: true,
+        },
         teamId: {
             type: Number,
             required: true,
@@ -80,6 +84,10 @@ export default class SpecialRulesComponent extends Vue {
     private showOneOfOptions = false;
     private showTeamOptions = false;
     private updateInProgress = false;
+
+    private getFumbblApi(): FumbblApi {
+        return this.$props.fumbblApi;
+    }
 
     private get isOneOfActive(): boolean {
         return this.oneOfOptions.length > 0;
@@ -259,19 +267,7 @@ export default class SpecialRulesComponent extends Vue {
     }
 
     private async setSpecialRule(ruleName: string, ruleValue: string) {
-        // TODO: code going via proxy, work around during development
-        await Axios.post('http://localhost:3000/api/team/setSpecialRule/' + this.$props.teamId, {
-            rule: ruleName,
-            val: ruleValue
-        });
-        // const bodyFormData = new FormData();
-        // bodyFormData.append('rule', this.oneOfRuleName);
-        // bodyFormData.append('val', newSpecialRuleValue);
-        // await Axios({
-        //     method: "post",
-        //     url: 'https://fumbbl.com/api/team/setSpecialRule/' + this.$props.teamId,
-        //     data: bodyFormData,
-        // });
+        await this.getFumbblApi().setSpecialRule(this.$props.teamId, ruleName, ruleValue);
     }
 }
 </script>

@@ -6,6 +6,7 @@
         ></demosetup>
 
         <team v-if="overallApplicationMode === 'TEAM'"
+            :fumbbl-api="fumbblApi"
             :demo-team-settings="demoTeamSettings"
         ></team>
     </div>

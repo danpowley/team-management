@@ -138,6 +138,7 @@
                 <div class="playerrowsfooter">
                     <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game) <a href="#" v-if="accessControl.canEdit()" @click.prevent="enableShowHireRookies()">Buy new player</a></div>
                     <specialrules
+                        :fumbbl-api="getFumbblApi()"
                         :team-id="team.getId()"
                         :can-edit="accessControl.canCreate()"
                         :raw-api-special-rules="rawApiSpecialRules"
@@ -471,6 +472,7 @@ import TeamManagementSettings from "../include/TeamManagementSettings";
 import SpecialRulesComponent from "./SpecialRules.vue";
 import AddRemoveComponent from "./AddRemove.vue";
 import ModalComponent from "./Modal.vue";
+import FumbblApi from "../include/FumbblApi";
 
 @Component({
     components: {
@@ -481,6 +483,10 @@ import ModalComponent from "./Modal.vue";
         'modal': ModalComponent,
     },
     props: {
+        fumbblApi: {
+            type: Object,
+            required: true,
+        },
         demoTeamSettings: {
             type: Object,
             required: true,
@@ -521,6 +527,10 @@ export default class TeamComponent extends Vue {
         removeCheerleader: false,
         removeApothecary: false,
     };
+
+    private getFumbblApi(): FumbblApi {
+        return this.$props.fumbblApi;
+    }
 
     private menuShow(menu: string) {
         this.mainMenuShow = menu;
