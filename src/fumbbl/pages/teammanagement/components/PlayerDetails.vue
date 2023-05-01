@@ -90,12 +90,17 @@ import Component from 'vue-class-component';
 import Axios from "axios";
 import UpdatePlayerDetails from "../include/UpdatePlayerDetails";
 import ModalComponent from "./Modal.vue";
+import FumbblApi from "../include/FumbblApi";
 
 @Component({
     components: {
         'modal': ModalComponent,
     },
     props: {
+        fumbblApi: {
+            type: Object,
+            required: true,
+        },
         canCreate: {
             type: Boolean,
             required: true,
@@ -131,6 +136,10 @@ export default class PlayerDetailsComponent extends Vue {
         return this.$props.teamSheetEntry.getUpdatePlayerDetails();
     }
 
+    private getFumbblApi(): FumbblApi {
+        return this.$props.fumbblApi;
+    }
+
     private saveUpdatedPlayerDetails(): void {
         if (this.updatePlayerDetails) {
             this.updatePlayerDetailsErrors = this.updatePlayerDetails.getErrors();
@@ -143,8 +152,7 @@ export default class PlayerDetailsComponent extends Vue {
     }
 
     private async generatePlayerName(): Promise<void> {
-        const result = await Axios.post(`https://fumbbl.com/api/name/generate/${this.$props.nameGenerator}/${this.updatePlayerDetails.getGender().toLowerCase()}`);
-        const playerName = result.data;
+        const playerName = await this.getFumbblApi().generatePlayerName(this.$props.nameGenerator, this.updatePlayerDetails.getGender())
         this.updatePlayerDetails.setPlayerName(playerName);
     }
 }

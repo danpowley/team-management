@@ -116,6 +116,7 @@
                     </div>
                     <template v-if="teamSheet !== null">
                         <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
+                            :fumbbl-api="getFumbblApi()"
                             :team-sheet-entry="teamSheetEntry"
                             :access-control="accessControl"
                             :all-fold-outs-closed="teamSheet.allFoldOutsClosed()"

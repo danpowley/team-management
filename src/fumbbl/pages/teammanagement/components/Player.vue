@@ -109,6 +109,7 @@
         </div>
         <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
             <playerdetails v-if="teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily"
+                :fumbbl-api="getFumbblApi()"
                 :team-sheet-entry="teamSheetEntry"
                 :can-create="accessControl.canCreate()"
                 :can-edit="accessControl.canEdit()"
@@ -127,12 +128,17 @@ import Vue from "vue";
 import Component from 'vue-class-component';
 import { PlayerRowFoldOutMode } from "../include/Interfaces";
 import PlayerDetailsComponent from "./PlayerDetails.vue";
+import FumbblApi from "../include/FumbblApi";
 
 @Component({
     components: {
         'playerdetails': PlayerDetailsComponent,
     },
     props: {
+        fumbblApi: {
+            type: Object,
+            required: true,
+        },
         teamSheetEntry: {
             type: Object,
             required: true,
@@ -182,6 +188,10 @@ export default class PlayerComponent extends Vue {
 
     private destroyed() {
         window.removeEventListener("keydown", this.handleKeyDown);
+    }
+
+    private getFumbblApi(): FumbblApi {
+        return this.$props.fumbblApi;
     }
 
     private handleKeyDown(event: KeyboardEvent) {
