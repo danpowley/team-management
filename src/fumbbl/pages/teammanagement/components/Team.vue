@@ -823,7 +823,8 @@ export default class TeamComponent extends Vue {
         this.newTeamName = this.team.getName();
     }
 
-    private saveNewTeamName(): void {
+    private async saveNewTeamName() {
+        await this.getFumbblApi().renameTeam(this.team.getId(), this.newTeamName);
         this.team.setName(this.newTeamName);
         this.newTeamName = '';
         this.editTeamName = false;

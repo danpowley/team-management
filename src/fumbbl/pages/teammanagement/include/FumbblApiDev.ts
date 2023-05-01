@@ -10,4 +10,9 @@ export default class FumbblApiDev extends FumbblApi {
         });
     }
 
+    public async renameTeam(teamId: number, newName: string): Promise<void> {
+        const data = {teamId: teamId, newName: newName};
+        await Axios.post('http://localhost:3000/api/team/rename', data);
+    }
+
 }

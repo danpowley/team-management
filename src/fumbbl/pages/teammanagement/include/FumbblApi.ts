@@ -48,4 +48,9 @@ export default class FumbblApi {
         const result = await Axios.post(`https://fumbbl.com/api/name/generate/${nameGenerator}/${gender.toLowerCase()}`);
         return result.data;
     }
+
+    public async renameTeam(teamId: number, newName: string): Promise<void> {
+        const data = {teamId: teamId, newName: newName};
+        await Axios.post('https://fumbbl.com/api/team/rename', data);
+    }
 }
