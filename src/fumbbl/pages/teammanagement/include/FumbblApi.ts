@@ -1,56 +1,118 @@
 import Axios from "axios";
 import {PlayerGender} from "./Interfaces";
+import ApiResponse from "./ApiResponse";
 
 export default class FumbblApi {
+    private readonly ERROR_WITHIN_SUCCESS_PREFIX = 'Error:'
 
-    public async setSpecialRule(teamId: number, ruleName: string, ruleValue: string): Promise<void> {
+    protected getUrl(apiUrl: string): string {
+        return 'https://fumbbl.com' + apiUrl;
+    }
+
+    protected async post(url: string, data: any = null, transform: (d: any) => any = null): Promise<ApiResponse> {
+        let result;
+        try {
+            result = await Axios.post(url, data);
+        } catch(error) {
+            return ApiResponse.error(error);
+        }
+
+        let resultData = result.data;
+        if (this.isErrorWithinSuccess(resultData)) {
+            return ApiResponse.customErrorString(resultData.replace(this.ERROR_WITHIN_SUCCESS_PREFIX, ''));
+        }
+
+        if (transform !== null) {
+            resultData = transform(resultData);
+        }
+
+        return ApiResponse.success(resultData);
+    }
+
+    protected async postForm(url: string, data: any, transform: (d: any) => any = null): Promise<ApiResponse> {
         const bodyFormData = new FormData();
-        bodyFormData.append('rule', ruleName);
-        bodyFormData.append('val', ruleValue);
-        await Axios({
-            method: "post",
-            url: 'https://fumbbl.com/api/team/setSpecialRule/' + teamId,
-            data: bodyFormData,
-        });
+
+        for (const dataKey of Object.keys(data)) {
+            bodyFormData.append(dataKey, data[dataKey]);
+        }
+
+        let result;
+        try {
+            result = await Axios({
+                method: "post",
+                url: url,
+                data: bodyFormData,
+            });
+        } catch(error) {
+            return ApiResponse.error(error);
+        }
+
+        let resultData = result.data;
+        if (this.isErrorWithinSuccess(resultData)) {
+            return ApiResponse.customErrorString(resultData.replace(this.ERROR_WITHIN_SUCCESS_PREFIX, ''));
+        }
+
+        if (transform !== null) {
+            resultData = transform(resultData);
+        }
+
+        return ApiResponse.success(resultData);
     }
 
-    public async getRulesetIdForDivision(divisionId: number): Promise<number> {
-        const result = await Axios.post('https://fumbbl.com/api/division/get/' + divisionId);
-        return ~~result.data.rulesetId;
+    protected isErrorWithinSuccess(data: any): boolean {
+        return typeof data === 'string' && data.startsWith(this.ERROR_WITHIN_SUCCESS_PREFIX);
     }
 
-    public async getRulesetIdForGroup(groupId: number): Promise<number> {
-        const result = await Axios.post('https://fumbbl.com/api/group/get/' + groupId);
-        return ~~result.data.ruleset;
+    public async setSpecialRule(teamId: number, ruleName: string, ruleValue: string): Promise<ApiResponse> {
+        const url = this.getUrl('/api/team/setSpecialRule/' + teamId);
+        const data = {rule: ruleName, val: ruleValue};
+        return await this.postForm(url, data);
     }
 
-    public async getRuleset(rulesetId: number): Promise<any> {
-        const result = await Axios.post('https://fumbbl.com/api/ruleset/get/' + rulesetId);
-        return result.data;
+    public async getRulesetIdForDivision(divisionId: number): Promise<ApiResponse> {
+        const url = this.getUrl('/api/division/get/' + divisionId);
+        const data = null;
+        const transform = (result: any) => ~~result.rulesetId;
+        return await this.post(url, data, transform);
     }
 
-    public async getTeamsForCoach(coachName: string): Promise<any> {
-        const result = await Axios.post('https://fumbbl.com/api/coach/teams/' + coachName);
-        return result.data.teams;
+    public async getRulesetIdForGroup(groupId: number): Promise<ApiResponse> {
+        const url = this.getUrl('/api/group/get/' + groupId);
+        const data = null;
+        const transform = (result: any) => ~~result.ruleset;
+        return await this.post(url, data, transform);
     }
 
-    public async getRoster(rosterId: number): Promise<any> {
-        const result = await Axios.post('https://fumbbl.com/api/roster/get/' + rosterId);
-        return result.data;
+    public async getRuleset(rulesetId: number): Promise<ApiResponse> {
+        const url = this.getUrl('/api/ruleset/get/' + rulesetId);
+        return await this.post(url);
     }
 
-    public async getTeam(teamId: number): Promise<any> {
-        const result = await Axios.post('https://fumbbl.com/api/team/get/' + teamId);
-        return result.data;
+    public async getTeamsForCoach(coachName: string): Promise<ApiResponse> {
+        const url = this.getUrl('/api/coach/teams/' + coachName);
+        const data = null;
+        const transform = (result: any) => result.teams;
+        return await this.post(url, data, transform);
     }
 
-    public async generatePlayerName(nameGenerator: string, gender: PlayerGender): Promise<string> {
-        const result = await Axios.post(`https://fumbbl.com/api/name/generate/${nameGenerator}/${gender.toLowerCase()}`);
-        return result.data;
+    public async getRoster(rosterId: number): Promise<ApiResponse> {
+        const url = this.getUrl('/api/roster/get/' + rosterId);
+        return await this.post(url);
     }
 
-    public async renameTeam(teamId: number, newName: string): Promise<void> {
+    public async getTeam(teamId: number): Promise<ApiResponse> {
+        const url = this.getUrl('/api/team/get/' + teamId);
+        return await this.post(url);
+    }
+
+    public async generatePlayerName(nameGenerator: string, gender: PlayerGender): Promise<ApiResponse> {
+        const url = this.getUrl(`/api/name/generate/${nameGenerator}/${gender.toLowerCase()}`);
+        return await this.post(url);
+    }
+
+    public async renameTeam(teamId: number, newName: string): Promise<ApiResponse> {
+        const url = this.getUrl('/api/team/rename');
         const data = {teamId: teamId, newName: newName};
-        await Axios.post('https://fumbbl.com/api/team/rename', data);
+        return await this.post(url, data);
     }
 }

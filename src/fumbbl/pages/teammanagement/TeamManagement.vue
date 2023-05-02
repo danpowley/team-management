@@ -9,7 +9,23 @@
         <team v-if="overallApplicationMode === 'TEAM'"
             :fumbbl-api="fumbblApi"
             :demo-team-settings="demoTeamSettings"
+            @unexpected-error="handleUnexpectedError"
         ></team>
+
+        <modal
+            v-if="overallApplicationMode === 'ERROR'"
+            :modal-size="'small'"
+            :exclude-close-top-right="true"
+        >
+            <template v-slot:header>
+                Unexpected error.
+            </template>
+
+            <template v-slot:body>
+                <p>Unfortunately an unexpected error has occurred, please reload this page before continuing.</p>
+                <p>Error message: {{ unexpectedErrorMessage }}</p>
+            </template>
+        </modal>
     </div>
 </template>
 
@@ -20,9 +36,11 @@ import TeamComponent from "./components/Team.vue";
 import DemoSetupComponent from "./components/DemoSetup.vue";
 import FumbblApi from "./include/FumbblApi";
 import FumbblApiDev from "./include/FumbblApiDev";
+import modal from "./components/Modal.vue";
 
 @Component({
     components: {
+        modal,
         'demosetup': DemoSetupComponent,
         'team': TeamComponent,
     },
@@ -30,7 +48,8 @@ import FumbblApiDev from "./include/FumbblApiDev";
 export default class TeamManagement extends Vue {
     private isDevMode: boolean = true;
     private fumbblApi: FumbblApi = null;
-    public overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' = 'DEMO_SETUP';
+    private overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' | 'ERROR' = 'DEMO_SETUP';
+    private unexpectedErrorMessage: string = '';
 
     private demoTeamSettings: {existingTeamId: number | null, newTeam: {division: string, rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
 
@@ -71,16 +90,21 @@ export default class TeamManagement extends Vue {
 
     }
 
-    public handleCreateEmptyDemoTeam(division: string, rulesetId: number, rosterId: number) {
+    private handleCreateEmptyDemoTeam(division: string, rulesetId: number, rosterId: number) {
         this.demoTeamSettings = {existingTeamId: null, newTeam: {division: division, rulesetId: rulesetId, rosterId: rosterId}};
         this.overallApplicationMode = 'TEAM';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    public handleDemoTeamChosen(demoTeamId: number) {
+    private handleDemoTeamChosen(demoTeamId: number) {
         this.demoTeamSettings = {existingTeamId: demoTeamId, newTeam: null};
         this.overallApplicationMode = 'TEAM';
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    private handleUnexpectedError(errorMessage: string) {
+        this.unexpectedErrorMessage = errorMessage;
+        this.overallApplicationMode = 'ERROR';
     }
 }
 </script>

@@ -81,6 +81,21 @@
                 </template>
             </template>
         </modal>
+        <modal
+            v-if="errorModalInfo !== null"
+            :buttons-config="{'close': 'Ok'}"
+            :modal-size="'small'"
+            @close="errorModalInfo = null"
+        >
+            <template v-slot:header>
+                Error
+            </template>
+
+            <template v-slot:body>
+                <p>{{ errorModalInfo.general }}</p>
+                <p>Technical details: {{ errorModalInfo.technical }}</p>
+            </template>
+        </modal>
     </div>
 </template>
 
@@ -122,6 +137,7 @@ import FumbblApi from "../include/FumbblApi";
 })
 export default class PlayerDetailsComponent extends Vue {
     private updatePlayerDetailsErrors: string[] = [];
+    private errorModalInfo: {general: string, technical: string} = null;
     private modals: {
         retirePlayer: boolean,
     } = {
@@ -152,8 +168,16 @@ export default class PlayerDetailsComponent extends Vue {
     }
 
     private async generatePlayerName(): Promise<void> {
-        const playerName = await this.getFumbblApi().generatePlayerName(this.$props.nameGenerator, this.updatePlayerDetails.getGender())
-        this.updatePlayerDetails.setPlayerName(playerName);
+        const apiResponse = await this.getFumbblApi().generatePlayerName(this.$props.nameGenerator, this.updatePlayerDetails.getGender());
+        if (apiResponse.isSuccessful()) {
+            const playerName = apiResponse.getData();
+            this.updatePlayerDetails.setPlayerName(playerName);
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred generating a new player name.',
+                technical: apiResponse.getErrorMessage(),
+            };
+        }
     }
 }
 </script>

@@ -1,18 +1,24 @@
-import Axios from "axios";
 import FumbblApi from "../include/FumbblApi";
+import ApiResponse from "./ApiResponse";
 
 export default class FumbblApiDev extends FumbblApi {
 
-    public async setSpecialRule(teamId: number, ruleName: string, ruleValue: string): Promise<void> {
-        await Axios.post('http://localhost:3000/api/team/setSpecialRule/' + teamId, {
-            rule: ruleName,
-            val: ruleValue
-        });
+    // some endpoints will only work if we go via a special proxy in development
+    protected getProxyUrl(apiUrl: string): string {
+        return 'http://localhost:3000' + apiUrl;
     }
 
-    public async renameTeam(teamId: number, newName: string): Promise<void> {
+    public async setSpecialRule(teamId: number, ruleName: string, ruleValue: string): Promise<ApiResponse> {
+        const url = this.getProxyUrl('/api/team/setSpecialRule/' + teamId);
+        const data = {rule: ruleName, val: ruleValue};
+        // note we are not using a form post here as we cannot get that to work with our proxy express server
+        return await this.post(url, data);
+    }
+
+    public async renameTeam(teamId: number, newName: string): Promise<ApiResponse> {
+        const url = this.getProxyUrl('/api/team/rename');
         const data = {teamId: teamId, newName: newName};
-        await Axios.post('http://localhost:3000/api/team/rename', data);
+        return await this.post(url, data);
     }
 
 }

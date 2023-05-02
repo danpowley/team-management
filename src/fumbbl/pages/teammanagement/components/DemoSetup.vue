@@ -88,12 +88,24 @@ export default class DemoSetupComponent extends Vue {
         const divisionOrGroupId = ~~bits[1];
 
         if (isDivision) {
-            this.rulesetId = await this.getFumbblApi().getRulesetIdForDivision(divisionOrGroupId);
+            const apiResponse = await this.getFumbblApi().getRulesetIdForDivision(divisionOrGroupId);
+            this.rulesetId = apiResponse.getData();
+            if (! apiResponse.isSuccessful()) {
+                console.log('Error getting ruleset id for division', apiResponse.getErrorMessage());
+            }
         } else {
-            this.rulesetId = await this.getFumbblApi().getRulesetIdForGroup(divisionOrGroupId);
+            const apiResponse = await this.getFumbblApi().getRulesetIdForGroup(divisionOrGroupId);
+            this.rulesetId = apiResponse.getData();
+            if (! apiResponse.isSuccessful()) {
+                console.log('Error getting ruleset id for group', apiResponse.getErrorMessage());
+            }
         }
 
-        const rawApiRuleset = await this.getFumbblApi().getRuleset(this.rulesetId);
+        const apiResponse = await this.getFumbblApi().getRuleset(this.rulesetId);
+        const rawApiRuleset = apiResponse.getData();
+        if (! apiResponse.isSuccessful()) {
+            console.log('Error getting ruleset for ruleset id', apiResponse.getErrorMessage());
+        }
         await this.prepareBasicRosters(rawApiRuleset.rosters);
     }
 
@@ -118,12 +130,20 @@ export default class DemoSetupComponent extends Vue {
     }
 
     private async setupQuickTeam() {
-        const rawApiTeams = await this.getFumbblApi().getTeamsForCoach('HimalayaP1C7');
+        const apiResponse = await this.getFumbblApi().getTeamsForCoach('HimalayaP1C7');
+        const rawApiTeams = apiResponse.getData();
+        if (! apiResponse.isSuccessful()) {
+            console.log('Error getting quick teams for demo coach', apiResponse.getErrorMessage());
+        }
         this.quickTeamsForSelect = await this.convertToBasicTeams(rawApiTeams);
     }
 
     private async setupTeams() {
-        const rawApiTeams = this.getFumbblApi().getTeamsForCoach(this.coach);
+        const apiResponse = await this.getFumbblApi().getTeamsForCoach(this.coach);
+        const rawApiTeams = apiResponse.getData();
+        if (! apiResponse.isSuccessful()) {
+            console.log('Error getting teams for chosen coach', apiResponse.getErrorMessage());
+        }
         this.teamsForSelect = await this.convertToBasicTeams(rawApiTeams);
     }
 

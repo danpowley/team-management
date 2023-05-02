@@ -49,6 +49,21 @@
         <template v-else>
             Please wait updating special rules.
         </template>
+        <modal
+            v-if="errorModalInfo !== null"
+            :buttons-config="{'close': 'Ok'}"
+            :modal-size="'small'"
+            @close="errorModalInfo = null"
+        >
+            <template v-slot:header>
+                Error
+            </template>
+
+            <template v-slot:body>
+                <p>{{ errorModalInfo.general }}</p>
+                <p>Technical details: {{ errorModalInfo.technical }}</p>
+            </template>
+        </modal>
     </div>
 </template>
 
@@ -56,9 +71,11 @@
 import Vue from "vue";
 import Component from 'vue-class-component';
 import FumbblApi from "../include/FumbblApi";
+import modal from "./Modal.vue";
 
 @Component({
     components: {
+        modal
     },
     props: {
         fumbblApi: {
@@ -84,6 +101,7 @@ export default class SpecialRulesComponent extends Vue {
     private showOneOfOptions = false;
     private showTeamOptions = false;
     private updateInProgress = false;
+    private errorModalInfo: {general: string, technical: string} = null;
 
     private getFumbblApi(): FumbblApi {
         return this.$props.fumbblApi;
@@ -241,7 +259,6 @@ export default class SpecialRulesComponent extends Vue {
         const newSpecialRuleValue = event.target.value;
         if (newSpecialRuleValue) {
             await this.setSpecialRule(this.oneOfRuleName, newSpecialRuleValue);
-            this.rulesUpdated();
         }
     }
 
@@ -252,22 +269,26 @@ export default class SpecialRulesComponent extends Vue {
             const ruleName = ruleBits[0];
             const ruleValue = ruleBits[1];
             await this.setSpecialRule(ruleName, ruleValue);
-            this.rulesUpdated();
         }
     }
 
-    private rulesUpdated() {
-        this.$emit('rules-updated');
-        this.updateInProgress = true;
-        this.showOneOfOptions = false;
-        this.showTeamOptions = false;
-        setTimeout(() => {
-            this.updateInProgress = false;
-        }, 2000);
+    private async setSpecialRule(ruleName: string, ruleValue: string) {
+        const apiResponse = await this.getFumbblApi().setSpecialRule(this.$props.teamId, ruleName, ruleValue);
+        if (apiResponse.isSuccessful()) {
+            this.$emit('rules-updated');
+            this.updateInProgress = true;
+            this.showOneOfOptions = false;
+            this.showTeamOptions = false;
+            setTimeout(() => {
+                this.updateInProgress = false;
+            }, 2000);
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred updating the teams special rule.',
+                technical: apiResponse.getErrorMessage(),
+            };
+        }
     }
 
-    private async setSpecialRule(ruleName: string, ruleValue: string) {
-        await this.getFumbblApi().setSpecialRule(this.$props.teamId, ruleName, ruleValue);
-    }
 }
 </script>
