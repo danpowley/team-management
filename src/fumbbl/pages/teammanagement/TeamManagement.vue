@@ -23,7 +23,8 @@
 
             <template v-slot:body>
                 <p>Unfortunately an unexpected error has occurred, please reload this page before continuing.</p>
-                <p>Error message: {{ unexpectedErrorMessage }}</p>
+                <p>Current action: {{ unexpectedErrorMessage.currentAction }}</p>
+                <p>Error message: {{ unexpectedErrorMessage.errorMessage }}</p>
             </template>
         </modal>
     </div>
@@ -49,7 +50,7 @@ export default class TeamManagement extends Vue {
     private isDevMode: boolean = true;
     private fumbblApi: FumbblApi = null;
     private overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' | 'ERROR' = 'DEMO_SETUP';
-    private unexpectedErrorMessage: string = '';
+    private unexpectedErrorMessage: {currentAction: string, errorMessage: string} = null;
 
     private demoTeamSettings: {existingTeamId: number | null, newTeam: {division: string, rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
 
@@ -102,8 +103,8 @@ export default class TeamManagement extends Vue {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    private handleUnexpectedError(errorMessage: string) {
-        this.unexpectedErrorMessage = errorMessage;
+    private handleUnexpectedError(currentAction: string, errorMessage: string) {
+        this.unexpectedErrorMessage = {currentAction, errorMessage};
         this.overallApplicationMode = 'ERROR';
     }
 }

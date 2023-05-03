@@ -590,7 +590,7 @@ export default class TeamComponent extends Vue {
                 this.rosterIconManager,
             );
         } else {
-            this.$emit('unexpected-error', apiResponse.getErrorMessage());
+            this.$emit('unexpected-error', 'Loading team information.', apiResponse.getErrorMessage());
         }
     }
 
@@ -626,13 +626,16 @@ export default class TeamComponent extends Vue {
             await this.setupRosterIconManager(rawApiRoster.positions);
             this.teamManagementSettings = new TeamManagementSettings(rawApiRuleset, rawApiRoster);
         } else {
+            let currentAction = '';
             let errorMessage = '';
             if (! apiResponseRuleset.isSuccessful()) {
+                currentAction = 'Loading ruleset information.';
                 errorMessage = apiResponseRuleset.getErrorMessage();
             } else {
+                currentAction = 'Loading roster information.';
                 errorMessage = apiResponseRoster.getErrorMessage();
             }
-            this.$emit('unexpected-error', errorMessage);
+            this.$emit('unexpected-error', currentAction, errorMessage);
         }
     }
 
