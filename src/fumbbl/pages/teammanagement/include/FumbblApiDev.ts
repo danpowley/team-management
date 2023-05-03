@@ -21,7 +21,51 @@ export default class FumbblApiDev extends FumbblApi {
         return await this.post(url, data);
     }
 
+    public async addReroll(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/addReroll'));
+    }
+
+    public async removeReroll(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/removeReroll'));
+    }
+
+    public async discardReroll(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/discardReroll'));
+    }
+
     public async addAssistantCoach(teamId: number): Promise<ApiResponse> {
         return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/addAssistantCoach'));
+    }
+
+    public async removeAssistantCoach(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/removeAssistantCoach'));
+    }
+
+    public async fireAssistantCoach(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/fireAssistantCoach'));
+    }
+
+    public async addCheerleader(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/addCheerleader'));
+    }
+
+    public async removeCheerleader(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/removeCheerleader'));
+    }
+
+    public async fireCheerleader(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/fireCheerleader'));
+    }
+
+    public async addApothecary(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/addApothecary'));
+    }
+
+    public async removeApothecary(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/removeApothecary'));
+    }
+
+    public async fireApothecary(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/fireApothecary'));
     }
 }

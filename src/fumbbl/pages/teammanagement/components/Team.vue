@@ -758,15 +758,38 @@ export default class TeamComponent extends Vue {
         // TODO: call API to store new dedicated fans value
     }
 
-    private addReroll() {
-        this.team.addReroll(
-            this.team.getTeamStatus().isNew() ? this.teamManagementSettings.rerollCostOnCreate : this.teamManagementSettings.rerollCostFull
-        );
+    private async addReroll() {
+        const apiResponse = await this.getFumbblApi().addReroll(this.team.getId());
+        if (apiResponse.isSuccessful()) {
+            this.team.addReroll(
+                this.team.getTeamStatus().isNew() ? this.teamManagementSettings.rerollCostOnCreate : this.teamManagementSettings.rerollCostFull
+            );
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred adding a reroll.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
-    private removeReroll() {
-        this.team.removeReroll();
+    private async removeReroll() {
         this.modals.removeReroll = false;
+        let apiResponse = null;
+        if (this.accessControl.canCreate()) {
+            apiResponse = await this.getFumbblApi().removeReroll(this.team.getId());
+        } else {
+            apiResponse = await this.getFumbblApi().discardReroll(this.team.getId());
+        }
+        if (apiResponse.isSuccessful()) {
+            this.team.removeReroll();
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred removing a reroll.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
     private async addAssistantCoach() {
@@ -784,31 +807,91 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private removeAssistantCoach() {
-        this.team.removeAssistantCoach();
+    private async removeAssistantCoach() {
         this.modals.removeAssistantCoach = false;
+        let apiResponse = null;
+        if (this.accessControl.canCreate()) {
+            apiResponse = await this.getFumbblApi().removeAssistantCoach(this.team.getId());
+        } else {
+            apiResponse = await this.getFumbblApi().fireAssistantCoach(this.team.getId());
+        }
+        if (apiResponse.isSuccessful()) {
+            this.team.removeAssistantCoach();
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred removing an assistant coach.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
-    private addCheerleader() {
-        this.team.addCheerleader(
-            this.teamManagementSettings.cheerleaderCost
-        );
+    private async addCheerleader() {
+        const apiResponse = await this.getFumbblApi().addCheerleader(this.team.getId());
+        if (apiResponse.isSuccessful()) {
+            this.team.addCheerleader(
+                this.teamManagementSettings.cheerleaderCost
+            );
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred adding a cheerleader.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
-    private removeCheerleader() {
-        this.team.removeCheerleader();
+    private async removeCheerleader() {
         this.modals.removeCheerleader = false;
+        let apiResponse = null;
+        if (this.accessControl.canCreate()) {
+            apiResponse = await this.getFumbblApi().removeCheerleader(this.team.getId());
+        } else {
+            apiResponse = await this.getFumbblApi().fireCheerleader(this.team.getId());
+        }
+        if (apiResponse.isSuccessful()) {
+            this.team.removeCheerleader();
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred removing a cheerleader.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
-    private addApothecary() {
-        this.team.addApothecary(
-            this.teamManagementSettings.apothecaryCost
-        );
+    private async addApothecary() {
+        const apiResponse = await this.getFumbblApi().addApothecary(this.team.getId());
+        if (apiResponse.isSuccessful()) {
+            this.team.addApothecary(
+                this.teamManagementSettings.apothecaryCost
+            );
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred adding an apothecary.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
-    private removeApothecary() {
-        this.team.removeApothecary();
+    private async removeApothecary() {
         this.modals.removeApothecary = false;
+        let apiResponse = null;
+        if (this.accessControl.canCreate()) {
+            apiResponse = await this.getFumbblApi().removeApothecary(this.team.getId());
+        } else {
+            apiResponse = await this.getFumbblApi().fireApothecary(this.team.getId());
+        }
+        if (apiResponse.isSuccessful()) {
+            this.team.removeApothecary();
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred removing an apothecary.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
     private enableShowHireRookies(): void {
