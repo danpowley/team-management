@@ -769,10 +769,19 @@ export default class TeamComponent extends Vue {
         this.modals.removeReroll = false;
     }
 
-    private addAssistantCoach() {
-        this.team.addAssistantCoach(
-            this.teamManagementSettings.assistantCoachCost
-        );
+    private async addAssistantCoach() {
+        const apiResponse = await this.getFumbblApi().addAssistantCoach(this.team.getId());
+        if (apiResponse.isSuccessful()) {
+            this.team.addAssistantCoach(
+                this.teamManagementSettings.assistantCoachCost
+            );
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred adding an assistant coach.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
     private removeAssistantCoach() {

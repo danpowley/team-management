@@ -115,4 +115,13 @@ export default class FumbblApi {
         const data = {teamId: teamId, newName: newName};
         return await this.post(url, data);
     }
+
+    protected async simplePostWithOnlyTeamIdInBody(teamId: number, url: string): Promise<ApiResponse> {
+        const data = {teamId: teamId};
+        return await this.post(url, data);
+    }
+
+    public async addAssistantCoach(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getUrl('/api/team/addAssistantCoach'));
+    }
 }

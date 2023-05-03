@@ -21,4 +21,7 @@ export default class FumbblApiDev extends FumbblApi {
         return await this.post(url, data);
     }
 
+    public async addAssistantCoach(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/addAssistantCoach'));
+    }
 }
