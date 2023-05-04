@@ -68,4 +68,10 @@ export default class FumbblApiDev extends FumbblApi {
     public async fireApothecary(teamId: number): Promise<ApiResponse> {
         return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/fireApothecary'));
     }
+
+    public async setDedicatedFans(teamId: number, newDedicatedFans: number): Promise<ApiResponse> {
+        const url = this.getProxyUrl('/api/team/setDedicatedFans');
+        const data = {teamId: teamId, newDf: newDedicatedFans};
+        return await this.post(url, data);
+    }
 }

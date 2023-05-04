@@ -754,8 +754,16 @@ export default class TeamComponent extends Vue {
         this.teamSheet.clearDragDrop();
     }
 
-    private updateDedicatedFans() {
-        // TODO: call API to store new dedicated fans value
+    private async updateDedicatedFans() {
+        const apiResponse = await this.getFumbblApi().setDedicatedFans(this.team.getId(), this.team.getDedicatedFans());
+        if (apiResponse.isSuccessful()) {
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred setting dedicated fans.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
     private async addReroll() {
