@@ -63,26 +63,46 @@ import Component from 'vue-class-component';
         updateInProgress: {
             type: Boolean,
             required: true,
-        }
+        },
+    },
+    watch: {
+        updateInProgress(newVal, oldVal) {
+            if (newVal === false) {
+                // @ts-ignore (property does not exist)
+                this.updateInProgressStatusForThisInstance = 'NONE';
+            }
+        },
     },
 })
 export default class AddRemoveComponent extends Vue {
-    private get removeIsEnabled(): boolean {
-        return this.$props.canRemove && ! this.$props.updateInProgress;
-    }
+    private updateInProgressStatusForThisInstance: 'NONE' | 'ADD' | 'REMOVE' = 'NONE';
 
     private get addIsEnabled(): boolean {
-        return this.$props.canAdd && ! this.$props.updateInProgress;
+        return this.$props.canAdd && ! this.isAddInProgress;
+    }
+
+    private get removeIsEnabled(): boolean {
+        return this.$props.canRemove && ! this.isRemoveInProgress;
+    }
+
+    private get isAddInProgress(): boolean {
+        return this.updateInProgressStatusForThisInstance === 'ADD' && this.$props.updateInProgress;
+    }
+
+    private get isRemoveInProgress(): boolean {
+        return this.updateInProgressStatusForThisInstance === 'REMOVE' && this.$props.updateInProgress;
     }
 
     private add() {
         if (this.addIsEnabled) {
+            this.updateInProgressStatusForThisInstance = 'ADD';
             this.$emit('add');
         }
     }
 
     private remove() {
         if (this.removeIsEnabled) {
+            this.updateInProgressStatusForThisInstance = 'REMOVE';
             this.$emit(this.$props.canRemoveImmediately ? 'remove-immediately' : 'remove-with-confirm');
         }
     }

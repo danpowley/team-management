@@ -174,4 +174,10 @@ export default class FumbblApi {
         const data = {teamId: teamId, newDf: newDedicatedFans};
         return await this.post(url, data);
     }
+
+    public async buyPlayer(teamId: number, positionId: number, gender: PlayerGender, playerName: string): Promise<ApiResponse> {
+        const url = this.getUrl('/api/team/buyPlayer');
+        const data = {teamId: teamId, positionId: positionId, gender: gender, playerName: playerName};
+        return await this.post(url, data);
+    }
 }

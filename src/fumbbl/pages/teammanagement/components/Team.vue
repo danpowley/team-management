@@ -95,6 +95,7 @@
                 :roster-icon-manager="rosterIconManager"
                 :has-empty-team-sheet-entry="teamSheet.findFirstEmptyTeamSheetEntry() !== null"
                 :max-big-guys="teamManagementSettings.maxBigGuys"
+                :update-in-progress="updateInProgress"
                 @hire-rookie="handleHireRookie"
             ></hirerookies>
             <div class="playerrowsouter">
@@ -124,7 +125,6 @@
                             :use-active-seperator-for-drag-drop="teamSheet.useActiveSeperatorForDragDrop(teamSheetEntry)"
                             :roster-icon-manager="rosterIconManager"
                             :name-generator="teamManagementSettings.nameGenerator"
-                            @add-player="handleAddPlayer"
                             @remove-player="handleRemovePlayer"
                             @retire-player="handleRetirePlayer"
                             @make-player-draggable="handleMakePlayerDraggable"
@@ -595,6 +595,7 @@ export default class TeamComponent extends Vue {
                 this.teamManagementSettings,
                 this.rosterIconManager,
             );
+            this.refreshTeamSheet();
         } else {
             this.$emit('unexpected-error', 'Loading team information.', apiResponse.getErrorMessage());
         }
@@ -929,29 +930,6 @@ export default class TeamComponent extends Vue {
         this.showHireRookies = ! this.showHireRookies;
     }
 
-    public async handleAddPlayer(teamSheetEntryNumber: number, positionId: number) {
-        const position = this.teamManagementSettings.getPosition(positionId);
-        const gender = this.getGender(position.defaultGender);
-        const apiResponsePlayerName = await this.getFumbblApi().generatePlayerName(this.teamManagementSettings.nameGenerator, gender);
-        if (apiResponsePlayerName.isSuccessful()) {
-            const newPlayer = new Player(
-                'NEW--' + teamSheetEntryNumber,
-                teamSheetEntryNumber,
-                apiResponsePlayerName.getData(),
-                this.teamManagementSettings.getPosition(positionId),
-                this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
-                gender,
-            );
-            this.team.buyPlayer(newPlayer);
-            this.refreshTeamSheet();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred when generating a player name.',
-                technical: apiResponsePlayerName.getErrorMessage(),
-            }
-        }
-    }
-
     private getGender(defaultGender: string): PlayerGender {
         const availableGenders: PlayerGender[] = ['FEMALE', 'MALE', 'NEUTRAL', 'NONBINARY'];
         if (availableGenders.includes(defaultGender.toUpperCase() as PlayerGender)) {
@@ -974,8 +952,48 @@ export default class TeamComponent extends Vue {
         this.teamSheet.updateFoldOut(teamSheetEntryNumber, playerRowFoldOutMode, multipleOpenMode);
     }
 
-    private handleHireRookie(positionId: number) {
-        this.handleAddPlayer(this.findEmptyTeamSheetEntry(), positionId);
+    private async handleHireRookie(positionId: number) {
+        this.updateInProgress = true;
+
+        const position = this.teamManagementSettings.getPosition(positionId);
+        const gender = this.getGender(position.defaultGender);
+        const apiResponsePlayerName = await this.getFumbblApi().generatePlayerName(this.teamManagementSettings.nameGenerator, gender);
+
+        if (! apiResponsePlayerName.isSuccessful()) {
+            this.errorModalInfo = {
+                general: 'An error occurred when generating a player name.',
+                technical: apiResponsePlayerName.getErrorMessage(),
+            }
+            this.updateInProgress = false;
+            return;
+        }
+
+        const playerName = apiResponsePlayerName.getData();
+
+        const apiResponse = await this.getFumbblApi().buyPlayer(this.team.getId(), positionId, gender, playerName);
+        if (apiResponse.isSuccessful()) {
+            const teamSheetEntryNumber = this.findEmptyTeamSheetEntry();
+            const temporaryPlayerForUserInterface = new Player(
+                'NEW--' + teamSheetEntryNumber,
+                teamSheetEntryNumber,
+                apiResponsePlayerName.getData(),
+                this.teamManagementSettings.getPosition(positionId),
+                this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
+                gender,
+            );
+            this.team.buyPlayer(temporaryPlayerForUserInterface);
+
+            // HACK: we cannot reload the team at this point as the buy player endpoint does not exist yet
+            // await this.reloadTeam();
+            // HACK: we call refresh team sheet here just to make the players appear (when reload team is reinstated this will cover that)
+            this.refreshTeamSheet();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred buying a new player.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
+        this.updateInProgress = false;
     }
 
     private findEmptyTeamSheetEntry(): number {
