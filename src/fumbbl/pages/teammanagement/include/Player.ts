@@ -2,9 +2,10 @@ import { PlayerGender, Position } from "./Interfaces";
 import UpdatePlayerDetails from "./UpdatePlayerDetails";
 
 export default class Player {
+    private static readonly temporaryPlayerId = 0;
     static missNextGameInjury = 'm';
 
-    private id: string;
+    private id: number;
     private playerNumber: number;
     private playerName: string;
     private gender: PlayerGender = 'NEUTRAL';
@@ -15,10 +16,10 @@ export default class Player {
     private record: any = null;
 
     constructor(
-        id: string, // NOTE: string based ids temporary
+        id: number,
         playerNumber: number,
         playerName: string,
-        position: any,
+        position: Position,
         iconRowVersionPosition: number,
         gender: PlayerGender,
     ) {
@@ -56,7 +57,11 @@ export default class Player {
         return player;
     }
 
-    public getId(): string {
+    static temporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number, namePlaceholder): Player {
+        return new Player(Player.temporaryPlayerId, teamSheetEntryNumber, namePlaceholder, position, iconRowVersionPosition, 'NEUTRAL');
+    }
+
+    public getId(): number {
         return this.id;
     }
 
@@ -118,6 +123,10 @@ export default class Player {
 
     public isMissNextGame(): boolean {
         return this.injuries.includes(Player.missNextGameInjury);
+    }
+
+    public isTemporaryPlayer(): boolean {
+        return this.getId() === Player.temporaryPlayerId;
     }
 
     public increasePlayerNumber() {

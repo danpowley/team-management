@@ -1,4 +1,4 @@
-import { Coach } from "./Interfaces";
+import {Coach, Position} from "./Interfaces";
 import Player from "./Player";
 import RosterIconManager from "./RosterIconManager";
 import TeamManagementSettings from "./TeamManagementSettings";
@@ -120,6 +120,15 @@ export default class Team {
         this.players.push(player);
     }
 
+    public buyTemporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number, namePlaceholder: string = 'Loading...'): void {
+        const temporaryPlayer = Player.temporaryPlayer(
+            teamSheetEntryNumber,
+            position,
+            iconRowVersionPosition,
+            namePlaceholder,
+        );
+        this.buyPlayer(temporaryPlayer);
+    }
     public buyPlayer(player: Player): void {
         this.addPlayer(player);
         this.treasury -= player.getPositionCost();
@@ -142,6 +151,11 @@ export default class Team {
         if (this.teamStatus.isNew()) {
             this.treasury += treasuryRefundForNewTeam;
         }
+    }
+
+    public removeTemporaryPlayers(): void {
+        this.players.filter((player) => player.isTemporaryPlayer())
+            .forEach((player) => this.removePlayer(player.getPlayerNumber()));
     }
 
     public getRerolls(): number {

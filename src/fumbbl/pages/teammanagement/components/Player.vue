@@ -264,7 +264,7 @@ export default class PlayerComponent extends Vue {
     }
 
     public makePlayerDraggable() {
-        this.$emit('make-player-draggable', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.getPlayer().getId());
+        this.$emit('make-player-draggable', this.$props.teamSheetEntry.getNumber());
     }
 
     public endPlayerDraggable() {

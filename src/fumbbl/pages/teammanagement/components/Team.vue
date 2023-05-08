@@ -728,7 +728,7 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    public handleMakePlayerDraggable(playerNumber: number, playerId: string) {
+    public handleMakePlayerDraggable(playerNumber: number) {
         this.teamSheet.setDragSource(playerNumber);
     }
 
@@ -957,9 +957,21 @@ export default class TeamComponent extends Vue {
 
         const position = this.teamManagementSettings.getPosition(positionId);
         const gender = this.getGender(position.defaultGender);
+
+        // Add quick temporary player for user interface responsiveness
+        // This temporary player is removed when reload team is called later in this method
+        this.team.buyTemporaryPlayer(
+            this.teamSheet.findFirstEmptyTeamSheetEntry().getNumber(),
+            this.teamManagementSettings.getPosition(positionId),
+            this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
+        )
+        this.refreshTeamSheet();
+
         const apiResponsePlayerName = await this.getFumbblApi().generatePlayerName(this.teamManagementSettings.nameGenerator, gender);
 
         if (! apiResponsePlayerName.isSuccessful()) {
+            this.team.removeTemporaryPlayers();
+            this.refreshTeamSheet();
             this.errorModalInfo = {
                 general: 'An error occurred when generating a player name.',
                 technical: apiResponsePlayerName.getErrorMessage(),
@@ -972,32 +984,16 @@ export default class TeamComponent extends Vue {
 
         const apiResponse = await this.getFumbblApi().addPlayer(this.team.getId(), positionId, gender, playerName);
         if (apiResponse.isSuccessful()) {
-            const teamSheetEntryNumber = this.findEmptyTeamSheetEntry();
-            const temporaryPlayerForUserInterface = new Player(
-                'NEW--' + teamSheetEntryNumber,
-                teamSheetEntryNumber,
-                apiResponsePlayerName.getData(),
-                this.teamManagementSettings.getPosition(positionId),
-                this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
-                gender,
-            );
-            this.team.buyPlayer(temporaryPlayerForUserInterface);
-
-            // HACK: we cannot reload the team at this point as the buy player endpoint does not exist yet
-            // await this.reloadTeam();
-            // HACK: we call refresh team sheet here just to make the players appear (when reload team is reinstated this will cover that)
-            this.refreshTeamSheet();
+            await this.reloadTeam();
         } else {
+            this.team.removeTemporaryPlayers();
+            this.refreshTeamSheet();
             this.errorModalInfo = {
                 general: 'An error occurred buying a new player.',
                 technical: apiResponse.getErrorMessage(),
             }
         }
         this.updateInProgress = false;
-    }
-
-    private findEmptyTeamSheetEntry(): number {
-        return this.teamSheet.findFirstEmptyTeamSheetEntry().getNumber();
     }
 
     private enableTeamNameEdit(): void {
