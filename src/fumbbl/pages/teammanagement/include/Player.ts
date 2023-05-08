@@ -57,8 +57,8 @@ export default class Player {
         return player;
     }
 
-    static temporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number, namePlaceholder): Player {
-        return new Player(Player.temporaryPlayerId, teamSheetEntryNumber, namePlaceholder, position, iconRowVersionPosition, 'NEUTRAL');
+    static temporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number): Player {
+        return new Player(Player.temporaryPlayerId, teamSheetEntryNumber, 'Waiting for name', position, iconRowVersionPosition, 'NEUTRAL');
     }
 
     public getId(): number {

@@ -120,12 +120,11 @@ export default class Team {
         this.players.push(player);
     }
 
-    public buyTemporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number, namePlaceholder: string = 'Loading...'): void {
+    public buyTemporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number): void {
         const temporaryPlayer = Player.temporaryPlayer(
             teamSheetEntryNumber,
             position,
             iconRowVersionPosition,
-            namePlaceholder,
         );
         this.buyPlayer(temporaryPlayer);
     }
