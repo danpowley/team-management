@@ -970,7 +970,7 @@ export default class TeamComponent extends Vue {
 
         const playerName = apiResponsePlayerName.getData();
 
-        const apiResponse = await this.getFumbblApi().buyPlayer(this.team.getId(), positionId, gender, playerName);
+        const apiResponse = await this.getFumbblApi().addPlayer(this.team.getId(), positionId, gender, playerName);
         if (apiResponse.isSuccessful()) {
             const teamSheetEntryNumber = this.findEmptyTeamSheetEntry();
             const temporaryPlayerForUserInterface = new Player(
