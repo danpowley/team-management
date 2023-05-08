@@ -949,7 +949,6 @@ export default class TeamComponent extends Vue {
         }
         const apiResponse = await this.getFumbblApi().removePlayer(this.team.getId(), playerId);
         if (apiResponse.isSuccessful()) {
-            this.team.removePlayer(teamSheetEntryNumber);
             await this.reloadTeam();
         } else {
             this.errorModalInfo = {
@@ -970,7 +969,6 @@ export default class TeamComponent extends Vue {
         }
         const apiResponse = await this.getFumbblApi().retirePlayer(this.team.getId(), playerId);
         if (apiResponse.isSuccessful()) {
-            this.team.removePlayer(teamSheetEntryNumber);
             await this.reloadTeam();
         } else {
             this.errorModalInfo = {

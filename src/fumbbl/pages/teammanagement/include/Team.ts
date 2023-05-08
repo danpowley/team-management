@@ -139,23 +139,20 @@ export default class Team {
         return player ? player : null;
     }
 
-    public removePlayer(teamSheetEntryNumber: number): void {
-        const index = this.players.findIndex((player) => player.getPlayerNumber() === teamSheetEntryNumber);
-        const player = this.findPlayerByNumber(teamSheetEntryNumber);
-        const treasuryRefundForNewTeam = player.getPosition().cost;
-
-        if (index !== -1) {
-            this.players.splice(index, 1);
-        }
-
-        if (this.teamStatus.isNew()) {
-            this.treasury += treasuryRefundForNewTeam;
-        }
-    }
-
     public removeTemporaryPlayers(): void {
-        this.players.filter((player) => player.isTemporaryPlayer())
-            .forEach((player) => this.removePlayer(player.getPlayerNumber()));
+        const temporaryPlayers = this.players.filter((player) => player.isTemporaryPlayer());
+        if (this.teamStatus.isNew()) {
+            const temporaryPlayersCost = temporaryPlayers.reduce((cost: number , player: Player) => cost + player.getPositionCost(), 0);
+            if (temporaryPlayersCost > 0) {
+                this.treasury += temporaryPlayersCost;
+            }
+        }
+        temporaryPlayers.forEach((tempPlayer) => {
+            const index = this.players.findIndex((player) => player.getId() === tempPlayer.getId() );
+            if (index !== -1) {
+                this.players.splice(index, 1);
+            }
+        });
     }
 
     public getRerolls(): number {
