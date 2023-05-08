@@ -77,18 +77,8 @@ import { PositionDataForBuyingPlayer } from "../include/Interfaces";
             required: true,
         },
     },
-    watch: {
-        updateInProgress(newVal, oldVal) {
-            if (newVal === false) {
-                // @ts-ignore (property does not exist)
-                this.inProgressPositionId = null;
-            }
-        },
-    },
 })
 export default class HireRookiesComponent extends Vue {
-    private inProgressPositionId: number = null;
-
     private get bigGuyCount(): number {
         let bigGuyCount = 0;
         for (const positionDataForBuyingPlayer of this.$props.rosterPositionDataForBuyingPlayer as PositionDataForBuyingPlayer[]) {
@@ -116,7 +106,7 @@ export default class HireRookiesComponent extends Vue {
     }
 
     private canBuyPosition(positionDataForBuyingPlayer: PositionDataForBuyingPlayer): boolean {
-        if (this.$props.updateInProgress && this.inProgressPositionId === positionDataForBuyingPlayer.position.id) {
+        if (this.$props.updateInProgress) {
             return false;
         }
         return this.reasonsCannotBuy(positionDataForBuyingPlayer).length === 0;
@@ -124,7 +114,6 @@ export default class HireRookiesComponent extends Vue {
 
     private hireRookie(positionDataForBuyingPlayer: PositionDataForBuyingPlayer) {
         if (this.canBuyPosition(positionDataForBuyingPlayer)) {
-            this.inProgressPositionId = positionDataForBuyingPlayer.position.id;
             this.$emit('hire-rookie', positionDataForBuyingPlayer.position.id);
         }
     }
