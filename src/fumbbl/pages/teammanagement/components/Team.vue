@@ -938,13 +938,28 @@ export default class TeamComponent extends Vue {
         return availableGenders[Math.floor(Math.random()*availableGenders.length)];
     }
 
-    public handleRemovePlayer(teamSheetEntryNumber: number) {
-        this.team.removePlayer(teamSheetEntryNumber);
-        // TODO: Call API to remove player
-        this.refreshTeamSheet();
+    public async handleRemovePlayer(teamSheetEntryNumber: number, playerId: number) {
+        const player = this.team.findPlayerByNumber(teamSheetEntryNumber);
+        if (player === null || player.getId() !== playerId) {
+            this.errorModalInfo = {
+                general: 'Unable to remove player, please reload the page.',
+                technical: `Removing playerId ${playerId} from number ${teamSheetEntryNumber} but found playerId ${player ? player.getId() : 'empty'}`,
+            }
+            return;
+        }
+        const apiResponse = await this.getFumbblApi().removePlayer(this.team.getId(), playerId);
+        if (apiResponse.isSuccessful()) {
+            this.team.removePlayer(teamSheetEntryNumber);
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred removing a player.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
-    public handleRetirePlayer(teamSheetEntryNumber: number) {
+    public handleRetirePlayer(teamSheetEntryNumber: number, playerId: number) {
         // TODO: Call API to retire player
     }
 

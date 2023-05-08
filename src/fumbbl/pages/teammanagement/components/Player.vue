@@ -280,12 +280,12 @@ export default class PlayerComponent extends Vue {
 
     public handleRemovePlayer() {
         this.closeFoldOutWithAnimationDelay();
-        this.$emit('remove-player', this.$props.teamSheetEntry.getNumber());
+        this.$emit('remove-player', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.getPlayer().getId());
     }
 
     public handleRetirePlayer() {
         this.closeFoldOutWithAnimationDelay();
-        this.$emit('retire-player', this.$props.teamSheetEntry.getNumber());
+        this.$emit('retire-player', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.getPlayer().getId());
     }
 
     private handleDragEnter() {
