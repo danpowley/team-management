@@ -959,8 +959,25 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    public handleRetirePlayer(teamSheetEntryNumber: number, playerId: number) {
-        // TODO: Call API to retire player
+    public async handleRetirePlayer(teamSheetEntryNumber: number, playerId: number) {
+        const player = this.team.findPlayerByNumber(teamSheetEntryNumber);
+        if (player === null || player.getId() !== playerId) {
+            this.errorModalInfo = {
+                general: 'Unable to retire player, please reload the page.',
+                technical: `Retiring playerId ${playerId} from number ${teamSheetEntryNumber} but found playerId ${player ? player.getId() : 'empty'}`,
+            }
+            return;
+        }
+        const apiResponse = await this.getFumbblApi().retirePlayer(this.team.getId(), playerId);
+        if (apiResponse.isSuccessful()) {
+            this.team.removePlayer(teamSheetEntryNumber);
+            await this.reloadTeam();
+        } else {
+            this.errorModalInfo = {
+                general: 'An error occurred retiring a player.',
+                technical: apiResponse.getErrorMessage(),
+            }
+        }
     }
 
     private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {

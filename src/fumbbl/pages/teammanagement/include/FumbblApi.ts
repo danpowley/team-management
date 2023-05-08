@@ -186,4 +186,10 @@ export default class FumbblApi {
         const data = {teamId: teamId, playerId: playerId};
         return await this.post(url, data);
     }
+
+    public async retirePlayer(teamId: number, playerId: number): Promise<ApiResponse> {
+        const url = this.getUrl('/api/team/retirePlayer');
+        const data = {teamId: teamId, playerId: playerId};
+        return await this.post(url, data);
+    }
 }
