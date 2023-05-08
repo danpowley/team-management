@@ -964,7 +964,7 @@ export default class TeamComponent extends Vue {
             this.teamSheet.findFirstEmptyTeamSheetEntry().getNumber(),
             this.teamManagementSettings.getPosition(positionId),
             this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
-        )
+        );
         this.refreshTeamSheet();
 
         const apiResponsePlayerName = await this.getFumbblApi().generatePlayerName(this.teamManagementSettings.nameGenerator, gender);
