@@ -1,6 +1,6 @@
 export default class ApiResponse {
     private data: any;
-
+    private isError: boolean = false;
     private errorMessage: string;
 
     public static success(data: any): ApiResponse {
@@ -11,11 +11,12 @@ export default class ApiResponse {
 
     public static error(error: any): ApiResponse {
         const apiResponse = new ApiResponse();
+        apiResponse.isError = true;
         if (error.response) {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
             if (error.response.status >= 400 && error.response.status <= 499) {
-                apiResponse.errorMessage = error.response.data;
+                apiResponse.errorMessage = error.message;
             } else {
                 apiResponse.errorMessage = `Unexpected error: (${error.message})`
             }
@@ -42,6 +43,6 @@ export default class ApiResponse {
     }
 
     public isSuccessful(): boolean {
-        return ! this.errorMessage;
+        return ! this.isError;
     }
 }
