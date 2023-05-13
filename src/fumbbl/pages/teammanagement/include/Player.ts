@@ -50,7 +50,7 @@ export default class Player {
             rawApiPlayer.name,
             position,
             iconRowVersionPosition,
-            'NEUTRAL',
+            rawApiPlayer.gender.toUpperCase(),
         );
         player.injuries = rawApiPlayer.injuries.split(',');
         player.skills = rawApiPlayer.skills;
