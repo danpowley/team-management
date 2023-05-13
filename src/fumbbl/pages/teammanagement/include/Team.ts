@@ -37,6 +37,7 @@ export default class Team {
         rawApiTeam: any,
         minStartDedicatedFans: number,
         teamManagementSettings: TeamManagementSettings,
+        playerIconRowVersionPositions: any,
         rosterIconManager: RosterIconManager,
     ): Team {
         const team = new Team(rawApiTeam.division, minStartDedicatedFans, rawApiTeam.treasury);
@@ -56,11 +57,15 @@ export default class Team {
         team.apothecary = rawApiTeam.apothecary === 'Yes';
 
         for (const rawApiPlayer of rawApiTeam.players) {
+            let iconRowVersionPosition = rosterIconManager.getRandomIconRowVersionPosition(rawApiPlayer.positionId);
+            if (playerIconRowVersionPositions[rawApiPlayer.id]) {
+                iconRowVersionPosition = playerIconRowVersionPositions[rawApiPlayer.id];
+            }
             team.addPlayer(
                 Player.fromApi(
                     rawApiPlayer,
                     teamManagementSettings.getPosition(rawApiPlayer.positionId),
-                    rosterIconManager.getRandomIconRowVersionPosition(rawApiPlayer.positionId),
+                    iconRowVersionPosition,
                 )
             );
         }

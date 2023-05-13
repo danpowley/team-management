@@ -589,10 +589,20 @@ export default class TeamComponent extends Vue {
             const rawApiTeam = apiResponse.getData();
             this.rawApiSpecialRules.fromTeam = rawApiTeam.specialRules;
             await this.setupForRulesetAndRoster(rawApiTeam.ruleset, rawApiTeam.roster.id);
+
+            // Make sure that the same icon stays with the same player throughout the session
+            const playerRosterIconVersionPositions = {};
+            if (this.team !== null) {
+                for (const player of this.team.getPlayers()) {
+                    playerRosterIconVersionPositions[player.getId()] = player.getIconRowVersionPosition();
+                }
+            }
+
             this.team = Team.fromApi(
                 rawApiTeam,
                 this.teamManagementSettings.minStartFans,
                 this.teamManagementSettings,
+                playerRosterIconVersionPositions,
                 this.rosterIconManager,
             );
             this.refreshTeamSheet();
