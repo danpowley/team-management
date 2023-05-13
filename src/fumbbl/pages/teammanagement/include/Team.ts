@@ -58,7 +58,7 @@ export default class Team {
 
         for (const rawApiPlayer of rawApiTeam.players) {
             let iconRowVersionPosition = rosterIconManager.getRandomIconRowVersionPosition(rawApiPlayer.positionId);
-            if (playerIconRowVersionPositions[rawApiPlayer.id]) {
+            if (playerIconRowVersionPositions[rawApiPlayer.id] !== undefined) {
                 iconRowVersionPosition = playerIconRowVersionPositions[rawApiPlayer.id];
             }
             team.addPlayer(

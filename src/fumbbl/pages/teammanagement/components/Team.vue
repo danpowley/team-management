@@ -583,7 +583,7 @@ export default class TeamComponent extends Vue {
         this.refreshTeamSheet();
     }
 
-    private async reloadTeam() {
+    private async reloadTeam(newPlayerIconData: {playerId: number, iconRowVersionPosition: number} | null = null) {
         const apiResponse = await this.getFumbblApi().getTeam(this.$props.demoTeamSettings.existingTeamId);
         if (apiResponse.isSuccessful()) {
             const rawApiTeam = apiResponse.getData();
@@ -596,6 +596,9 @@ export default class TeamComponent extends Vue {
                 for (const player of this.team.getPlayers()) {
                     playerRosterIconVersionPositions[player.getId()] = player.getIconRowVersionPosition();
                 }
+            }
+            if (newPlayerIconData) {
+                playerRosterIconVersionPositions[newPlayerIconData.playerId] = newPlayerIconData.iconRowVersionPosition;
             }
 
             this.team = Team.fromApi(
@@ -997,13 +1000,14 @@ export default class TeamComponent extends Vue {
 
         const position = this.teamManagementSettings.getPosition(positionId);
         const gender = this.getGender(position.defaultGender);
+        const iconRowVersionPosition = this.rosterIconManager.getRandomIconRowVersionPosition(positionId);
 
         // Add quick temporary player for user interface responsiveness
         // This temporary player is removed when reload team is called later in this method
         this.team.buyTemporaryPlayer(
             this.teamSheet.findFirstEmptyTeamSheetEntry().getNumber(),
             this.teamManagementSettings.getPosition(positionId),
-            this.rosterIconManager.getRandomIconRowVersionPosition(positionId),
+            iconRowVersionPosition,
         );
         this.refreshTeamSheet();
 
@@ -1024,7 +1028,8 @@ export default class TeamComponent extends Vue {
 
         const apiResponse = await this.getFumbblApi().addPlayer(this.team.getId(), positionId, gender, playerName);
         if (apiResponse.isSuccessful()) {
-            await this.reloadTeam();
+            const newPlayerResponseData: {playerId: number, number: number} = apiResponse.getData();
+            await this.reloadTeam({playerId: newPlayerResponseData.playerId, iconRowVersionPosition: iconRowVersionPosition});
         } else {
             this.team.removeTemporaryPlayers();
             this.refreshTeamSheet();
