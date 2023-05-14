@@ -66,38 +66,40 @@ export default class FumbblApi {
         });
     }
 
-    protected async postForm(url: string, data: any, transform: (d: any) => any = null): Promise<ApiResponse> {
-        if (this.simulateDelay) {
-            await this.delay(1000);
-        }
+    protected async enqueuePostForm(url: string, data: any, transform: (d: any) => any = null): Promise<ApiResponse> {
+        return await this.queue.add(async () => {
+            if (this.simulateDelay) {
+                await this.delay(1000);
+            }
 
-        const bodyFormData = new FormData();
+            const bodyFormData = new FormData();
 
-        for (const dataKey of Object.keys(data)) {
-            bodyFormData.append(dataKey, data[dataKey]);
-        }
+            for (const dataKey of Object.keys(data)) {
+                bodyFormData.append(dataKey, data[dataKey]);
+            }
 
-        let result;
-        try {
-            result = await Axios({
-                method: "post",
-                url: url,
-                data: bodyFormData,
-            });
-        } catch(error) {
-            return ApiResponse.error(error);
-        }
+            let result;
+            try {
+                result = await Axios({
+                    method: "post",
+                    url: url,
+                    data: bodyFormData,
+                });
+            } catch(error) {
+                return ApiResponse.error(error);
+            }
 
-        let resultData = result.data;
-        if (this.isErrorWithinSuccess(resultData)) {
-            return ApiResponse.customErrorString(resultData.replace(this.ERROR_WITHIN_SUCCESS_PREFIX, ''));
-        }
+            let resultData = result.data;
+            if (this.isErrorWithinSuccess(resultData)) {
+                return ApiResponse.customErrorString(resultData.replace(this.ERROR_WITHIN_SUCCESS_PREFIX, ''));
+            }
 
-        if (transform !== null) {
-            resultData = transform(resultData);
-        }
+            if (transform !== null) {
+                resultData = transform(resultData);
+            }
 
-        return ApiResponse.success(resultData);
+            return ApiResponse.success(resultData);
+        });
     }
 
     /**
@@ -114,7 +116,7 @@ export default class FumbblApi {
     public async setSpecialRule(teamId: number, ruleName: string, ruleValue: string): Promise<ApiResponse> {
         const url = this.getUrl('/api/team/setSpecialRule/' + teamId);
         const data = {rule: ruleName, val: ruleValue};
-        return await this.postForm(url, data);
+        return await this.enqueuePostForm(url, data);
     }
 
     public async getRulesetIdForDivision(divisionId: number): Promise<ApiResponse> {
@@ -161,12 +163,12 @@ export default class FumbblApi {
     public async renameTeam(teamId: number, newName: string): Promise<ApiResponse> {
         const url = this.getUrl('/api/team/rename');
         const data = {teamId: teamId, newName: newName};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 
     protected async simplePostWithOnlyTeamIdInBody(teamId: number, url: string): Promise<ApiResponse> {
         const data = {teamId: teamId};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 
     public async addReroll(teamId: number): Promise<ApiResponse> {
@@ -220,7 +222,7 @@ export default class FumbblApi {
     public async setDedicatedFans(teamId: number, newDedicatedFans: number): Promise<ApiResponse> {
         const url = this.getUrl('/api/team/setDedicatedFans');
         const data = {teamId: teamId, newDf: newDedicatedFans};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 
     public async addPlayer(teamId: number, positionId: number, gender: PlayerGender, playerName: string): Promise<ApiResponse> {
@@ -232,12 +234,12 @@ export default class FumbblApi {
     public async removePlayer(teamId: number, playerId: number): Promise<ApiResponse> {
         const url = this.getUrl('/api/team/removePlayer');
         const data = {teamId: teamId, playerId: playerId};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 
     public async retirePlayer(teamId: number, playerId: number): Promise<ApiResponse> {
         const url = this.getUrl('/api/team/retirePlayer');
         const data = {teamId: teamId, playerId: playerId};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 }

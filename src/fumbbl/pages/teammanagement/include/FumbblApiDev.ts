@@ -13,13 +13,13 @@ export default class FumbblApiDev extends FumbblApi {
         const url = this.getProxyUrl('/api/team/setSpecialRule/' + teamId);
         const data = {rule: ruleName, val: ruleValue};
         // note we are not using a form post here as we cannot get that to work with our proxy express server
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 
     public async renameTeam(teamId: number, newName: string): Promise<ApiResponse> {
         const url = this.getProxyUrl('/api/team/rename');
         const data = {teamId: teamId, newName: newName};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 
     public async addReroll(teamId: number): Promise<ApiResponse> {
@@ -73,7 +73,7 @@ export default class FumbblApiDev extends FumbblApi {
     public async setDedicatedFans(teamId: number, newDedicatedFans: number): Promise<ApiResponse> {
         const url = this.getProxyUrl('/api/team/setDedicatedFans');
         const data = {teamId: teamId, newDf: newDedicatedFans};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 
     public async addPlayer(teamId: number, positionId: number, gender: PlayerGender, playerName: string): Promise<ApiResponse> {
@@ -85,12 +85,12 @@ export default class FumbblApiDev extends FumbblApi {
     public async removePlayer(teamId: number, playerId: number): Promise<ApiResponse> {
         const url = this.getProxyUrl('/api/team/removePlayer');
         const data = {teamId: teamId, playerId: playerId};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 
     public async retirePlayer(teamId: number, playerId: number): Promise<ApiResponse> {
         const url = this.getProxyUrl('/api/team/retirePlayer');
         const data = {teamId: teamId, playerId: playerId};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 }
