@@ -72,10 +72,6 @@ import { PositionDataForBuyingPlayer } from "../include/Interfaces";
             type: Number,
             required: true,
         },
-        updateInProgress: {
-            type: Boolean,
-            required: true,
-        },
     },
 })
 export default class HireRookiesComponent extends Vue {
@@ -106,9 +102,6 @@ export default class HireRookiesComponent extends Vue {
     }
 
     private canBuyPosition(positionDataForBuyingPlayer: PositionDataForBuyingPlayer): boolean {
-        if (this.$props.updateInProgress) {
-            return false;
-        }
         return this.reasonsCannotBuy(positionDataForBuyingPlayer).length === 0;
     }
 

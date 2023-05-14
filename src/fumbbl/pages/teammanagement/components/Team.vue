@@ -60,7 +60,7 @@
         </div>
         <div v-if="accessControl.canCreate()" class="createteamstats">
             <div class="playerinfo">
-                <div class="currentplayercount">{{ team.getPlayerCount() }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required)</div>
+                <div class="currentplayercount">{{ team.getPlayerCount() }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required) <a href="#" @click.prevent="removeAllPlayers">Remove all players</a></div>
             </div>
             <div class="costinfo">
                 <div class="currentteamcostlabel">Treasury spent (Max {{ teamManagementSettings.startTreasury/1000 }}k)</div> <div class="currentteamcost">{{ teamCost/1000 }}k</div>
@@ -95,7 +95,6 @@
                 :roster-icon-manager="rosterIconManager"
                 :has-empty-team-sheet-entry="teamSheet.findFirstEmptyTeamSheetEntry() !== null"
                 :max-big-guys="teamManagementSettings.maxBigGuys"
-                :update-in-progress="updateInProgress"
                 @hire-rookie="handleHireRookie"
             ></hirerookies>
             <div class="playerrowsouter">
@@ -583,7 +582,7 @@ export default class TeamComponent extends Vue {
         this.refreshTeamSheet();
     }
 
-    private async reloadTeam(newPlayerIconData: {playerId: number, iconRowVersionPosition: number} | null = null) {
+    private async reloadTeam() {
         const apiResponse = await this.getFumbblApi().getTeam(this.$props.demoTeamSettings.existingTeamId);
         if (apiResponse.isSuccessful()) {
             const rawApiTeam = apiResponse.getData();
@@ -596,9 +595,6 @@ export default class TeamComponent extends Vue {
                 for (const player of this.team.getPlayers()) {
                     playerRosterIconVersionPositions[player.getId()] = player.getIconRowVersionPosition();
                 }
-            }
-            if (newPlayerIconData) {
-                playerRosterIconVersionPositions[newPlayerIconData.playerId] = newPlayerIconData.iconRowVersionPosition;
             }
 
             this.team = Team.fromApi(
@@ -772,6 +768,23 @@ export default class TeamComponent extends Vue {
 
     public endDragDrop() {
         this.teamSheet.clearDragDrop();
+    }
+
+    private async removeAllPlayers() {
+        const playerIdsToRemove = this.team.getPlayers().map(player => player.getId());
+        this.team.removeAllPlayers();
+        this.refreshTeamSheet();
+        for (const playerId of playerIdsToRemove) {
+            const apiResponse = await this.getFumbblApi().removePlayer(this.team.getId(), playerId);
+            if (! apiResponse.isSuccessful()) {
+                this.errorModalInfo = {
+                    general: 'An error occurred removing a player whilst removing all players from team.',
+                    technical: apiResponse.getErrorMessage(),
+                }
+                await this.reloadTeam();
+                break;
+            }
+        }
     }
 
     private async updateDedicatedFans() {
@@ -996,18 +1009,17 @@ export default class TeamComponent extends Vue {
     }
 
     private async handleHireRookie(positionId: number) {
-        this.updateInProgress = true;
-
         const position = this.teamManagementSettings.getPosition(positionId);
         const gender = this.getGender(position.defaultGender);
         const iconRowVersionPosition = this.rosterIconManager.getRandomIconRowVersionPosition(positionId);
 
         // Add quick temporary player for user interface responsiveness
         // This temporary player is removed when reload team is called later in this method
-        this.team.buyTemporaryPlayer(
+        const temporaryPlayer = this.team.buyTemporaryPlayer(
             this.teamSheet.findFirstEmptyTeamSheetEntry().getNumber(),
             this.teamManagementSettings.getPosition(positionId),
             iconRowVersionPosition,
+            gender,
         );
         this.refreshTeamSheet();
 
@@ -1020,16 +1032,16 @@ export default class TeamComponent extends Vue {
                 general: 'An error occurred when generating a player name.',
                 technical: apiResponsePlayerName.getErrorMessage(),
             }
-            this.updateInProgress = false;
             return;
         }
 
         const playerName = apiResponsePlayerName.getData();
+        temporaryPlayer.setPlayerName(playerName);
 
         const apiResponse = await this.getFumbblApi().addPlayer(this.team.getId(), positionId, gender, playerName);
         if (apiResponse.isSuccessful()) {
             const newPlayerResponseData: {playerId: number, number: number} = apiResponse.getData();
-            await this.reloadTeam({playerId: newPlayerResponseData.playerId, iconRowVersionPosition: iconRowVersionPosition});
+            temporaryPlayer.setIdForTemporaryPlayer(newPlayerResponseData.playerId);
         } else {
             this.team.removeTemporaryPlayers();
             this.refreshTeamSheet();
@@ -1038,7 +1050,6 @@ export default class TeamComponent extends Vue {
                 technical: apiResponse.getErrorMessage(),
             }
         }
-        this.updateInProgress = false;
     }
 
     private enableTeamNameEdit(): void {

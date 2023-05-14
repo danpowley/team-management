@@ -1,15 +1,26 @@
 import Axios from "axios";
 import {PlayerGender} from "./Interfaces";
 import ApiResponse from "./ApiResponse";
+import PromiseQueue from "./PromiseQueue";
 
 export default class FumbblApi {
     private readonly ERROR_WITHIN_SUCCESS_PREFIX = 'Error:'
+    private queue: PromiseQueue;
+    private readonly simulateDelay: boolean = false;
+
+    constructor() {
+        this.queue = new PromiseQueue();
+    }
 
     protected getUrl(apiUrl: string): string {
         return 'https://fumbbl.com' + apiUrl;
     }
 
     protected async post(url: string, data: any = null, transform: (d: any) => any = null): Promise<ApiResponse> {
+        if (this.simulateDelay) {
+            await this.delay(1000);
+        }
+
         let result;
         try {
             result = await Axios.post(url, data);
@@ -29,7 +40,37 @@ export default class FumbblApi {
         return ApiResponse.success(resultData);
     }
 
+    protected async enqueuePost(url: string, data: any = null, transform: (d: any) => any = null): Promise<ApiResponse> {
+        return await this.queue.add(async () => {
+            if (this.simulateDelay) {
+                await this.delay(1000);
+            }
+
+            let result = null;
+            try {
+                result = await Axios.post(url, data);
+            } catch (error) {
+                return ApiResponse.error(error);
+            }
+
+            let resultData = result.data;
+            if (this.isErrorWithinSuccess(resultData)) {
+                return ApiResponse.customErrorString(resultData.replace(this.ERROR_WITHIN_SUCCESS_PREFIX, ''));
+            }
+
+            if (transform !== null) {
+                resultData = transform(resultData);
+            }
+
+            return ApiResponse.success(resultData);
+        });
+    }
+
     protected async postForm(url: string, data: any, transform: (d: any) => any = null): Promise<ApiResponse> {
+        if (this.simulateDelay) {
+            await this.delay(1000);
+        }
+
         const bodyFormData = new FormData();
 
         for (const dataKey of Object.keys(data)) {
@@ -57,6 +98,13 @@ export default class FumbblApi {
         }
 
         return ApiResponse.success(resultData);
+    }
+
+    /**
+     * Only used during testing to simulate delays
+     */
+    private delay(ms: number) {
+        return new Promise( resolve => setTimeout(resolve, ms) );
     }
 
     protected isErrorWithinSuccess(data: any): boolean {

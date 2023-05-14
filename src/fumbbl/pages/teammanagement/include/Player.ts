@@ -3,6 +3,7 @@ import UpdatePlayerDetails from "./UpdatePlayerDetails";
 
 export default class Player {
     private static readonly temporaryPlayerId = 0;
+    private static readonly temporaryPlayerName = 'Temporary Player';
     static missNextGameInjury = 'm';
 
     private id: number;
@@ -57,12 +58,18 @@ export default class Player {
         return player;
     }
 
-    static temporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number): Player {
-        return new Player(Player.temporaryPlayerId, teamSheetEntryNumber, 'Waiting for name', position, iconRowVersionPosition, 'NEUTRAL');
+    static temporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number, playerGender: PlayerGender): Player {
+        return new Player(Player.temporaryPlayerId, teamSheetEntryNumber, Player.temporaryPlayerName, position, iconRowVersionPosition, playerGender);
     }
 
     public getId(): number {
         return this.id;
+    }
+
+    public setIdForTemporaryPlayer(playerId: number) {
+        if (this.isTemporaryPlayer()) {
+            this.id = playerId;
+        }
     }
 
     public getPlayerNumber(): number {
@@ -75,6 +82,10 @@ export default class Player {
 
     public getPlayerName(): string {
         return this.playerName;
+    }
+
+    public setPlayerName(playerName: string) {
+        this.playerName = playerName;
     }
 
     public getPosition(): Position {
@@ -127,6 +138,10 @@ export default class Player {
 
     public isTemporaryPlayer(): boolean {
         return this.getId() === Player.temporaryPlayerId;
+    }
+
+    public isTemporaryPlayerWithoutName(): boolean {
+        return this.isTemporaryPlayer() && this.getPlayerName() === Player.temporaryPlayerName;
     }
 
     public increasePlayerNumber() {

@@ -1,4 +1,4 @@
-import {Coach, Position} from "./Interfaces";
+import {Coach, PlayerGender, Position} from "./Interfaces";
 import Player from "./Player";
 import RosterIconManager from "./RosterIconManager";
 import TeamManagementSettings from "./TeamManagementSettings";
@@ -125,17 +125,20 @@ export default class Team {
         this.players.push(player);
     }
 
-    public buyTemporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number): void {
+    public buyPlayer(player: Player): void {
+        this.addPlayer(player);
+        this.treasury -= player.getPositionCost();
+    }
+
+    public buyTemporaryPlayer(teamSheetEntryNumber: number, position: Position, iconRowVersionPosition: number, playerGender: PlayerGender): Player {
         const temporaryPlayer = Player.temporaryPlayer(
             teamSheetEntryNumber,
             position,
             iconRowVersionPosition,
+            playerGender,
         );
         this.buyPlayer(temporaryPlayer);
-    }
-    public buyPlayer(player: Player): void {
-        this.addPlayer(player);
-        this.treasury -= player.getPositionCost();
+        return temporaryPlayer;
     }
 
     public findPlayerByNumber(playerNumber: number): Player | null {
@@ -146,17 +149,27 @@ export default class Team {
     public removeTemporaryPlayers(): void {
         const temporaryPlayers = this.players.filter((player) => player.isTemporaryPlayer());
         if (this.teamStatus.isNew()) {
-            const temporaryPlayersCost = temporaryPlayers.reduce((cost: number , player: Player) => cost + player.getPositionCost(), 0);
+            const temporaryPlayersCost = temporaryPlayers.reduce((cost: number, player: Player) => cost + player.getPositionCost(), 0);
             if (temporaryPlayersCost > 0) {
                 this.treasury += temporaryPlayersCost;
             }
         }
         temporaryPlayers.forEach((tempPlayer) => {
-            const index = this.players.findIndex((player) => player.getId() === tempPlayer.getId() );
+            const index = this.players.findIndex((player) => player.getId() === tempPlayer.getId());
             if (index !== -1) {
                 this.players.splice(index, 1);
             }
         });
+    }
+
+    public removeAllPlayers(): void {
+        if (this.teamStatus.isNew()) {
+            const playerCost = this.players.reduce((cost: number, player: Player) => cost + player.getPositionCost(), 0);
+            if (playerCost > 0) {
+                this.treasury += playerCost;
+            }
+            this.players = [];
+        }
     }
 
     public getRerolls(): number {

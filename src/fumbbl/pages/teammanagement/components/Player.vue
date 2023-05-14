@@ -59,8 +59,9 @@
                 </div>
                 <div class="cell playerdetails">
                     <div class="playername" :title="teamSheetEntry.getPlayer().getPlayerName()">
-                        <a v-if="! teamSheetEntry.getPlayer().isTemporaryPlayer()" href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)">{{ teamSheetEntry.getPlayer().getPlayerName() }}</a>
-                        <span v-else>Loading...</span>
+                        <span v-if="teamSheetEntry.getPlayer().isTemporaryPlayerWithoutName()">Loading...</span>
+                        <span v-else-if="teamSheetEntry.getPlayer().isTemporaryPlayer()">{{ teamSheetEntry.getPlayer().getPlayerName() }}</span>
+                        <a v-else href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)" :title="`Player: ${teamSheetEntry.getPlayer().getPlayerName()}, ID: ${teamSheetEntry.getPlayer().getId()}`">{{ teamSheetEntry.getPlayer().getPlayerName() }}</a>
                     </div>
                     <div class="playerposition" :title="teamSheetEntry.getPlayer().getPositionName()">{{ teamSheetEntry.getPlayer().getPositionName() }}</div>
                 </div>
