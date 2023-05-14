@@ -226,7 +226,7 @@ export default class FumbblApi {
     public async addPlayer(teamId: number, positionId: number, gender: PlayerGender, playerName: string): Promise<ApiResponse> {
         const url = this.getUrl('/api/team/addPlayer');
         const data = {teamId: teamId, positionId: positionId, gender: gender.toLowerCase(), name: playerName};
-        return await this.post(url, data);
+        return await this.enqueuePost(url, data);
     }
 
     public async removePlayer(teamId: number, playerId: number): Promise<ApiResponse> {
