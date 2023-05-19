@@ -60,6 +60,7 @@
             <button v-else-if="canEdit" class="teambutton" @click.prevent="modals.retirePlayer = true" style="float: right;">Retire</button>
         </div>
         <modal
+            v-if="player"
             v-show="modals.retirePlayer === true"
             :buttons-config="{'close': 'Close', 'retire': 'Retire player'}"
             :modal-size="'small'"

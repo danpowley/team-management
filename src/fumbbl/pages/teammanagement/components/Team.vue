@@ -519,14 +519,11 @@ export default class TeamComponent extends Vue {
     public teamSheet: TeamSheet | null = null;
     private editTeamName: boolean = false;
     private newTeamName: string = '';
-
     private rawApiSpecialRules: {fromRoster: any, fromTeam: any} = {fromRoster: null, fromTeam: null};
-
     private mainMenuShow: string = 'none';
-
     private showHireRookies: boolean = false;
-
     private errorModalInfo: {general: string, technical: string} = null;
+    private requireReloadTeam: boolean = false;
 
     private modals: {
         submitForApproval: boolean,
@@ -627,6 +624,19 @@ export default class TeamComponent extends Vue {
                 }
             }
         }
+    }
+
+    private handleGeneralTeamUpdate() {
+        this.refreshTeamSheet();
+        this.requireReloadTeam = true;
+    }
+
+    private async recoverFromUnexpectedError(generalErrorMessage: string, technicalErrorMessage: string) {
+        this.errorModalInfo = {
+            general: generalErrorMessage,
+            technical: technicalErrorMessage,
+        }
+        await this.reloadTeam();
     }
 
     private async setupForRulesetAndRoster(rulesetId: number, rosterId: number) {
@@ -773,181 +783,189 @@ export default class TeamComponent extends Vue {
     private async removeAllPlayers() {
         const playerIdsToRemove = this.team.getPlayers().map(player => player.getId());
         this.team.removeAllPlayers();
-        this.refreshTeamSheet();
+        this.handleGeneralTeamUpdate();
+
         for (const playerId of playerIdsToRemove) {
             const apiResponse = await this.getFumbblApi().removePlayer(this.team.getId(), playerId);
             if (! apiResponse.isSuccessful()) {
-                this.errorModalInfo = {
-                    general: 'An error occurred removing a player whilst removing all players from team.',
-                    technical: apiResponse.getErrorMessage(),
-                }
-                await this.reloadTeam();
-                break;
+                await this.recoverFromUnexpectedError(
+                    'An error occurred removing a player whilst removing all players from team.',
+                    apiResponse.getErrorMessage(),
+                );
+                return;
             }
         }
     }
 
     private async updateDedicatedFans() {
+        this.handleGeneralTeamUpdate();
+
         const apiResponse = await this.getFumbblApi().setDedicatedFans(this.team.getId(), this.team.getDedicatedFans());
-        if (apiResponse.isSuccessful()) {
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred setting dedicated fans.',
-                technical: apiResponse.getErrorMessage(),
-            }
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred setting dedicated fans.',
+                apiResponse.getErrorMessage(),
+            );
         }
     }
 
     private async addReroll() {
         this.updateInProgress = true;
+        this.team.addReroll(
+            this.team.getTeamStatus().isNew() ? this.teamManagementSettings.rerollCostOnCreate : this.teamManagementSettings.rerollCostFull
+        );
+        this.handleGeneralTeamUpdate();
+
         const apiResponse = await this.getFumbblApi().addReroll(this.team.getId());
-        if (apiResponse.isSuccessful()) {
-            this.team.addReroll(
-                this.team.getTeamStatus().isNew() ? this.teamManagementSettings.rerollCostOnCreate : this.teamManagementSettings.rerollCostFull
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred adding a reroll.',
+                apiResponse.getErrorMessage(),
             );
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred adding a reroll.',
-                technical: apiResponse.getErrorMessage(),
-            }
         }
         this.updateInProgress = false;
     }
 
     private async removeReroll() {
         this.updateInProgress = true;
+
+        this.team.removeReroll();
         this.modals.removeReroll = false;
+        this.handleGeneralTeamUpdate();
+
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
             apiResponse = await this.getFumbblApi().removeReroll(this.team.getId());
         } else {
             apiResponse = await this.getFumbblApi().discardReroll(this.team.getId());
         }
-        if (apiResponse.isSuccessful()) {
-            this.team.removeReroll();
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred removing a reroll.',
-                technical: apiResponse.getErrorMessage(),
-            }
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred removing a reroll.',
+                apiResponse.getErrorMessage(),
+            );
         }
+
         this.updateInProgress = false;
     }
 
     private async addAssistantCoach() {
         this.updateInProgress = true;
+
+        this.team.addAssistantCoach(this.teamManagementSettings.assistantCoachCost);
+        this.handleGeneralTeamUpdate();
+
         const apiResponse = await this.getFumbblApi().addAssistantCoach(this.team.getId());
-        if (apiResponse.isSuccessful()) {
-            this.team.addAssistantCoach(
-                this.teamManagementSettings.assistantCoachCost
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred adding an assistant coach.',
+                apiResponse.getErrorMessage(),
             );
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred adding an assistant coach.',
-                technical: apiResponse.getErrorMessage(),
-            }
         }
+
         this.updateInProgress = false;
     }
 
     private async removeAssistantCoach() {
         this.updateInProgress = true;
+
+        this.team.removeAssistantCoach();
         this.modals.removeAssistantCoach = false;
+        this.handleGeneralTeamUpdate();
+
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
             apiResponse = await this.getFumbblApi().removeAssistantCoach(this.team.getId());
         } else {
             apiResponse = await this.getFumbblApi().fireAssistantCoach(this.team.getId());
         }
-        if (apiResponse.isSuccessful()) {
-            this.team.removeAssistantCoach();
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred removing an assistant coach.',
-                technical: apiResponse.getErrorMessage(),
-            }
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred removing an assistant coach.',
+                apiResponse.getErrorMessage(),
+            );
         }
+
         this.updateInProgress = false;
     }
 
     private async addCheerleader() {
         this.updateInProgress = true;
+
+        this.team.addCheerleader(this.teamManagementSettings.cheerleaderCost);
+        this.handleGeneralTeamUpdate();
+
         const apiResponse = await this.getFumbblApi().addCheerleader(this.team.getId());
-        if (apiResponse.isSuccessful()) {
-            this.team.addCheerleader(
-                this.teamManagementSettings.cheerleaderCost
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred adding a cheerleader.',
+                apiResponse.getErrorMessage(),
             );
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred adding a cheerleader.',
-                technical: apiResponse.getErrorMessage(),
-            }
         }
+
         this.updateInProgress = false;
     }
 
     private async removeCheerleader() {
         this.updateInProgress = true;
+
+        this.team.removeCheerleader();
         this.modals.removeCheerleader = false;
+        this.handleGeneralTeamUpdate();
+
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
             apiResponse = await this.getFumbblApi().removeCheerleader(this.team.getId());
         } else {
             apiResponse = await this.getFumbblApi().fireCheerleader(this.team.getId());
         }
-        if (apiResponse.isSuccessful()) {
-            this.team.removeCheerleader();
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred removing a cheerleader.',
-                technical: apiResponse.getErrorMessage(),
-            }
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred removing a cheerleader.',
+                apiResponse.getErrorMessage(),
+            );
         }
+
         this.updateInProgress = false;
     }
 
     private async addApothecary() {
         this.updateInProgress = true;
+
+        this.team.addApothecary(this.teamManagementSettings.apothecaryCost);
+        this.handleGeneralTeamUpdate();
+
         const apiResponse = await this.getFumbblApi().addApothecary(this.team.getId());
-        if (apiResponse.isSuccessful()) {
-            this.team.addApothecary(
-                this.teamManagementSettings.apothecaryCost
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred adding an apothecary.',
+                apiResponse.getErrorMessage(),
             );
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred adding an apothecary.',
-                technical: apiResponse.getErrorMessage(),
-            }
         }
+
         this.updateInProgress = false;
     }
 
     private async removeApothecary() {
         this.updateInProgress = true;
+
+        this.team.removeApothecary();
         this.modals.removeApothecary = false;
+        this.handleGeneralTeamUpdate();
+
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
             apiResponse = await this.getFumbblApi().removeApothecary(this.team.getId());
         } else {
             apiResponse = await this.getFumbblApi().fireApothecary(this.team.getId());
         }
-        if (apiResponse.isSuccessful()) {
-            this.team.removeApothecary();
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred removing an apothecary.',
-                technical: apiResponse.getErrorMessage(),
-            }
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred removing an apothecary.',
+                apiResponse.getErrorMessage(),
+            );
         }
+
         this.updateInProgress = false;
     }
 
@@ -967,40 +985,44 @@ export default class TeamComponent extends Vue {
     public async handleRemovePlayer(teamSheetEntryNumber: number, playerId: number) {
         const player = this.team.findPlayerByNumber(teamSheetEntryNumber);
         if (player === null || player.getId() !== playerId) {
-            this.errorModalInfo = {
-                general: 'Unable to remove player, please reload the page.',
-                technical: `Removing playerId ${playerId} from number ${teamSheetEntryNumber} but found playerId ${player ? player.getId() : 'empty'}`,
-            }
+            await this.recoverFromUnexpectedError(
+                'Unable to remove player, if this problem continues please reload the page.',
+                `Removing playerId ${playerId} from number ${teamSheetEntryNumber} but found playerId ${player ? player.getId() : 'empty'}`,
+            );
             return;
         }
+
+        this.team.removePlayer(player);
+        this.handleGeneralTeamUpdate();
+
         const apiResponse = await this.getFumbblApi().removePlayer(this.team.getId(), playerId);
-        if (apiResponse.isSuccessful()) {
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred removing a player.',
-                technical: apiResponse.getErrorMessage(),
-            }
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred removing a player.',
+                apiResponse.getErrorMessage(),
+            );
         }
     }
 
     public async handleRetirePlayer(teamSheetEntryNumber: number, playerId: number) {
         const player = this.team.findPlayerByNumber(teamSheetEntryNumber);
         if (player === null || player.getId() !== playerId) {
-            this.errorModalInfo = {
-                general: 'Unable to retire player, please reload the page.',
-                technical: `Retiring playerId ${playerId} from number ${teamSheetEntryNumber} but found playerId ${player ? player.getId() : 'empty'}`,
-            }
+            await this.recoverFromUnexpectedError(
+                'Unable to retire player, if this problem continues please reload the page.',
+                `Retiring playerId ${playerId} from number ${teamSheetEntryNumber} but found playerId ${player ? player.getId() : 'empty'}`,
+            );
             return;
         }
+
+        this.team.removePlayer(player);
+        this.handleGeneralTeamUpdate();
+
         const apiResponse = await this.getFumbblApi().retirePlayer(this.team.getId(), playerId);
-        if (apiResponse.isSuccessful()) {
-            await this.reloadTeam();
-        } else {
-            this.errorModalInfo = {
-                general: 'An error occurred retiring a player.',
-                technical: apiResponse.getErrorMessage(),
-            }
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred retiring a player.',
+                apiResponse.getErrorMessage(),
+            );
         }
     }
 
@@ -1021,17 +1043,17 @@ export default class TeamComponent extends Vue {
             iconRowVersionPosition,
             gender,
         );
-        this.refreshTeamSheet();
+        this.handleGeneralTeamUpdate();
 
         const apiResponsePlayerName = await this.getFumbblApi().generatePlayerName(this.teamManagementSettings.nameGenerator, gender);
 
         if (! apiResponsePlayerName.isSuccessful()) {
             this.team.removeTemporaryPlayers();
             this.refreshTeamSheet();
-            this.errorModalInfo = {
-                general: 'An error occurred when generating a player name.',
-                technical: apiResponsePlayerName.getErrorMessage(),
-            }
+            await this.recoverFromUnexpectedError(
+                'An error occurred when generating a player name.',
+                apiResponsePlayerName.getErrorMessage(),
+            );
             return;
         }
 
@@ -1042,13 +1064,14 @@ export default class TeamComponent extends Vue {
         if (apiResponse.isSuccessful()) {
             const newPlayerResponseData: {playerId: number, number: number} = apiResponse.getData();
             temporaryPlayer.setIdForTemporaryPlayer(newPlayerResponseData.playerId);
+            this.handleGeneralTeamUpdate();
         } else {
             this.team.removeTemporaryPlayers();
             this.refreshTeamSheet();
-            this.errorModalInfo = {
-                general: 'An error occurred buying a new player.',
-                technical: apiResponse.getErrorMessage(),
-            }
+            await this.recoverFromUnexpectedError(
+                'An error occurred buying a new player.',
+                apiResponse.getErrorMessage(),
+            );
         }
     }
 

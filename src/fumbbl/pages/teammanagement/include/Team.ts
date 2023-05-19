@@ -146,6 +146,16 @@ export default class Team {
         return player ? player : null;
     }
 
+    public removePlayer(player: Player): void {
+        if (this.teamStatus.isNew()) {
+            this.treasury += player.getPositionCost();
+        }
+        const index = this.players.findIndex(playerToMatch => playerToMatch.getId() === player.getId());
+        if (index !== -1) {
+            this.players.splice(index, 1);
+        }
+    }
+
     public removeTemporaryPlayers(): void {
         const temporaryPlayers = this.players.filter((player) => player.isTemporaryPlayer());
         if (this.teamStatus.isNew()) {
