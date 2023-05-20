@@ -524,6 +524,8 @@ export default class TeamComponent extends Vue {
     private showHireRookies: boolean = false;
     private errorModalInfo: {general: string, technical: string} = null;
     private requireReloadTeam: boolean = false;
+    private requireReloadTeamIntervalId: number = null;
+    private readonly requireReloadTeamIntervalDelay: number = 5000;
 
     private modals: {
         submitForApproval: boolean,
@@ -577,6 +579,19 @@ export default class TeamComponent extends Vue {
 
         this.accessControl = new AccessControl(['OWNER'], this.team.getTeamStatus().getStatus());
         this.refreshTeamSheet();
+
+        this.requireReloadTeamIntervalId = setInterval(() => {
+            if (this.requireReloadTeam) {
+                this.requireReloadTeam = false;
+                this.reloadTeam();
+            }
+        }, this.requireReloadTeamIntervalDelay);
+    }
+
+    unmounted() {
+        if (this.requireReloadTeamIntervalId) {
+            clearInterval(this.requireReloadTeamIntervalId);
+        }
     }
 
     private async reloadTeam() {
