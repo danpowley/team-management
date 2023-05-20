@@ -857,7 +857,7 @@ export default class TeamComponent extends Vue {
     private async removeReroll() {
         this.updateInProgress = true;
 
-        this.team.removeReroll();
+        this.team.removeReroll(this.teamManagementSettings.rerollCostOnCreate);
         this.modals.removeReroll = false;
         this.handleGeneralTeamUpdate();
 
@@ -897,7 +897,7 @@ export default class TeamComponent extends Vue {
     private async removeAssistantCoach() {
         this.updateInProgress = true;
 
-        this.team.removeAssistantCoach();
+        this.team.removeAssistantCoach(this.teamManagementSettings.assistantCoachCost);
         this.modals.removeAssistantCoach = false;
         this.handleGeneralTeamUpdate();
 
@@ -937,7 +937,7 @@ export default class TeamComponent extends Vue {
     private async removeCheerleader() {
         this.updateInProgress = true;
 
-        this.team.removeCheerleader();
+        this.team.removeCheerleader(this.teamManagementSettings.cheerleaderCost);
         this.modals.removeCheerleader = false;
         this.handleGeneralTeamUpdate();
 
@@ -977,7 +977,7 @@ export default class TeamComponent extends Vue {
     private async removeApothecary() {
         this.updateInProgress = true;
 
-        this.team.removeApothecary();
+        this.team.removeApothecary(this.teamManagementSettings.apothecaryCost);
         this.modals.removeApothecary = false;
         this.handleGeneralTeamUpdate();
 

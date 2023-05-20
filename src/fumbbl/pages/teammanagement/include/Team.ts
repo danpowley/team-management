@@ -225,17 +225,11 @@ export default class Team {
         this.treasury -= cost;
     }
 
-    public removeReroll(): void {
+    public removeReroll(cost: number): void {
         this.rerolls--;
-    }
-
-    public addDedicatedFans(cost: number): void {
-        this.dedicatedFans++;
-        this.treasury -= cost;
-    }
-
-    public removeDedicatedFans(): void {
-        this.dedicatedFans--;
+        if (this.teamStatus.isNew()) {
+            this.treasury += cost;
+        }
     }
 
     public addAssistantCoach(cost: number): void {
@@ -243,8 +237,11 @@ export default class Team {
         this.treasury -= cost;
     }
 
-    public removeAssistantCoach(): void {
+    public removeAssistantCoach(cost: number): void {
         this.assistantCoaches--;
+        if (this.teamStatus.isNew()) {
+            this.treasury += cost;
+        }
     }
 
     public addCheerleader(cost: number): void {
@@ -252,8 +249,11 @@ export default class Team {
         this.treasury -= cost;
     }
 
-    public removeCheerleader(): void {
+    public removeCheerleader(cost: number): void {
         this.cheerleaders--;
+        if (this.teamStatus.isNew()) {
+            this.treasury += cost;
+        }
     }
 
     public addApothecary(cost: number): void {
@@ -261,8 +261,11 @@ export default class Team {
         this.treasury -= cost;
     }
 
-    public removeApothecary(): void {
+    public removeApothecary(cost: number): void {
         this.apothecary = false;
+        if (this.teamStatus.isNew()) {
+            this.treasury += cost;
+        }
     }
 
     public movePlayer(sourcePlayerNumber: number, targetPlayerNumber: number, emptyTarget: boolean) {
