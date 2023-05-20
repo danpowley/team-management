@@ -663,6 +663,11 @@ export default class TeamComponent extends Vue {
     }
 
     private async setupForRulesetAndRoster(rulesetId: number, rosterId: number) {
+        // Prevent this basic set up from running more than once
+        if (this.teamManagementSettings !== null && this.rawApiSpecialRules.fromRoster !== null && this.rosterIconManager !== null) {
+            return;
+        }
+
         const apiResponseRuleset = await this.getFumbblApi().getRuleset(rulesetId);
         const apiResponseRoster = await this.getFumbblApi().getRoster(rosterId);
 
