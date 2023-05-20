@@ -582,7 +582,7 @@ export default class TeamComponent extends Vue {
 
         // Reload the team when someone returns to the tab
         document.addEventListener("visibilitychange", () => {
-            if (! document.hidden) {
+            if (document.visibilityState === 'visible') {
                 this.reloadTeam();
             }
         });
