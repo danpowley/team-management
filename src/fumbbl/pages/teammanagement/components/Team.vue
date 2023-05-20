@@ -580,6 +580,14 @@ export default class TeamComponent extends Vue {
         this.accessControl = new AccessControl(['OWNER'], this.team.getTeamStatus().getStatus());
         this.refreshTeamSheet();
 
+        // Reload the team when someone returns to the tab
+        document.addEventListener("visibilitychange", () => {
+            if (! document.hidden) {
+                this.reloadTeam();
+            }
+        });
+
+        // Check if team reload is required at regular intervals
         this.requireReloadTeamIntervalId = setInterval(() => {
             if (this.requireReloadTeam) {
                 this.requireReloadTeam = false;
