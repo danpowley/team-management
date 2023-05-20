@@ -63,7 +63,7 @@
                 <div class="currentplayercount">{{ team.getPlayerCount() }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required) <a href="#" @click.prevent="removeAllPlayers">Remove all players</a></div>
             </div>
             <div class="costinfo">
-                <div class="currentteamcostlabel">Treasury spent (Max {{ teamManagementSettings.startTreasury/1000 }}k)</div> <div class="currentteamcost">{{ teamCost/1000 }}k</div>
+                <div class="currentteamcostlabel">Treasury spent (Max {{ teamManagementSettings.startTreasury/1000 }}k)</div> <div class="currentteamcost">{{ teamCreationCost/1000 }}k</div>
             </div>
         </div>
         <div v-if="false" class="redraft">
@@ -200,7 +200,7 @@
                     Current Team Value:
                 </div>
                 <div class="info left">
-                    {{ team.getCurrentTeamValue()/1000 }}k
+                    {{ teamValue/1000 }}k
                 </div>
                 <div class="title right">
                     Assistant Coaches:
@@ -252,7 +252,7 @@
                     Team Value:
                 </div>
                 <div class="info left">
-                    {{ team.getTeamValue()/1000 }}k
+                    {{ teamValue/1000 }}k
                 </div>
                 <div class="title right">
                     Apothecary:
@@ -706,8 +706,12 @@ export default class TeamComponent extends Vue {
         this.rosterIconManager = rosterIconManager;
     }
 
-    private get teamCost(): number {
-        return this.teamManagementSettings.calculateTeamCost(this.team);
+    private get teamValue(): number {
+        return this.teamManagementSettings.calculateTeamValue(this.team);
+    }
+
+    private get teamCreationCost(): number {
+        return this.teamManagementSettings.calculateCreateTeamCost(this.team);
     }
 
     private get rosterPositionDataForBuyingPlayer(): PositionDataForBuyingPlayer[] {

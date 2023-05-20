@@ -178,7 +178,7 @@ export default class TeamManagementSettings {
         throw Error(`Position not found ${positionId}`);
     }
 
-    public calculateTeamCost(team: Team): number {
+    public calculateTeamValue(team: Team): number {
         const positionCostsLookup = this.getPositionCostsLookup();
         let playerCost = 0;
         for (const player of team.getPlayers()) {
@@ -189,8 +189,12 @@ export default class TeamManagementSettings {
             (team.getRerolls() * this.settings.rerolls.cost) +
             (team.getAssistantCoaches() * this.settings.sidelineStaff.assistantCoaches.cost) +
             (team.getCheerleaders() * this.settings.sidelineStaff.cheerleaders.cost) +
-            (team.getApothecary() && this.settings.sidelineStaff.apothecary ? this.settings.sidelineStaff.apothecary.cost : 0) +
-            ((team.getDedicatedFans() - this.settings.dedicatedFans.minStart) * this.settings.dedicatedFans.cost);
+            (team.getApothecary() && this.settings.sidelineStaff.apothecary ? this.settings.sidelineStaff.apothecary.cost : 0);
+    }
+
+    public calculateCreateTeamCost(team: Team): number {
+        const dedicatedFansCreateCost = (team.getDedicatedFans() - this.settings.dedicatedFans.minStart) * this.settings.dedicatedFans.cost;
+        return this.calculateTeamValue(team) + dedicatedFansCreateCost;
     }
 
     private getPositionCostsLookup(): any {
@@ -266,7 +270,7 @@ export default class TeamManagementSettings {
             errors.push('insufficientPlayers');
         }
 
-        const teamCost = this.calculateTeamCost(team);
+        const teamCost = this.calculateCreateTeamCost(team);
         if (teamCost > this.startTreasury) {
             errors.push('insufficientTreasury');
         }
