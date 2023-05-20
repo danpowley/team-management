@@ -1081,7 +1081,6 @@ export default class TeamComponent extends Vue {
 
         if (! apiResponsePlayerName.isSuccessful()) {
             this.team.removeTemporaryPlayers();
-            this.refreshTeamSheet();
             await this.recoverFromUnexpectedError(
                 'An error occurred when generating a player name.',
                 apiResponsePlayerName.getErrorMessage(),
@@ -1097,9 +1096,14 @@ export default class TeamComponent extends Vue {
             const newPlayerResponseData: {playerId: number, number: number} = apiResponse.getData();
             temporaryPlayer.setIdForTemporaryPlayer(newPlayerResponseData.playerId);
             this.handleGeneralTeamUpdate();
+            if (temporaryPlayer.getPlayerNumber() !== newPlayerResponseData.number) {
+                await this.recoverFromUnexpectedError(
+                    'Your player has been purchased but your team page is out of synch with the latest version on the server. Please refresh the page if this problem continues.',
+                    `Expected player number ${temporaryPlayer.getPlayerNumber()}, got ${newPlayerResponseData.number}`,
+                );
+            }
         } else {
             this.team.removeTemporaryPlayers();
-            this.refreshTeamSheet();
             await this.recoverFromUnexpectedError(
                 'An error occurred buying a new player.',
                 apiResponse.getErrorMessage(),
