@@ -167,7 +167,6 @@
                         :can-remove="addRemovePermissions.rerolls.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
                         :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
-                        :update-in-progress="updateInProgress"
                         @add="addReroll"
                         @remove-with-confirm="modals.removeReroll = true"
                         @remove-immediately="removeReroll"
@@ -214,7 +213,6 @@
                         :can-remove="addRemovePermissions.assistantCoaches.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
                         :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
-                        :update-in-progress="updateInProgress"
                         @add="addAssistantCoach"
                         @remove-with-confirm="modals.removeAssistantCoach = true"
                         @remove-immediately="removeAssistantCoach"
@@ -240,7 +238,6 @@
                         :can-remove="addRemovePermissions.cheerleaders.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
                         :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
-                        :update-in-progress="updateInProgress"
                         @add="addCheerleader"
                         @remove-with-confirm="modals.removeCheerleader = true"
                         @remove-immediately="removeCheerleader"
@@ -266,7 +263,6 @@
                         :can-remove="addRemovePermissions.apothecary.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Hire'"
                         :label-remove="accessControl.canCreate() ? 'Remove' : 'Fire'"
-                        :update-in-progress="updateInProgress"
                         @add="addApothecary"
                         @remove-with-confirm="modals.removeApothecary = true"
                         @remove-immediately="removeApothecary"
@@ -547,8 +543,6 @@ export default class TeamComponent extends Vue {
         removeApothecary: false,
     };
 
-    private updateInProgress: boolean = false;
-
     private getFumbblApi(): FumbblApi {
         return this.$props.fumbblApi;
     }
@@ -815,7 +809,8 @@ export default class TeamComponent extends Vue {
     private async removeAllPlayers() {
         const playerIdsToRemove = this.team.getPlayers().map(player => player.getId());
         this.team.removeAllPlayers();
-        this.handleGeneralTeamUpdate();
+        // call this to immediately show the players have gone (handleGeneralTeamUpdate needs to be called after all have been fully removed).
+        this.refreshTeamSheet();
 
         for (const playerId of playerIdsToRemove) {
             const apiResponse = await this.getFumbblApi().removePlayer(this.team.getId(), playerId);
@@ -827,6 +822,10 @@ export default class TeamComponent extends Vue {
                 return;
             }
         }
+
+        // Important to call this after all players have finished being removed,
+        // otherwise some players will reappear during the removal process.
+        this.handleGeneralTeamUpdate();
     }
 
     private async updateDedicatedFans() {
@@ -842,7 +841,6 @@ export default class TeamComponent extends Vue {
     }
 
     private async addReroll() {
-        this.updateInProgress = true;
         this.team.addReroll(
             this.team.getTeamStatus().isNew() ? this.teamManagementSettings.rerollCostOnCreate : this.teamManagementSettings.rerollCostFull
         );
@@ -855,12 +853,9 @@ export default class TeamComponent extends Vue {
                 apiResponse.getErrorMessage(),
             );
         }
-        this.updateInProgress = false;
     }
 
     private async removeReroll() {
-        this.updateInProgress = true;
-
         this.team.removeReroll(this.teamManagementSettings.rerollCostOnCreate);
         this.modals.removeReroll = false;
         this.handleGeneralTeamUpdate();
@@ -877,13 +872,9 @@ export default class TeamComponent extends Vue {
                 apiResponse.getErrorMessage(),
             );
         }
-
-        this.updateInProgress = false;
     }
 
     private async addAssistantCoach() {
-        this.updateInProgress = true;
-
         this.team.addAssistantCoach(this.teamManagementSettings.assistantCoachCost);
         this.handleGeneralTeamUpdate();
 
@@ -894,13 +885,9 @@ export default class TeamComponent extends Vue {
                 apiResponse.getErrorMessage(),
             );
         }
-
-        this.updateInProgress = false;
     }
 
     private async removeAssistantCoach() {
-        this.updateInProgress = true;
-
         this.team.removeAssistantCoach(this.teamManagementSettings.assistantCoachCost);
         this.modals.removeAssistantCoach = false;
         this.handleGeneralTeamUpdate();
@@ -917,13 +904,9 @@ export default class TeamComponent extends Vue {
                 apiResponse.getErrorMessage(),
             );
         }
-
-        this.updateInProgress = false;
     }
 
     private async addCheerleader() {
-        this.updateInProgress = true;
-
         this.team.addCheerleader(this.teamManagementSettings.cheerleaderCost);
         this.handleGeneralTeamUpdate();
 
@@ -934,13 +917,9 @@ export default class TeamComponent extends Vue {
                 apiResponse.getErrorMessage(),
             );
         }
-
-        this.updateInProgress = false;
     }
 
     private async removeCheerleader() {
-        this.updateInProgress = true;
-
         this.team.removeCheerleader(this.teamManagementSettings.cheerleaderCost);
         this.modals.removeCheerleader = false;
         this.handleGeneralTeamUpdate();
@@ -957,13 +936,9 @@ export default class TeamComponent extends Vue {
                 apiResponse.getErrorMessage(),
             );
         }
-
-        this.updateInProgress = false;
     }
 
     private async addApothecary() {
-        this.updateInProgress = true;
-
         this.team.addApothecary(this.teamManagementSettings.apothecaryCost);
         this.handleGeneralTeamUpdate();
 
@@ -974,13 +949,9 @@ export default class TeamComponent extends Vue {
                 apiResponse.getErrorMessage(),
             );
         }
-
-        this.updateInProgress = false;
     }
 
     private async removeApothecary() {
-        this.updateInProgress = true;
-
         this.team.removeApothecary(this.teamManagementSettings.apothecaryCost);
         this.modals.removeApothecary = false;
         this.handleGeneralTeamUpdate();
@@ -997,8 +968,6 @@ export default class TeamComponent extends Vue {
                 apiResponse.getErrorMessage(),
             );
         }
-
-        this.updateInProgress = false;
     }
 
     private enableShowHireRookies(): void {
