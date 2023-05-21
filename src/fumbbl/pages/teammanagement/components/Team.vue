@@ -187,7 +187,7 @@
                 <div class="info right">
                     <template v-if="accessControl.canCreate()">
                         <select v-model.number="team.dedicatedFans" @change="updateDedicatedFans()">
-                            <option v-for="dedicatedFansStartValue in this.teamManagementSettings.dedicatedFansStartValues">{{ dedicatedFansStartValue }}</option>
+                            <option v-for="dedicatedFansStartValue in this.teamManagementSettings.getDedicatedFansAllowedValues(this.team.getDedicatedFans(), this.team.getTreasury())">{{ dedicatedFansStartValue }}</option>
                         </select>
                     </template>
                     <template v-else>

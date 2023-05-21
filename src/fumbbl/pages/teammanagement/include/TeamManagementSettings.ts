@@ -141,10 +141,13 @@ export default class TeamManagementSettings {
         return this.settings.dedicatedFans.cost;
     }
 
-    public get dedicatedFansStartValues(): number[] {
+    public getDedicatedFansAllowedValues(currentDedicatedFans: number, availableTreasury: number): number[] {
         const startValues: number[] = [];
         for (let i = this.settings.dedicatedFans.minStart; i <= this.settings.dedicatedFans.maxStart; i++) {
-            startValues.push(i);
+            const costOfDedicatedFans = (i - currentDedicatedFans) * this.dedicatedFansCost;
+            if (costOfDedicatedFans <= availableTreasury) {
+                startValues.push(i);
+            }
         }
         return startValues;
     }
