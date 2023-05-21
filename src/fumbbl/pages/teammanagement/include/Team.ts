@@ -295,4 +295,8 @@ export default class Team {
         }
         sourcePlayer.setPlayerNumber(targetPlayerNumber);
     }
+
+    public canAfford(treasuryCost: number): boolean {
+        return this.getTreasury() >= treasuryCost;
+    }
 }

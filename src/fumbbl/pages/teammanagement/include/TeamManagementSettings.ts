@@ -208,23 +208,24 @@ export default class TeamManagementSettings {
         return positionCostsLookup;
     }
 
-    public getAddRemovePermissions(team: any): AddRemovePermissions {
+    public getAddRemovePermissions(team: Team): AddRemovePermissions {
+        const rerollCost = team.getTeamStatus().isNew() ? this.rerollCostOnCreate : this.rerollCostFull;
         return {
             rerolls: {
-                add: team.rerolls < this.settings.rerolls.max,
-                remove: team.rerolls > 0,
+                add: team.getRerolls() < this.settings.rerolls.max && team.canAfford(rerollCost),
+                remove: team.getRerolls() > 0,
             },
             assistantCoaches: {
-                add: team.assistantCoaches < this.settings.sidelineStaff.assistantCoaches.max,
-                remove: team.assistantCoaches > 0,
+                add: team.getAssistantCoaches() < this.settings.sidelineStaff.assistantCoaches.max && team.canAfford(this.assistantCoachCost),
+                remove: team.getAssistantCoaches() > 0,
             },
             cheerleaders: {
-                add: team.cheerleaders < this.settings.sidelineStaff.cheerleaders.max,
-                remove: team.cheerleaders > 0,
+                add: team.getCheerleaders() < this.settings.sidelineStaff.cheerleaders.max && team.canAfford(this.cheerleaderCost),
+                remove: team.getCheerleaders() > 0,
             },
             apothecary: {
-                add: this.settings.sidelineStaff.apothecary.allowed && team.apothecary === false,
-                remove: this.settings.sidelineStaff.apothecary.allowed && team.apothecary === true,
+                add: this.settings.sidelineStaff.apothecary.allowed && team.getApothecary() === false && team.canAfford(this.apothecaryCost),
+                remove: this.settings.sidelineStaff.apothecary.allowed && team.getApothecary() === true,
             },
         }
     }
