@@ -9,6 +9,12 @@ export default class FumbblApiDev extends FumbblApi {
         return 'http://localhost:3000' + apiUrl;
     }
 
+    public async checkTeamName(teamName: string): Promise<ApiResponse> {
+        const url = this.getProxyUrl('/api/team/checkName');
+        const data = {name: teamName};
+        return await this.post(url, data);
+    }
+
     public async setSpecialRule(teamId: number, ruleName: string, ruleValue: string): Promise<ApiResponse> {
         const url = this.getProxyUrl('/api/team/setSpecialRule/' + teamId);
         const data = {rule: ruleName, val: ruleValue};

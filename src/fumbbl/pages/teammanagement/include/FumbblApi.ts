@@ -160,6 +160,12 @@ export default class FumbblApi {
         return await this.post(url);
     }
 
+    public async checkTeamName(teamName: string): Promise<ApiResponse> {
+        const url = this.getUrl('/api/team/checkName');
+        const data = {name: teamName};
+        return await this.post(url, data);
+    }
+
     public async renameTeam(teamId: number, newName: string): Promise<ApiResponse> {
         const url = this.getUrl('/api/team/rename');
         const data = {teamId: teamId, newName: newName};

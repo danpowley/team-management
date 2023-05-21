@@ -4,19 +4,14 @@
             <img class="rosterlogo" :src="`https://fumbbl.com/i/${teamManagementSettings.logoIdLarge}`" :alt="`Roster logo for ${teamManagementSettings.rosterName}`" :title="`Roster logo for ${teamManagementSettings.rosterName}`">
             <div class="teamheadermain">
                 <div class="teamheadermaincontent">
-                    <div class="teamname">
-                        <div class="teamnamecontent">
-                            <template v-if="editTeamName && accessControl.canCreate()">
-                                <input v-model="newTeamName" class="editteamname">
-                                <button class="teambutton" @click="saveNewTeamName()">Save</button>
-                                <a href="#" @click.prevent="cancelNewTeamName()">Cancel</a>
-                            </template>
-                            <template v-else>
-                                <div class="teamnametext">{{ team.name }}</div>
-                                <div v-if="accessControl.canCreate()" class="editlink"><a href="#" @click.prevent="enableTeamNameEdit()">edit name</a></div>
-                            </template>
-                        </div>
-                    </div>
+                    <editteamname
+                        :fumbbl-api="getFumbblApi()"
+                        :team-name="team.getName()"
+                        :can-edit="accessControl.canCreate()"
+                        @edit="handleEditTeamName"
+                        @begin="handleBeginEditTeamName"
+                        @cancel="handleCancelEditTeamName"
+                    ></editteamname>
                     <div class="rosterinfo" style="margin-top: 0.5em;">
                         <img v-if="team.teamStatus.isNew()" src="https://fumbbl.com/FUMBBL/Images/New_small.gif" alt="Roster" title="New team">
                         <img v-else-if="team.teamStatus.isActive()" src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Ready / View Roster">
@@ -301,7 +296,7 @@
         </div>
         <div v-if="accessControl.canCreate()" class="createteam">
             <div class="submitforapproval">
-                <template v-if="editTeamName">
+                <template v-if="editTeamNameInProgress">
                     NOTE: The submit for approval button is hidden whilst you are editing the team name above.
                 </template>
                 <template v-else-if="teamManagementSettings.isValidForCreate(team)">
@@ -478,7 +473,7 @@ import AccessControl from "../include/AccessControl";
 import Team from "../include/Team";
 import TeamSheet from "../include/TeamSheet";
 import PlayerComponent from "./Player.vue";
-import Player from "../include/Player";
+import EditTeamNameComponent from "./EditTeamName.vue";
 
 import HireRookiesComponent from "./HireRookies.vue";
 import RosterIconManager from "../include/RosterIconManager";
@@ -490,6 +485,7 @@ import FumbblApi from "../include/FumbblApi";
 
 @Component({
     components: {
+        'editteamname': EditTeamNameComponent,
         'player': PlayerComponent,
         'hirerookies': HireRookiesComponent,
         'specialrules': SpecialRulesComponent,
@@ -513,8 +509,7 @@ export default class TeamComponent extends Vue {
     private rosterIconManager: RosterIconManager | null = null;
     public team: Team | null = null;
     public teamSheet: TeamSheet | null = null;
-    private editTeamName: boolean = false;
-    private newTeamName: string = '';
+    private editTeamNameInProgress: boolean = false;
     private rawApiSpecialRules: {fromRoster: any, fromTeam: any} = {fromRoster: null, fromTeam: null};
     private mainMenuShow: string = 'none';
     private showHireRookies: boolean = false;
@@ -1080,34 +1075,28 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private enableTeamNameEdit(): void {
-        this.editTeamName = true;
-        this.newTeamName = this.team.getName();
-    }
-
-    private async saveNewTeamName() {
-        const apiResponse = await this.getFumbblApi().renameTeam(this.team.getId(), this.newTeamName);
-        if (apiResponse.isSuccessful()) {
-            this.team.setName(this.newTeamName);
-            this.newTeamName = '';
-            this.editTeamName = false;
-        } else {
-            this.newTeamName = '';
-            this.editTeamName = false;
-            this.errorModalInfo = {
-                general: 'Unable to rename team.',
-                technical: apiResponse.getErrorMessage(),
-            }
-        }
-    }
-
-    private cancelNewTeamName(): void {
-        this.newTeamName = '';
-        this.editTeamName = false;
-    }
-
     private handleSpecialRulesUpdated() {
         this.reloadTeam();
+    }
+
+    private handleBeginEditTeamName() {
+        this.editTeamNameInProgress = true;
+    }
+
+    private handleCancelEditTeamName() {
+        this.editTeamNameInProgress = false;
+    }
+
+    private async handleEditTeamName(newTeamName: string) {
+        const originalTeamName = this.team.getName();
+        this.team.setName(newTeamName);
+        const apiResponse = await this.getFumbblApi().renameTeam(this.team.getId(), newTeamName);
+        if (! apiResponse.isSuccessful()) {
+            this.team.setName(originalTeamName);
+            await this.recoverFromUnexpectedError('Unable to rename team.', apiResponse.getErrorMessage());
+        }
+        this.handleGeneralTeamUpdate();
+        this.editTeamNameInProgress = false;
     }
 }
 </script>

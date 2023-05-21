@@ -15,7 +15,11 @@ export default class ApiResponse {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
             if (httpStatus >= 400 && httpStatus <= 499) {
-                apiResponse.setErrorMessage(error.message, httpStatus);
+                if (error.response.data) {
+                    apiResponse.setErrorMessage(error.response.data);
+                } else {
+                    apiResponse.setErrorMessage(error.message, httpStatus);
+                }
             } else {
                 apiResponse.setErrorMessage(`Unexpected error: (${error.message})`, httpStatus);
             }
