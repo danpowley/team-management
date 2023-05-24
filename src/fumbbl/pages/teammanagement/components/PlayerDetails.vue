@@ -157,13 +157,25 @@ export default class PlayerDetailsComponent extends Vue {
         return this.$props.fumbblApi;
     }
 
-    private saveUpdatedPlayerDetails(): void {
+    private async saveUpdatedPlayerDetails() {
         if (this.updatePlayerDetails) {
             this.updatePlayerDetailsErrors = this.updatePlayerDetails.getErrors();
         }
 
         if (this.updatePlayerDetailsErrors.length === 0) {
-            this.$props.teamSheetEntry.saveUpdatePlayerDetails();
+            const apiResponse = await this.getFumbblApi().updatePlayer(
+                this.$props.teamSheetEntry.getPlayer().getId(),
+                this.updatePlayerDetails.getPlayerName(),
+                this.updatePlayerDetails.getGender()
+            );
+            if (apiResponse.isSuccessful()) {
+                this.$props.teamSheetEntry.saveUpdatePlayerDetails();
+            } else {
+                this.errorModalInfo = {
+                    general: 'An error occurred updating player details.',
+                    technical: apiResponse.getErrorMessage(),
+                };
+            }
             this.$emit('close');
         }
     }
