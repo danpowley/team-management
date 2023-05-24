@@ -105,4 +105,16 @@ export default class FumbblApiDev extends FumbblApi {
         const data = {playerId: playerId, gender: gender.toLowerCase(), name: playerName};
         return await this.enqueuePost(url, data);
     }
+
+    public async deleteTeam(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/delete'));
+    }
+
+    public async retireTeam(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/retire'));
+    }
+
+    public async activateTeam(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/activate'));
+    }
 }

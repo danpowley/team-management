@@ -254,4 +254,16 @@ export default class FumbblApi {
         const data = {playerId: playerId, gender: gender.toLowerCase(), name: playerName};
         return await this.enqueuePost(url, data);
     }
+
+    public async deleteTeam(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getUrl('/api/team/delete'));
+    }
+
+    public async retireTeam(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getUrl('/api/team/retire'));
+    }
+
+    public async activateTeam(teamId: number): Promise<ApiResponse> {
+        return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getUrl('/api/team/activate'));
+    }
 }

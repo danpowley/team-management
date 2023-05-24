@@ -83,9 +83,9 @@
             </div>
         </div>
 
-        <div :class="{showhirerookies: showHireRookies}">
+        <div :class="{showhirerookies: showHireRookiesWithPermissionsCheck}">
             <hirerookies
-                v-if="showHireRookies"
+                v-if="showHireRookiesWithPermissionsCheck"
                 :roster-position-data-for-buying-player="rosterPositionDataForBuyingPlayer"
                 :roster-icon-manager="rosterIconManager"
                 :has-empty-team-sheet-entry="teamSheet.findFirstEmptyTeamSheetEntry() !== null"
@@ -295,15 +295,15 @@
             </div>
         </div>
         <div v-if="accessControl.canCreate()" class="createteam">
-            <div class="submitforapproval">
+            <div class="activateteam">
                 <template v-if="editTeamNameInProgress">
-                    NOTE: The submit for approval button is hidden whilst you are editing the team name above.
+                    NOTE: The activate team button is hidden whilst you are editing the team name above.
                 </template>
                 <template v-else-if="teamManagementSettings.isValidForCreate(team)">
-                    <button @click="modals.submitForApproval = true" class="teambutton">Submit for approval</button>
+                    <button @click="modals.activateTeam = true" class="teambutton">Activate</button>
                 </template>
                 <template v-else>
-                    <button @click="modals.errorsForCreate = true" class="teambutton">Submit for approval</button>
+                    <button @click="modals.errorsForCreate = true" class="teambutton">Activate</button>
                 </template>
             </div>
             <div class="deleteteam">
@@ -389,11 +389,11 @@
             </template>
         </modal>
         <modal
-            v-show="modals.submitForApproval === true"
+            v-show="modals.activateTeam === true"
             :buttons-config="{'close': 'Oops, let me go back and check!', 'continue': 'Yes, my team complies'}"
             :modal-size="'small'"
-            @close="modals.submitForApproval = false"
-            @continue="modals.submitForApproval = false"
+            @close="modals.activateTeam = false"
+            @continue="handleActivateTeam"
         >
             <template v-slot:header>
                 * * * Important Notice * * *
@@ -467,7 +467,8 @@ import {
     AddRemovePermissions,
     PlayerGender,
     PlayerRowFoldOutMode,
-    PositionDataForBuyingPlayer
+    PositionDataForBuyingPlayer,
+    UserRole,
 } from "../include/Interfaces";
 import AccessControl from "../include/AccessControl";
 import Team from "../include/Team";
@@ -504,6 +505,7 @@ import FumbblApi from "../include/FumbblApi";
     },
 })
 export default class TeamComponent extends Vue {
+    private userRoles: UserRole[] = ['OWNER']; // TODO: fix hardcoded values here
     private accessControl: AccessControl | null = null;
     private teamManagementSettings: TeamManagementSettings | null = null;
     private rosterIconManager: RosterIconManager | null = null;
@@ -519,7 +521,7 @@ export default class TeamComponent extends Vue {
     private readonly requireReloadTeamIntervalDelay: number = 5000;
 
     private modals: {
-        submitForApproval: boolean,
+        activateTeam: boolean,
         errorsForCreate: boolean,
         deleteTeam: boolean,
         retireTeam: boolean,
@@ -528,7 +530,7 @@ export default class TeamComponent extends Vue {
         removeCheerleader: boolean,
         removeApothecary: boolean,
     } = {
-        submitForApproval: false,
+        activateTeam: false,
         errorsForCreate: false,
         deleteTeam: false,
         retireTeam: false,
@@ -551,6 +553,7 @@ export default class TeamComponent extends Vue {
     }
 
     async mounted() {
+        // this section should be removed soon
         if (this.$props.demoTeamSettings.newTeam !== null) {
             const rulesetId = this.$props.demoTeamSettings.newTeam.rulesetId;
             const rosterId = this.$props.demoTeamSettings.newTeam.rosterId;
@@ -560,14 +563,9 @@ export default class TeamComponent extends Vue {
                 this.teamManagementSettings.minStartFans,
                 this.teamManagementSettings.startTreasury,
             );
-        } else if (this.$props.demoTeamSettings.existingTeamId !== null) {
-            await this.reloadTeam();
-        } else {
-            throw new Error('Must be either new or existing configured.');
         }
 
-        this.accessControl = new AccessControl(['OWNER'], this.team.getTeamStatus().getStatus());
-        this.refreshTeamSheet();
+        await this.reloadTeam();
 
         // Reload the team when someone returns to the tab
         document.addEventListener("visibilitychange", () => {
@@ -613,6 +611,9 @@ export default class TeamComponent extends Vue {
                 playerRosterIconVersionPositions,
                 this.rosterIconManager,
             );
+
+            this.accessControl = new AccessControl(this.userRoles, this.team.getTeamStatus().getStatus());
+
             this.refreshTeamSheet();
         } else {
             this.$emit('unexpected-error', 'Loading team information.', apiResponse.getErrorMessage());
@@ -718,6 +719,10 @@ export default class TeamComponent extends Vue {
             this.team.getTreasury(),
             positionQuantities,
         );
+    }
+
+    private get showHireRookiesWithPermissionsCheck(): boolean {
+        return this.showHireRookies && this.accessControl.canHireRookie();
     }
 
     private get gamesPlayedStatDisplay(): string {
@@ -1097,6 +1102,18 @@ export default class TeamComponent extends Vue {
         }
         this.handleGeneralTeamUpdate();
         this.editTeamNameInProgress = false;
+    }
+
+    private async handleActivateTeam() {
+        const apiResponse = await this.getFumbblApi().activateTeam(this.team.getId());
+        if (apiResponse.isSuccessful()) {
+            await this.reloadTeam();
+            this.modals.activateTeam = false;
+            setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 500);
+        } else {
+            this.modals.activateTeam = false;
+            await this.recoverFromUnexpectedError('An error occurred activating your team.', apiResponse.getErrorMessage());
+        }
     }
 }
 </script>

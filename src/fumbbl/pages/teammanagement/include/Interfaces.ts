@@ -2,7 +2,7 @@ export type UserRole = 'OWNER' | 'LEAGUE_STAFF' | 'SITE_STAFF';
 
 export type TeamStatusValue = 'NEW' | 'ACTIVE' | 'PENDING_APPROVAL' | 'BLOCKED' | 'RETIRED' | 'WAITING_FOR_OPPONENT' | 'SKILL_ROLLS_PENDING' | 'POST_MATCH_SEQUENCE' | 'REDRAFTING';
 
-export type TeamAction = 'CREATE' | 'EDIT' | 'RETIRE_TEAM' | 'VIEW_HISTORY';
+export type TeamAction = 'CREATE' | 'EDIT' | 'RETIRE_TEAM' | 'VIEW_HISTORY' | 'HIRE_ROOKIE';
 
 export type ActionGrantAccessTo = {
     action: TeamAction,

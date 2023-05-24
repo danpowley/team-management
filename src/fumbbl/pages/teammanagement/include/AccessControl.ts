@@ -20,6 +20,15 @@ export default class AccessControl {
                 ]
             },
             {
+                action: 'HIRE_ROOKIE',
+                grantAccessToList: [
+                    {
+                        userRoles: ['OWNER'],
+                        teamStatusValues: ['NEW', 'POST_MATCH_SEQUENCE'],
+                    }
+                ]
+            },
+            {
                 action: 'EDIT',
                 grantAccessToList: [
                     {
@@ -94,5 +103,9 @@ export default class AccessControl {
 
     public canViewHistory(): boolean {
         return this.isGranted('VIEW_HISTORY');
+    }
+
+    public canHireRookie(): boolean {
+        return this.isGranted('HIRE_ROOKIE');
     }
 }
