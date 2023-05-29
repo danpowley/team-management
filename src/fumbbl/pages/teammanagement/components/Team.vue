@@ -446,7 +446,7 @@
             :buttons-config="{'close': 'Cancel', 'continue': 'Retire Team'}"
             :modal-size="'small'"
             @close="modals.retireTeam = false"
-            @continue="modals.retireTeam = false"
+            @continue="handleRetireTeam"
         >
             <template v-slot:header>
                 Retire team?
@@ -1124,6 +1124,18 @@ export default class TeamComponent extends Vue {
         } else {
             this.modals.deleteTeam = false;
             await this.recoverFromUnexpectedError('An error occurred deleting your team.', apiResponse.getErrorMessage());
+        }
+    }
+
+    private async handleRetireTeam() {
+        const apiResponse = await this.getFumbblApi().retireTeam(this.team.getId());
+        if (apiResponse.isSuccessful()) {
+            await this.reloadTeam();
+            this.modals.retireTeam = false;
+            setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 500);
+        } else {
+            this.modals.retireTeam = false;
+            await this.recoverFromUnexpectedError('An error occurred retiring your team.', apiResponse.getErrorMessage());
         }
     }
 }
