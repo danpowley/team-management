@@ -117,4 +117,10 @@ export default class FumbblApiDev extends FumbblApi {
     public async activateTeam(teamId: number): Promise<ApiResponse> {
         return await this.simplePostWithOnlyTeamIdInBody(teamId, this.getProxyUrl('/api/team/activate'));
     }
+
+    public async renumberPlayers(teamId: number, playerNumbers: any): Promise<ApiResponse> {
+        const url = this.getProxyUrl('/api/team/renumber');
+        const data = {teamId, playerNumbers};
+        return await this.enqueuePost(url, data);
+    }
 }

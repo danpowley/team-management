@@ -268,7 +268,9 @@ export default class Team {
         }
     }
 
-    public movePlayer(sourcePlayerNumber: number, targetPlayerNumber: number, emptyTarget: boolean) {
+    public movePlayer(sourcePlayerNumber: number, targetPlayerNumber: number, emptyTarget: boolean): any {
+        const newPlayerNumbers = {};
+
         if (sourcePlayerNumber === targetPlayerNumber) {
             return;
         }
@@ -277,6 +279,8 @@ export default class Team {
 
         let sourcePlayer = null;
         for (const player of this.getPlayers()) {
+            let playerNumberChanged = false;
+
             if (player.getPlayerNumber() === sourcePlayerNumber) {
                 sourcePlayer = player;
             }
@@ -285,15 +289,25 @@ export default class Team {
                 if (movingUp) {
                     if (player.getPlayerNumber() >= targetPlayerNumber && player.getPlayerNumber() < sourcePlayerNumber) {
                         player.increasePlayerNumber();
+                        playerNumberChanged = true;
                     }
                 } else {
                     if (player.getPlayerNumber() <= targetPlayerNumber && player.getPlayerNumber() > sourcePlayerNumber) {
                         player.decreasePlayerNumber();
+                        playerNumberChanged = true;
                     }
                 }
             }
+
+            if (playerNumberChanged) {
+                newPlayerNumbers[player.getId()] = player.getPlayerNumber();
+            }
         }
+
         sourcePlayer.setPlayerNumber(targetPlayerNumber);
+        newPlayerNumbers[sourcePlayer.getId()] = sourcePlayer.getPlayerNumber();
+
+        return newPlayerNumbers;
     }
 
     public canAfford(treasuryCost: number): boolean {

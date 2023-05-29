@@ -785,12 +785,23 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    public handlePlayerDrop(playerNumber: number, hasPlayer: boolean) {
-        this.team.movePlayer(
+    public async handlePlayerDrop(playerNumber: number, hasPlayer: boolean) {
+        const playerNumbers = this.team.movePlayer(
             this.teamSheet.getDragSourcePlayerNumber(),
             playerNumber,
             ! hasPlayer,
         );
+        this.handleGeneralTeamUpdate();
+
+        const apiResponse = await this.getFumbblApi().renumberPlayers(this.team.getId(), playerNumbers);
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred whilst renumbering your players.',
+                apiResponse.getErrorMessage(),
+            );
+            return;
+        }
+
         this.refreshTeamSheet();
     }
 
