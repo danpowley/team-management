@@ -105,9 +105,10 @@
                         <div class="cell statpa">Pa</div>
                         <div class="cell statav">Av</div>
                         <div class="cell skills">Skills</div>
-                        <div class="cell injuries">Inj</div>
-                        <div class="cell spp">SPP</div>
+                        <div v-if="! accessControl.canCreate()" class="cell injuries">Inj</div>
+                        <div v-if="! accessControl.canCreate()" class="cell spp">SPP</div>
                         <div class="cell cost">Cost</div>
+                        <div v-if="accessControl.canCreate()" class="cell removenewplayer">Remove</div>
                     </div>
                     <template v-if="teamSheet !== null">
                         <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"

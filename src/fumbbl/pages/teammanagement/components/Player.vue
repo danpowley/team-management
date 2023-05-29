@@ -88,14 +88,17 @@
                         {{ teamSheetEntry.getPlayer().getSkills().join(', ') }}
                     </div>
                 </div>
-                <div class="cell injuries">
+                <div v-if="! accessControl.canCreate()" class="cell injuries">
                     {{ displayInjuries(teamSheetEntry.getPlayer().getInjuries()) }}
                 </div>
-                <div class="cell spp">
+                <div v-if="! accessControl.canCreate()" class="cell spp">
                     {{ teamSheetEntry.getPlayer().getRecord().spp }}
                 </div>
                 <div class="cell cost">
                     {{ teamSheetEntry.getPlayer().getPositionCost()/1000 }}k
+                </div>
+                <div v-if="accessControl.canCreate()" class="cell removenewplayer">
+                    <a href="#" @click.prevent="handleRemovePlayer">Remove</a>
                 </div>
             </template>
             <template v-else>
