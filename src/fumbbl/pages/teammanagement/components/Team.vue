@@ -430,7 +430,7 @@
             :buttons-config="{'close': 'Cancel', 'continue': 'Delete Team'}"
             :modal-size="'small'"
             @close="modals.deleteTeam = false"
-            @continue="modals.deleteTeam = false"
+            @continue="handleDeleteTeam"
         >
             <template v-slot:header>
                 Delete team?
@@ -438,7 +438,7 @@
 
             <template v-slot:body>
                 <p>Are you sure you want to delete the following team?</p>
-                <p>Team: <strong>{{ team.getName() }}</strong> ({{ teamManagementSettings.rosterName }})</p>
+                <p>Team: <strong>{{ team.getName() }}</strong> {{ team.getTeamValue() / 1000 }}k ({{ teamManagementSettings.rosterName }})</p>
             </template>
         </modal>
         <modal
@@ -454,7 +454,7 @@
 
             <template v-slot:body>
                 <p>Are you sure you want to retire the following team?</p>
-                <p>Team: <strong>{{ team.getName() }}</strong> ({{ teamManagementSettings.rosterName }})</p>
+                <p>Team: <strong>{{ team.getName() }}</strong> {{ team.getTeamValue() / 1000 }}k ({{ teamManagementSettings.rosterName }})</p>
             </template>
         </modal>
     </div>
@@ -1113,6 +1113,17 @@ export default class TeamComponent extends Vue {
         } else {
             this.modals.activateTeam = false;
             await this.recoverFromUnexpectedError('An error occurred activating your team.', apiResponse.getErrorMessage());
+        }
+    }
+
+    private async handleDeleteTeam() {
+        const apiResponse = await this.getFumbblApi().deleteTeam(this.team.getId());
+        if (apiResponse.isSuccessful()) {
+            this.modals.deleteTeam = false;
+            this.$emit('delete-team');
+        } else {
+            this.modals.deleteTeam = false;
+            await this.recoverFromUnexpectedError('An error occurred deleting your team.', apiResponse.getErrorMessage());
         }
     }
 }

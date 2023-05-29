@@ -10,6 +10,7 @@
             :fumbbl-api="fumbblApi"
             :demo-team-settings="demoTeamSettings"
             @unexpected-error="handleUnexpectedError"
+            @delete-team="handleDeleteTeam"
         ></team>
 
         <modal
@@ -25,6 +26,21 @@
                 <p>Unfortunately an unexpected error has occurred, please reload this page before continuing.</p>
                 <p>Current action: {{ unexpectedErrorMessage.currentAction }}</p>
                 <p>Error message: {{ unexpectedErrorMessage.errorMessage }}</p>
+            </template>
+        </modal>
+
+        <modal
+            v-if="overallApplicationMode === 'DELETED'"
+            :modal-size="'small'"
+            :exclude-close-top-right="true"
+        >
+            <template v-slot:header>
+                Team deleted.
+            </template>
+
+            <template v-slot:body>
+                <p>Team successfully deleted, you will shortly be redirected to your coach homepage.</p>
+                <div><a href="`https://fumbbl.com/~${this.coachName}`">Go to coach homepage</a></div>
             </template>
         </modal>
     </div>
@@ -47,14 +63,18 @@ import modal from "./components/Modal.vue";
     },
 })
 export default class TeamManagement extends Vue {
+    private coachName: string = null;
     private isDevMode: boolean = true;
     private fumbblApi: FumbblApi = null;
-    private overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' | 'ERROR' = 'DEMO_SETUP';
+    private overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' | 'ERROR' | 'DELETED' = 'DEMO_SETUP';
     private unexpectedErrorMessage: {currentAction: string, errorMessage: string} = null;
 
     private demoTeamSettings: {existingTeamId: number | null, newTeam: {division: string, rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
 
     mounted() {
+        // TODO: hardcoded coach name
+        this.coachName = 'HimalayaP1C7';
+
         if (this.isDevMode) {
             this.fumbblApi = new FumbblApiDev();
         } else {
@@ -106,6 +126,11 @@ export default class TeamManagement extends Vue {
     private handleUnexpectedError(currentAction: string, errorMessage: string) {
         this.unexpectedErrorMessage = {currentAction, errorMessage};
         this.overallApplicationMode = 'ERROR';
+    }
+
+    private handleDeleteTeam() {
+        this.overallApplicationMode = 'DELETED';
+        setTimeout(() => window.location.href = `https://fumbbl.com/~${this.coachName}`, 5000);
     }
 }
 </script>
