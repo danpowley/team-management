@@ -578,8 +578,11 @@ export default class TeamComponent extends Vue {
         // Check if team reload is required at regular intervals
         this.requireReloadTeamIntervalId = setInterval(() => {
             if (this.requireReloadTeam) {
-                this.requireReloadTeam = false;
-                this.reloadTeam();
+                // Do not reload team whilst drag is in progress
+                if (! this.teamSheet.isDragInProgress()) {
+                    this.requireReloadTeam = false;
+                    this.reloadTeam();
+                }
             }
         }, this.requireReloadTeamIntervalDelay);
     }

@@ -87,6 +87,10 @@ export default class TeamSheet {
         return teamSheetEntry ? teamSheetEntry.getNumber() : null;
     }
 
+    public isDragInProgress(): boolean {
+        return this.getDragSourcePlayerNumber() !== null;
+    }
+
     public useActiveSeperatorForDragDrop(teamSheetEntry: TeamSheetEntry): boolean {
         const dragSourcePlayerNumber = this.getDragSourcePlayerNumber();
         const dropTargetPlayerNumber = this.getDropTargetPlayerNumber();
