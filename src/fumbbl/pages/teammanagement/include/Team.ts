@@ -5,6 +5,8 @@ import TeamManagementSettings from "./TeamManagementSettings";
 import TeamStatus from "./TeamStatus";
 
 export default class Team {
+    private readonly COMPETITIVE_DIVISION_NAME: string = 'Competitive';
+    private readonly LEAGUE_DIVISION_NAME: string = 'League';
     private id: number = 0;
     private teamStatus: TeamStatus = new TeamStatus();
     private name: string = '';
@@ -12,6 +14,7 @@ export default class Team {
     private coach: Coach = null;
     private players: Player[] = [];
     private teamValue: number = 0;
+    private tvLimit: number = 0;
     private currentTeamValue: number = 0;
     private treasury: number = 0;
     private rerolls: number = 0;
@@ -49,6 +52,7 @@ export default class Team {
             name: rawApiTeam.coach.name,
         };
         team.teamValue = rawApiTeam.teamValue;
+        team.tvLimit = rawApiTeam.tvLimit;
         team.currentTeamValue = rawApiTeam.currentTeamValue;
         team.rerolls = rawApiTeam.rerolls;
         team.dedicatedFans = rawApiTeam.fanFactor;
@@ -81,6 +85,14 @@ export default class Team {
         return this.division;
     }
 
+    public isCompetitiveDivision(): boolean {
+        return this.getDivision() === this.COMPETITIVE_DIVISION_NAME;
+    }
+
+    public isLeagueDivision(): boolean {
+        return this.getDivision() === this.LEAGUE_DIVISION_NAME;
+    }
+
     public getDivisionAbbreviated(): string {
         return this.division.charAt(0);
     }
@@ -103,6 +115,13 @@ export default class Team {
 
     public getTeamValue(): number {
         return this.teamValue;
+    }
+
+    public getTvLimitDisplay(): number {
+        if (this.teamStatus.isRetired() || ! this.isCompetitiveDivision()) {
+            return 0;
+        }
+        return Math.floor((this.tvLimit / 1000) / 10) * 10;
     }
 
     public getCurrentTeamValue(): number {

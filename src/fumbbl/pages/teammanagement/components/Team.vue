@@ -33,7 +33,7 @@
                                 <li><a :href="`https://fumbbl.com/p/yearbook?team_id=${team.getId()}`">Yearbook</a></li>
                             </ul>
                         </li>
-                        <li v-if="team.getDivision() === 'League'" class="menu">
+                        <li v-if="team.isLeagueDivision()" class="menu">
                             <a :href="`https://fumbbl.com/p/teamoptions?id=${team.getId()}`">Team options</a>
                         </li>
                         <li class="menu" @mouseenter="menuShow('misc')" @mouseleave="menuHide('misc')">
@@ -195,7 +195,7 @@
                     Current Team Value:
                 </div>
                 <div class="info left">
-                    {{ teamValue/1000 }}k
+                    {{ teamValue/1000 }}k<span v-if="team.getTvLimitDisplay() !== 0"> (±{{ team.getTvLimitDisplay() }})</span>
                 </div>
                 <div class="title right">
                     Assistant Coaches:
@@ -753,9 +753,9 @@ export default class TeamComponent extends Vue {
     }
 
     private get divisionLogoImageUrl(): string {
-        if (this.team.getDivision() === 'Competitive') {
+        if (this.team.isCompetitiveDivision()) {
             return 'https://fumbbl.com/i/677766';
-        } else if (this.team.getDivision() === 'League') {
+        } else if (this.team.isLeagueDivision()) {
             return 'https://fumbbl.com/FUMBBL/Images/Icons/league.png';
         } else {
             return 'https://fumbbl.com/FUMBBL/Images/Race/unknown_196.png';
