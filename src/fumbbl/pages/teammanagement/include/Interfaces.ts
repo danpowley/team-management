@@ -89,7 +89,10 @@ export interface SetupTeamManagementSettings {
             allowed: boolean,
             cost: number,
         },
-    }
+    },
+    seasons: {
+        seasonLength: number,
+    },
 };
 
 export interface AddRemovePermissions {

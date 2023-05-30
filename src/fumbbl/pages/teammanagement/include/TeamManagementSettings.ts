@@ -71,7 +71,10 @@ export default class TeamManagementSettings {
                     allowed: rawApiRoster.apothecary === 'Yes',
                     cost: apothecaryCost,
                 },
-            }
+            },
+            seasons: {
+                seasonLength: rawApiRuleset.options.rulesetOptions.seasonLength,
+            },
         };
 
         // https://fumbbl.com/api/ruleset/get/4
@@ -115,6 +118,10 @@ export default class TeamManagementSettings {
 
     public get nameGenerator() {
         return this.settings.players.nameGenerator;
+    }
+
+    public get seasonLength(): number {
+        return this.settings.seasons.seasonLength;
     }
 
     public get startPlayers() {

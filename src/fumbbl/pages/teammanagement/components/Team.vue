@@ -270,7 +270,7 @@
                     Games this Season:
                 </div>
                 <div class="info left">
-                    todo
+                    {{ team.getGamesPlayedInSeason() }} / {{ teamManagementSettings.seasonLength }} <span v-if="team.getCurrentSeason() > 1"> (Season {{ team.getCurrentSeason() }})</span>
                 </div>
                 <div class="title right">
                     Current Re-draft Budget:

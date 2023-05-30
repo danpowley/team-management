@@ -23,6 +23,7 @@ export default class Team {
     private assistantCoaches: number = 0;
     private cheerleaders: number = 0;
     private apothecary: boolean = false;
+    private seasonInfo: {gamesPlayedInCurrentSeason: number, currentSeason: number} = {gamesPlayedInCurrentSeason: 0, currentSeason: 1};
 
     constructor(division: string, minStartFans: number, treasury: number) {
         this.division = division;
@@ -59,6 +60,8 @@ export default class Team {
         team.assistantCoaches = rawApiTeam.assistantCoaches;
         team.cheerleaders = rawApiTeam.cheerleaders;
         team.apothecary = rawApiTeam.apothecary === 'Yes';
+        team.seasonInfo.gamesPlayedInCurrentSeason = rawApiTeam.seasonInfo.gamesPlayedInCurrentSeason;
+        team.seasonInfo.currentSeason = rawApiTeam.seasonInfo.currentSeason;
 
         for (const rawApiPlayer of rawApiTeam.players) {
             let iconRowVersionPosition = rosterIconManager.getRandomIconRowVersionPosition(rawApiPlayer.positionId);
@@ -219,6 +222,14 @@ export default class Team {
 
     public getApothecary(): boolean {
         return this.apothecary;
+    }
+
+    public getGamesPlayedInSeason(): number {
+        return this.seasonInfo.gamesPlayedInCurrentSeason;
+    }
+
+    public getCurrentSeason(): number {
+        return this.seasonInfo.currentSeason;
     }
 
     public countPlayersOfPositionId(positionId: number): number {
