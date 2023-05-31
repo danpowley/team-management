@@ -95,7 +95,8 @@
                     {{ teamSheetEntry.getPlayer().getRecord().spp }}
                 </div>
                 <div class="cell cost">
-                    {{ teamSheetEntry.getPlayer().getPositionCost()/1000 }}k
+                    <div class="costbasic">{{ teamSheetEntry.getPlayer().getPositionCost()/1000 }}k</div>
+                    <div class="costbreakdown">({{ teamSheetEntry.getPlayer().getPositionCost()/1000 }} + 0)k</div>
                 </div>
                 <div v-if="accessControl.canCreate()" class="cell removenewplayer">
                     <a href="#" @click.prevent="handleRemovePlayer">Remove</a>
