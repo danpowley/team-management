@@ -95,7 +95,7 @@
             <div class="playerrowsouter">
                 <div class="playerrows">
                     <div class="playerrowsheader">
-                        <div class="cell draghandle"></div>
+                        <div v-if="accessControl.canEdit()" class="cell draghandle"></div>
                         <div class="cell playernumber"></div>
                         <div class="cell playericoncontainer"></div>
                         <div class="cell playerdetails"></div>
