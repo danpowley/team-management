@@ -470,7 +470,18 @@
             }
           }
           &.statma, &.statst, &.statag, &.statpa, &.statav {
-            width: 25px;
+            width: 35px;
+            .statincrease, .statdecrease {
+              color: @White;
+              padding: 2px 4px;
+              border-radius: 5px;
+            }
+            .statincrease {
+              background-color: @brightGreen;
+            }
+            .statdecrease {
+              background-color: @cancelRed;
+            }
           }
           &.skills {
             margin-left: 20px;
@@ -483,7 +494,7 @@
             width: 75px;
           }
           &.cost {
-            width: 55px;
+            width: 65px;
             text-align: right;
             .costbasic {
 

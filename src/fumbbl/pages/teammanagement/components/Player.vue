@@ -66,19 +66,35 @@
                     <div class="playerposition" :title="teamSheetEntry.getPlayer().getPositionName()">{{ teamSheetEntry.getPlayer().getPositionName() }}</div>
                 </div>
                 <div class="cell statma">
-                    {{ teamSheetEntry.getPlayer().getPositionStats().Movement }}
+                    <span :class="{
+                        statincrease: teamSheetEntry.getPlayer().hasMovementIncrease,
+                        statdecrease: teamSheetEntry.getPlayer().hasMovementDecrease,
+                        }">{{ teamSheetEntry.getPlayer().movementStat }}</span>
                 </div>
                 <div class="cell statst">
-                    {{ teamSheetEntry.getPlayer().getPositionStats().Strength }}
+                    <span :class="{
+                        statincrease: teamSheetEntry.getPlayer().hasStrengthIncrease,
+                        statdecrease: teamSheetEntry.getPlayer().hasStrengthDecrease,
+                        }">{{ teamSheetEntry.getPlayer().strengthStat }}</span>
                 </div>
                 <div class="cell statag">
-                    {{ teamSheetEntry.getPlayer().getPositionStats().Agility }}+
+                    <span :class="{
+                        statincrease: teamSheetEntry.getPlayer().hasAgilityIncrease,
+                        statdecrease: teamSheetEntry.getPlayer().hasAgilityDecrease,
+                        }">{{ teamSheetEntry.getPlayer().agilityStat }}+</span>
                 </div>
                 <div  class="cell statpa">
-                    {{ teamSheetEntry.getPlayer().getPositionStats().Passing ? `${teamSheetEntry.getPlayer().getPositionStats().Passing}+` : '-' }}
+                    <span v-if="teamSheetEntry.getPlayer().getPositionStats().Passing" :class="{
+                        statincrease: teamSheetEntry.getPlayer().hasPassingIncrease,
+                        statdecrease: teamSheetEntry.getPlayer().hasPassingDecrease,
+                        }">{{ teamSheetEntry.getPlayer().passingStat }}+</span>
+                    <span v-else>-</span>
                 </div>
                 <div class="cell statav">
-                    {{ teamSheetEntry.getPlayer().getPositionStats().Armour }}+
+                    <span :class="{
+                        statincrease: teamSheetEntry.getPlayer().hasArmourIncrease,
+                        statdecrease: teamSheetEntry.getPlayer().hasArmourDecrease,
+                        }">{{ teamSheetEntry.getPlayer().armourStat }}+</span>
                 </div>
                 <div class="cell skills">
                     <div class="positionskills" :title="teamSheetEntry.getPlayer().getPositionSkills().join(', ')">

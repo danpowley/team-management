@@ -128,6 +128,91 @@ export default class Player {
         return this.skills;
     }
 
+    private calculateStat(positionStat: number, statTwoLetterIdentifier: string): number {
+        let finalStat = positionStat;
+        const skillIncreaseIdentifier = '+' + statTwoLetterIdentifier.toUpperCase();
+        const statIncreases = (this.getSkills().filter(skill => skill === skillIncreaseIdentifier)).length;
+        if (['+MA', '+ST', '+AV'].includes(skillIncreaseIdentifier)) {
+            finalStat += statIncreases;
+        } else {
+            finalStat -= statIncreases;
+        }
+
+        const injuryDecreaseIdentifier = '-' + statTwoLetterIdentifier;
+        const injuryDecreases = (this.getInjuries().filter(injury => injury === injuryDecreaseIdentifier)).length;
+        if (['-ma', '-st', '-av'].includes(injuryDecreaseIdentifier)) {
+            finalStat -= injuryDecreases;
+        } else {
+            finalStat += injuryDecreases;
+        }
+
+        return finalStat;
+    }
+
+    public get movementStat(): number {
+        return this.calculateStat(this.getPositionStats().Movement, 'ma');
+    }
+
+    public get hasMovementIncrease(): boolean {
+        return this.movementStat > this.getPositionStats().Movement;
+    }
+
+    public get hasMovementDecrease(): boolean {
+        return this.movementStat < this.getPositionStats().Movement;
+    }
+
+    public get strengthStat(): number {
+        return this.calculateStat(this.getPositionStats().Strength, 'st');
+    }
+
+    public get hasStrengthIncrease(): boolean {
+        return this.strengthStat > this.getPositionStats().Strength;
+    }
+
+    public get hasStrengthDecrease(): boolean {
+        return this.strengthStat < this.getPositionStats().Strength;
+    }
+
+    public get agilityStat(): number {
+        return this.calculateStat(this.getPositionStats().Agility, 'ag');
+    }
+
+    public get hasAgilityIncrease(): boolean {
+        return this.agilityStat < this.getPositionStats().Agility;
+    }
+
+    public get hasAgilityDecrease(): boolean {
+        return this.agilityStat > this.getPositionStats().Agility;
+    }
+
+    public get passingStat(): number | null {
+        const passingStat = this.getPositionStats().Passing;
+        if (! passingStat) {
+            return null;
+        }
+        return this.calculateStat(passingStat, 'pa');
+    }
+
+    public get hasPassingIncrease(): boolean {
+        return this.passingStat && this.passingStat < this.getPositionStats().Passing;
+    }
+
+    public get hasPassingDecrease(): boolean {
+        return this.passingStat && this.passingStat > this.getPositionStats().Passing;
+    }
+
+    public get armourStat(): number {
+        return this.calculateStat(this.getPositionStats().Armour, 'av');
+    }
+
+    public get hasArmourIncrease(): boolean {
+        return this.armourStat > this.getPositionStats().Armour;
+    }
+
+    public get hasArmourDecrease(): boolean {
+        return this.armourStat < this.getPositionStats().Armour;
+    }
+
     public getRecord(): any {
         return this.record;
     }
