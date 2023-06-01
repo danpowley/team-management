@@ -471,16 +471,16 @@
           }
           &.statma, &.statst, &.statag, &.statpa, &.statav {
             width: 35px;
-            .statincrease, .statdecrease {
-              color: @White;
+            .statany {
               padding: 2px 4px;
               border-radius: 5px;
+              border: solid @OldLace 2px;
             }
             .statincrease {
-              background-color: @brightGreen;
+              border: solid @brightGreen 2px;
             }
             .statdecrease {
-              background-color: @cancelRed;
+              border: solid @cancelRed 2px;
             }
           }
           &.skills {
@@ -516,6 +516,10 @@
         color: @White;
         border-top-left-radius: 5px;
         border-top-right-radius: 5px;
+
+        .statma, .statst, .statag, .statpa, .statav {
+          padding-left: 8px;
+        }
       }
       .playerrow {
         background-color: @OldLace;
