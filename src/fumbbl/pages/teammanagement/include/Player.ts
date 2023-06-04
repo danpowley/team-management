@@ -55,6 +55,14 @@ export default class Player {
         );
         player.injuries = rawApiPlayer.injuries.split(',');
         player.skills = rawApiPlayer.skills;
+
+        player.record.completions = rawApiPlayer.record.completions;
+        player.record.touchdowns = rawApiPlayer.record.touchdowns;
+        player.record.interceptions = rawApiPlayer.record.interceptions;
+        player.record.casualties = rawApiPlayer.record.casualties;
+        player.record.mvps = rawApiPlayer.record.mvps;
+        player.record.spp = rawApiPlayer.record.spp;
+
         return player;
     }
 
