@@ -107,8 +107,9 @@
                 <div v-if="! accessControl.canCreate()" class="cell injuries">
                     {{ displayInjuries(teamSheetEntry.getPlayer().getInjuries()) }}
                 </div>
-                <div v-if="! accessControl.canCreate()" class="cell spp">
-                    {{ teamSheetEntry.getPlayer().getRecord().spp }}
+                <div v-if="! accessControl.canCreate()" class="cell spp" :title="sppSummaryText">
+                    <span class="spendable">{{ sppDisplayInfo.spendable }}/</span><span class="maxlimit">{{ sppDisplayInfo.maxLimit }}</span>
+                    <div class="tierinfo"><template v-for="n in sppDisplayInfo.tier">•</template></div>
                 </div>
                 <div class="cell cost">
                     <div class="costbasic">{{ teamSheetEntry.getPlayer().getPositionCost()/1000 }}k</div>
@@ -349,6 +350,31 @@ export default class PlayerComponent extends Vue {
         }
 
         return displayInjuries.sort().join(', ');
+    }
+
+    private get sppDisplayInfo(): any {
+        return this.$props.teamSheetEntry.getPlayer().sppDisplayInfo;
+    }
+
+    private get sppSummaryText(): string {
+        const spendable = this.sppDisplayInfo.spendable;
+
+        const randomPrimaryThreshold = this.sppDisplayInfo.thresholds.randomPrimary;
+        const randomPrimaryRequired = randomPrimaryThreshold <= spendable ? 0 : randomPrimaryThreshold - spendable;
+
+        const randomSecondaryOrChosenPrimaryThreshold = this.sppDisplayInfo.thresholds.randomSecondaryOrChosenPrimary;
+        const randomSecondaryOrChosenPrimaryRequired = randomSecondaryOrChosenPrimaryThreshold <= spendable ? 0 : randomSecondaryOrChosenPrimaryThreshold - spendable;
+
+        const chosenSecondaryThreshold = this.sppDisplayInfo.thresholds.chosenSecondary;
+        const chosenSecondaryRequired = chosenSecondaryThreshold <= spendable ? 0 : chosenSecondaryThreshold - spendable;
+
+        const characteristicThreshold = this.sppDisplayInfo.thresholds.characteristic;
+        const characteristicRequired = characteristicThreshold <= spendable ? 0 : characteristicThreshold - spendable;
+
+        return `${randomPrimaryRequired} until random primary (${spendable}/${randomPrimaryThreshold})\n` +
+            `${randomSecondaryOrChosenPrimaryRequired} until random secondary or chosen primary (${spendable}/${randomSecondaryOrChosenPrimaryThreshold})\n` +
+            `${chosenSecondaryRequired} until chosen secondary (${spendable}/${chosenSecondaryThreshold})\n` +
+            `${characteristicRequired} until characteristic (${spendable}/${characteristicThreshold})`;
     }
 }
 </script>

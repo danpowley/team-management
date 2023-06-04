@@ -1,4 +1,4 @@
-import { PlayerGender, Position } from "./Interfaces";
+import {PlayerGender, PlayerSkillStatus, Position} from "./Interfaces";
 import UpdatePlayerDetails from "./UpdatePlayerDetails";
 
 export default class Player {
@@ -14,7 +14,8 @@ export default class Player {
     private position: Position;
     private injuries: string[] = []; // Type?
     private skills: string[] = [];
-    private record: any = null;
+    private record: {completions: number, touchdowns: number, interceptions: number, casualties: number, mvps: number, spp: {total: number, extra: number, spent: number}} = null;
+    private skillStatus: {status: PlayerSkillStatus, maxLimit: number, tier: number} = null;
 
     constructor(
         id: number,
@@ -40,7 +41,13 @@ export default class Player {
             interceptions: 0,
             casualties: 0,
             mvps: 0,
-            spp: 0,
+            spp: {total: 0, extra: 0, spent: 0},
+        };
+
+        this.skillStatus = {
+            status: 'NONE',
+            maxLimit: 0,
+            tier: 0,
         };
     }
 
@@ -61,7 +68,18 @@ export default class Player {
         player.record.interceptions = rawApiPlayer.record.interceptions;
         player.record.casualties = rawApiPlayer.record.casualties;
         player.record.mvps = rawApiPlayer.record.mvps;
-        player.record.spp = rawApiPlayer.record.spp;
+        player.record.spp = {
+            total: rawApiPlayer.record.spp,
+            extra: rawApiPlayer.record.extra_spp,
+            spent: rawApiPlayer.record.spent_spp,
+        };
+
+        const skillStatusLookup = {'none': 'NONE', 'canSkill': 'CAN_SKILL', 'mustSkill': 'MUST_SKILL'};
+        player.skillStatus = {
+            status: rawApiPlayer.skillStatus.status,
+            maxLimit: rawApiPlayer.skillStatus.maxLimit,
+            tier: rawApiPlayer.skillStatus.tier,
+        };
 
         return player;
     }
@@ -223,6 +241,27 @@ export default class Player {
 
     public getRecord(): any {
         return this.record;
+    }
+
+    public get sppDisplayInfo(): {spendable: number, maxLimit: number, status: PlayerSkillStatus, tier: number, thresholds: {randomPrimary: number, randomSecondaryOrChosenPrimary: number, chosenSecondary: number, characteristic: number}} {
+        const numberOfSkills = this.getSkills().length;
+        const randomPrimaryThresholds = {0: 3, 1: 4, 2: 6, 3: 8, 4: 10, 5: 15};
+        const randomSecondaryOrChosenPrimaryThresholds = {0: 6, 1: 8, 2: 12, 3: 16, 4: 20, 5: 30};
+        const chosenSecondaryThresholds = {0: 12, 1: 14, 2: 18, 3: 22, 4: 26, 5: 40};
+        const characteristicThresholds = {0: 18, 1: 20, 2: 24, 3: 28, 4: 32, 5: 50};
+
+        return {
+            spendable: this.record.spp.total + this.record.spp.extra - this.record.spp.spent,
+            maxLimit: this.skillStatus.maxLimit,
+            status: this.skillStatus.status,
+            tier: this.skillStatus.tier,
+            thresholds: {
+                randomPrimary: randomPrimaryThresholds[numberOfSkills] ?? 0,
+                randomSecondaryOrChosenPrimary: randomSecondaryOrChosenPrimaryThresholds[numberOfSkills] ?? 0,
+                chosenSecondary: chosenSecondaryThresholds[numberOfSkills] ?? 0,
+                characteristic: characteristicThresholds[numberOfSkills] ?? 0,
+            }
+        }
     }
 
     public isMissNextGame(): boolean {
