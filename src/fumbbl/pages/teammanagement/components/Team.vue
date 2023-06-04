@@ -670,9 +670,15 @@ export default class TeamComponent extends Vue {
             const rawApiRoster = apiResponseRoster.getData();
 
             this.rawApiSpecialRules.fromRoster = rawApiRoster.specialRules;
+            let hasLowCostLinemen = false;
+            for (const specialRule of this.rawApiSpecialRules.fromRoster) {
+                if (specialRule.name === 'Low Cost Linemen') {
+                    hasLowCostLinemen = true;
+                }
+            }
 
             await this.setupRosterIconManager(rawApiRoster.positions);
-            this.teamManagementSettings = new TeamManagementSettings(rawApiRuleset, rawApiRoster);
+            this.teamManagementSettings = new TeamManagementSettings(rawApiRuleset, rawApiRoster, hasLowCostLinemen);
         } else {
             let currentAction = '';
             let errorMessage = '';

@@ -65,6 +65,7 @@ export interface SetupTeamManagementSettings {
         start: number,
         max: number,
         maxBigGuys: number,
+        lowCostLinemen: boolean,
         nameGenerator: string,
         positions: Position[],
     },

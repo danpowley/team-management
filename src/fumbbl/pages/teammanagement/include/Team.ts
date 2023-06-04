@@ -7,6 +7,7 @@ import TeamStatus from "./TeamStatus";
 export default class Team {
     private readonly COMPETITIVE_DIVISION_NAME: string = 'Competitive';
     private readonly LEAGUE_DIVISION_NAME: string = 'League';
+    private readonly QUANTITY_ALLOWED_DENOTING_LINEMEN: number = 12;
     private id: number = 0;
     private teamStatus: TeamStatus = new TeamStatus();
     private name: string = '';
@@ -239,6 +240,12 @@ export default class Team {
     public getMissNextGamePlayers(): Player[] {
         return this.players.filter((player) => {
             return player.isMissNextGame();
+        });
+    }
+
+    public getLinemenPlayers(): Player[] {
+        return this.players.filter((player) => {
+            return player.getPosition().quantityAllowed >= this.QUANTITY_ALLOWED_DENOTING_LINEMEN;
         });
     }
 

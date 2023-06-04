@@ -1,11 +1,10 @@
 import { AddRemovePermissions, Position, PositionDataForBuyingPlayer, PositionStats, SetupTeamManagementSettings } from "./Interfaces";
 import Team from "./Team";
-import Player from "./Player";
 
 export default class TeamManagementSettings {
     private settings: SetupTeamManagementSettings;
 
-    constructor(rawApiRuleset: any, rawApiRoster: any) {
+    constructor(rawApiRuleset: any, rawApiRoster: any, hasLowCostLinemen: boolean) {
         const dedicatedFansCost = 10000;
         const assistantCoachesCost = 10000;
         const cheerleadersCost = 10000;
@@ -29,6 +28,7 @@ export default class TeamManagementSettings {
                 start: rawApiRuleset.options.teamSettings.startPlayers,
                 max: rawApiRuleset.options.teamSettings.maxPlayers,
                 maxBigGuys: ~~rawApiRoster.maxBigGuys,
+                lowCostLinemen: hasLowCostLinemen,
                 nameGenerator: rawApiRoster.nameGenerator,
                 positions: rawApiRoster.positions.map((position: any) => {
                     return {
@@ -204,8 +204,15 @@ export default class TeamManagementSettings {
     }
 
     public calculateCurrentTeamValue(team: Team): number {
-        const mngCost = team.getMissNextGamePlayers().reduce((cost, player) => cost + player.getPositionCost(), 0);
-        return this.calculateTeamValue(team) - mngCost;
+        // TODO: this should be using the full cost of the player, not just the position cost (we don't have it yet)
+        const mngCost = team.getMissNextGamePlayers()
+            .reduce((cost, player) => cost + player.getPositionCost(), 0);
+
+        const lowCostLinemenHiringCost = team.getLinemenPlayers()
+            .filter(player => ! player.isMissNextGame())
+            .reduce((cost, player) => cost + player.getPositionCost(), 0);
+
+        return this.calculateTeamValue(team) - mngCost - lowCostLinemenHiringCost;
     }
 
     public calculateCreateTeamCost(team: Team): number {
