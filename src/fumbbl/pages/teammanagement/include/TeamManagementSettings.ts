@@ -1,5 +1,6 @@
 import { AddRemovePermissions, Position, PositionDataForBuyingPlayer, PositionStats, SetupTeamManagementSettings } from "./Interfaces";
 import Team from "./Team";
+import Player from "./Player";
 
 export default class TeamManagementSettings {
     private settings: SetupTeamManagementSettings;
@@ -200,6 +201,11 @@ export default class TeamManagementSettings {
             (team.getAssistantCoaches() * this.settings.sidelineStaff.assistantCoaches.cost) +
             (team.getCheerleaders() * this.settings.sidelineStaff.cheerleaders.cost) +
             (team.getApothecary() && this.settings.sidelineStaff.apothecary ? this.settings.sidelineStaff.apothecary.cost : 0);
+    }
+
+    public calculateCurrentTeamValue(team: Team): number {
+        const mngCost = team.getMissNextGamePlayers().reduce((cost, player) => cost + player.getPositionCost(), 0);
+        return this.calculateTeamValue(team) - mngCost;
     }
 
     public calculateCreateTeamCost(team: Team): number {

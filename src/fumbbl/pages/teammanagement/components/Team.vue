@@ -195,7 +195,7 @@
                     Current Team Value:
                 </div>
                 <div class="info left">
-                    {{ teamValue/1000 }}k<span v-if="team.getTvLimitDisplay() !== 0"> (±{{ team.getTvLimitDisplay() }})</span>
+                    {{ currentTeamValue/1000 }}k<span v-if="team.getTvLimitDisplay() !== 0"> (±{{ team.getTvLimitDisplay() }})</span>
                 </div>
                 <div class="title right">
                     Assistant Coaches:
@@ -702,6 +702,10 @@ export default class TeamComponent extends Vue {
 
     private get teamValue(): number {
         return this.teamManagementSettings.calculateTeamValue(this.team);
+    }
+
+    private get currentTeamValue(): number {
+        return this.teamManagementSettings.calculateCurrentTeamValue(this.team);
     }
 
     private get teamCreationCost(): number {
