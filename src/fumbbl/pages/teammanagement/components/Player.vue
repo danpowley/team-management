@@ -17,7 +17,7 @@
         <template v-else>
             <div class="seperator spacer"><div class="line"></div></div>
         </template>
-        <div class="main">
+        <div class="main" :class="{missnextgame: teamSheetEntry.hasPlayer() && teamSheetEntry.getPlayer().isMissNextGame()}">
             <template v-if="accessControl.canEdit()">
                 <template v-if="teamSheetEntry.hasPlayer()">
                     <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable()" @mouseup="endPlayerDraggable()">
