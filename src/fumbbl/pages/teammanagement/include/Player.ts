@@ -16,6 +16,7 @@ export default class Player {
     private skills: string[] = [];
     private record: {completions: number, touchdowns: number, interceptions: number, casualties: number, mvps: number, spp: {total: number, extra: number, spent: number}} = null;
     private skillStatus: {status: PlayerSkillStatus, maxLimit: number, tier: number} = null;
+    private skillCost: number = 0;
 
     constructor(
         id: number,
@@ -140,6 +141,14 @@ export default class Player {
 
     public getPositionSkills(): string[] {
         return this.position.skills;
+    }
+
+    public getSkillCost(): number {
+        return this.skillCost;
+    }
+
+    public getPlayerCost(): number {
+        return this.getPositionCost() + this.getSkillCost();
     }
 
     public getIconRowVersionPosition(): number {

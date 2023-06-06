@@ -112,8 +112,8 @@
                     <div class="tierinfo"><template v-for="n in sppDisplayInfo.tier">•</template></div>
                 </div>
                 <div class="cell cost">
-                    <div class="costbasic">{{ teamSheetEntry.getPlayer().getPositionCost()/1000 }}k</div>
-                    <div class="costbreakdown">({{ teamSheetEntry.getPlayer().getPositionCost()/1000 }} + 0)k</div>
+                    <div class="costbasic">{{ teamSheetEntry.getPlayer().getPlayerCost()/1000 }}k</div>
+                    <div class="costbreakdown">({{ teamSheetEntry.getPlayer().getPositionCost()/1000 }}+{{ teamSheetEntry.getPlayer().getSkillCost()/1000 }})k</div>
                 </div>
                 <div v-if="accessControl.canCreate()" class="cell removenewplayer">
                     <a href="#" @click.prevent="handleRemovePlayer">Remove</a>

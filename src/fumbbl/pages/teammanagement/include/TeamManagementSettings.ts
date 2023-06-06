@@ -190,11 +190,7 @@ export default class TeamManagementSettings {
     }
 
     public calculateTeamValue(team: Team): number {
-        const positionCostsLookup = this.getPositionCostsLookup();
-        let playerCost = 0;
-        for (const player of team.getPlayers()) {
-            playerCost += positionCostsLookup[player.getPositionId()];
-        }
+        let playerCost = team.getPlayers().reduce((playerCost, player) => playerCost += player.getPlayerCost(), 0);
 
         return playerCost +
             (team.getRerolls() * this.settings.rerolls.cost) +
@@ -204,28 +200,22 @@ export default class TeamManagementSettings {
     }
 
     public calculateCurrentTeamValue(team: Team): number {
-        // TODO: this should be using the full cost of the player, not just the position cost (we don't have it yet)
         const mngCost = team.getMissNextGamePlayers()
-            .reduce((cost, player) => cost + player.getPositionCost(), 0);
+            .reduce((cost, player) => cost + player.getPlayerCost(), 0);
 
-        const lowCostLinemenHiringCost = team.getLinemenPlayers()
-            .filter(player => ! player.isMissNextGame())
-            .reduce((cost, player) => cost + player.getPositionCost(), 0);
+        let lowCostLinemenRefund = 0;
+        if (this.settings.players.lowCostLinemen) {
+            lowCostLinemenRefund = team.getLinemenPlayers()
+                .filter(player => ! player.isMissNextGame())
+                .reduce((cost, player) => cost + player.getPositionCost(), 0);
+        }
 
-        return this.calculateTeamValue(team) - mngCost - lowCostLinemenHiringCost;
+        return this.calculateTeamValue(team) - mngCost - lowCostLinemenRefund;
     }
 
     public calculateCreateTeamCost(team: Team): number {
         const dedicatedFansCreateCost = (team.getDedicatedFans() - this.settings.dedicatedFans.minStart) * this.settings.dedicatedFans.cost;
         return this.calculateTeamValue(team) + dedicatedFansCreateCost;
-    }
-
-    private getPositionCostsLookup(): any {
-        const positionCostsLookup = {};
-        for (const position of this.settings.players.positions) {
-            positionCostsLookup[position.id] = position.cost;
-        }
-        return positionCostsLookup;
     }
 
     public getAddRemovePermissions(team: Team): AddRemovePermissions {
