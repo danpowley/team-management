@@ -64,6 +64,8 @@ export default class Player {
         player.injuries = rawApiPlayer.injuries.split(',');
         player.skills = rawApiPlayer.skills;
 
+        player.skillCost = rawApiPlayer.skillCosts.reduce((totalCost, skillCost) => totalCost += skillCost, 0);
+
         player.record.completions = rawApiPlayer.record.completions;
         player.record.touchdowns = rawApiPlayer.record.touchdowns;
         player.record.interceptions = rawApiPlayer.record.interceptions;
