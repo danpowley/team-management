@@ -104,7 +104,7 @@
                         {{ teamSheetEntry.getPlayer().getSkills().join(', ') }}
                     </div>
                 </div>
-                <div v-if="! accessControl.canCreate()" class="cell injuries">
+                <div v-if="! accessControl.canCreate()" class="cell injuries" :title="'Injuries in chronological order: ' + teamSheetEntry.getPlayer().getInjuries().join(',')">
                     {{ displayInjuries(teamSheetEntry.getPlayer().getInjuries()) }}
                 </div>
                 <div v-if="! accessControl.canCreate()" class="cell spp" :title="sppSummaryText">
