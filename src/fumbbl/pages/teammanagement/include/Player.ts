@@ -59,7 +59,7 @@ export default class Player {
             rawApiPlayer.name,
             position,
             iconRowVersionPosition,
-            rawApiPlayer.gender.toUpperCase(),
+            rawApiPlayer.gender ? rawApiPlayer.gender.toUpperCase() : 'NEUTRAL', // it is possible for null genders to come through in the API
         );
         player.injuries = rawApiPlayer.injuries.split(',');
         player.skills = rawApiPlayer.skills;
