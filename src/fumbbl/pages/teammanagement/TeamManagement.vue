@@ -108,7 +108,11 @@ export default class TeamManagement extends Vue {
         // this.handleDemoTeamChosen(1121101); // NEW NURGLE
         // this.handleDemoTeamChosen(1121106); // NEW TOMB KINGS
         // this.handleDemoTeamChosen(1121509); // NEW CHAOS CHOSEN
-
+        // this.handleDemoTeamChosen(1078726); // STAT UP TEAM
+        // this.handleDemoTeamChosen(1065138); // MOVEMENT STAT UP TEAM
+        // this.handleDemoTeamChosen(1108080); // WARPSTONE MUTATION TEAM
+        // this.handleDemoTeamChosen(1041409); // LOW COST LINE MEN TEAM
+        // this.handleDemoTeamChosen(1089112); // Necro
     }
 
     private handleCreateEmptyDemoTeam(division: string, rulesetId: number, rosterId: number) {
