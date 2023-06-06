@@ -79,7 +79,7 @@ export default class Player {
 
         const skillStatusLookup = {'none': 'NONE', 'canSkill': 'CAN_SKILL', 'mustSkill': 'MUST_SKILL'};
         player.skillStatus = {
-            status: rawApiPlayer.skillStatus.status,
+            status: skillStatusLookup[rawApiPlayer.skillStatus.status],
             maxLimit: rawApiPlayer.skillStatus.maxLimit,
             tier: rawApiPlayer.skillStatus.tier,
         };
