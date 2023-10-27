@@ -24,7 +24,7 @@
             <template v-slot:body>
                 <p>Unable to edit team name, please see the issues below.</p>
                 <ul>
-                    <li v-for="error in validationErrors">
+                    <li v-for="error in validationErrors" :key="error">
                         {{ error }}
                     </li>
                 </ul>
@@ -38,7 +38,7 @@ import Vue from "vue";
 import Component from 'vue-class-component';
 import modal from "./Modal.vue";
 
-@Component({
+const EditTeamNameComponentProps = Vue.extend({
     components: {
         modal
     },
@@ -56,11 +56,13 @@ import modal from "./Modal.vue";
             required: true,
         },
     },
-})
-export default class EditTeamNameComponent extends Vue {
-    private newTeamName: string = '';
-    private editTeamName: boolean = false;
-    private validationErrors: string[] = [];
+});
+
+@Component
+export default class EditTeamNameComponent extends EditTeamNameComponentProps {
+    public newTeamName: string = '';
+    public editTeamName: boolean = false;
+    public validationErrors: string[] = [];
 
     private async refreshValidationErrors() {
         const errors = [];
@@ -99,21 +101,21 @@ export default class EditTeamNameComponent extends Vue {
         this.validationErrors = errors;
     }
 
-    private begin(): void {
+    public begin(): void {
         this.validationErrors = [];
         this.editTeamName = true;
         this.newTeamName = this.$props.teamName;
         this.$emit('begin');
     }
 
-    private cancel(): void {
+    public cancel(): void {
         this.validationErrors = [];
         this.newTeamName = '';
         this.editTeamName = false;
         this.$emit('cancel');
     }
 
-    private async save() {
+    public async save() {
         this.validationErrors = [];
         await this.refreshValidationErrors();
         if (this.validationErrors.length === 0) {
