@@ -24,7 +24,7 @@
 
                 <section class="modalbuttons" v-if="buttonsConfig">
                     <div>
-                        <button v-for="(label, eventName) in buttonsConfig" class="teambutton" @click="$emit(eventName)">{{ label }}</button>
+                        <button v-for="eventName in buttonEvents" :key="eventName" class="teambutton" @click="$emit(eventName)">{{ getButtonLabel(eventName) }}</button>
                     </div>
                 </section>
             </div>
@@ -36,7 +36,7 @@
 import Vue from "vue";
 import Component from 'vue-class-component';
 
-@Component({
+const ModalComponentProps = Vue.extend({
     props: {
         excludeCloseTopRight: {
             type: Boolean,
@@ -53,18 +53,28 @@ import Component from 'vue-class-component';
             default: 'medium',
         }
     },
-})
-export default class ModalComponent extends Vue {
-    private close() {
+});
+
+@Component
+export default class ModalComponent extends ModalComponentProps {
+    public close() {
         this.$emit('close');
     }
 
-    private getModalClasses(): any {
+    public getModalClasses(): any {
         return {
-            modalsmall: this.$props.modalSize === 'small',
-            modalmedium: this.$props.modalSize === 'medium',
-            modallarge: this.$props.modalSize === 'large',
+            modalsmall: this.modalSize === 'small',
+            modalmedium: this.modalSize === 'medium',
+            modallarge: this.modalSize === 'large',
         }
+    }
+
+    public get buttonEvents(): string[] {
+        return Object.keys(this.buttonsConfig);
+    }
+
+    public getButtonLabel(eventName: string): string {
+        return this.buttonsConfig[eventName];
     }
 }
 </script>
