@@ -1,3 +1,12 @@
+export interface DemoTeamSettings {
+    existingTeamId: number | null,
+    newTeam: {
+        division: string,
+        rulesetId: number,
+        rosterId: number,
+    } | null,
+};
+
 export type UserRole = 'OWNER' | 'LEAGUE_STAFF' | 'SITE_STAFF';
 
 export type TeamStatusValue = 'NEW' | 'ACTIVE' | 'PENDING_APPROVAL' | 'BLOCKED' | 'RETIRED' | 'WAITING_FOR_OPPONENT' | 'SKILL_ROLLS_PENDING' | 'POST_MATCH_SEQUENCE' | 'REDRAFTING';

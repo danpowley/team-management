@@ -20,7 +20,7 @@ export default class Team {
     private treasury: number = 0;
     private rerolls: number = 0;
     private minStartDedicatedFans: number = 0;
-    private dedicatedFans: number = 0;
+    public dedicatedFans: number = 0; // Needs to be public, bound to v-model
     private assistantCoaches: number = 0;
     private cheerleaders: number = 0;
     private apothecary: boolean = false;

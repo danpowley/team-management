@@ -54,6 +54,7 @@ import DemoSetupComponent from "./components/DemoSetup.vue";
 import FumbblApi from "./include/FumbblApi";
 import FumbblApiDev from "./include/FumbblApiDev";
 import modal from "./components/Modal.vue";
+import { DemoTeamSettings } from "./include/Interfaces";
 
 @Component({
     components: {
@@ -69,7 +70,7 @@ export default class TeamManagement extends Vue {
     public overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' | 'ERROR' | 'DELETED' = 'DEMO_SETUP';
     public unexpectedErrorMessage: {currentAction: string, errorMessage: string} = null;
 
-    public demoTeamSettings: {existingTeamId: number | null, newTeam: {division: string, rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
+    public demoTeamSettings: DemoTeamSettings = {existingTeamId: null, newTeam: null};
 
     mounted() {
         // TODO: hardcoded coach name

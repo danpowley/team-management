@@ -5,7 +5,7 @@
             <div class="teamheadermain">
                 <div class="teamheadermaincontent">
                     <editteamname
-                        :fumbbl-api="getFumbblApi()"
+                        :fumbbl-api="fumbblApi"
                         :team-name="team.getName()"
                         :can-edit="accessControl.canCreate()"
                         @edit="handleEditTeamName"
@@ -13,10 +13,10 @@
                         @cancel="handleCancelEditTeamName"
                     ></editteamname>
                     <div class="rosterinfo" style="margin-top: 0.5em;">
-                        <img v-if="team.teamStatus.isNew()" src="https://fumbbl.com/FUMBBL/Images/New_small.gif" alt="Roster" title="New team">
-                        <img v-else-if="team.teamStatus.isActive()" src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Ready / View Roster">
-                        <img v-else-if="team.teamStatus.isPostMatch()" src="https://fumbbl.com/FUMBBL/Images/p_small.png" alt="Roster" title="Post match sequence">
-                        <img v-else-if="team.teamStatus.isRetired()" src="https://fumbbl.com/FUMBBL/Images/Retired_small.gif" alt="Roster" title="Retired">
+                        <img v-if="team.getTeamStatus().isNew()" src="https://fumbbl.com/FUMBBL/Images/New_small.gif" alt="Roster" title="New team">
+                        <img v-else-if="team.getTeamStatus().isActive()" src="https://fumbbl.com/FUMBBL/Images/Roster_small.gif" alt="Roster" title="Ready / View Roster">
+                        <img v-else-if="team.getTeamStatus().isPostMatch()" src="https://fumbbl.com/FUMBBL/Images/p_small.png" alt="Roster" title="Post match sequence">
+                        <img v-else-if="team.getTeamStatus().isRetired()" src="https://fumbbl.com/FUMBBL/Images/Retired_small.gif" alt="Roster" title="Retired">
                         <span :title="team.getDivision()"> [{{ team.getDivisionAbbreviated() }}]</span> {{ teamManagementSettings.rosterName }}
                     </div>
                     <ul class="teamnav">
@@ -112,7 +112,7 @@
                     </div>
                     <template v-if="teamSheet !== null">
                         <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
-                            :fumbbl-api="getFumbblApi()"
+                            :fumbbl-api="fumbblApi"
                             :team-sheet-entry="teamSheetEntry"
                             :access-control="accessControl"
                             :all-fold-outs-closed="teamSheet.allFoldOutsClosed()"
@@ -134,7 +134,7 @@
                 <div class="playerrowsfooter">
                     <div class="playercount">{{ team.countPlayersAvailableNextGame() }} players (+{{ team.countMissNextGamePlayers() }} players missing next game) <a href="#" v-if="accessControl.canEdit()" @click.prevent="enableShowHireRookies()">Buy new player</a></div>
                     <specialrules
-                        :fumbbl-api="getFumbblApi()"
+                        :fumbbl-api="fumbblApi"
                         :team-id="team.getId()"
                         :can-edit="accessControl.canCreate()"
                         :raw-api-special-rules="rawApiSpecialRules"
@@ -182,7 +182,7 @@
                 <div class="info right">
                     <template v-if="accessControl.canCreate()">
                         <select v-model.number="team.dedicatedFans" @change="updateDedicatedFans()">
-                            <option v-for="dedicatedFansStartValue in this.teamManagementSettings.getDedicatedFansAllowedValues(this.team.getDedicatedFans(), this.team.getTreasury())">{{ dedicatedFansStartValue }}</option>
+                            <option v-for="dedicatedFansStartValue in teamManagementSettings.getDedicatedFansAllowedValues(team.getDedicatedFans(), team.getTreasury())" :key="dedicatedFansStartValue">{{ dedicatedFansStartValue }}</option>
                         </select>
                     </template>
                     <template v-else>
@@ -462,10 +462,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import Component from 'vue-class-component';
 import {
     AddRemovePermissions,
+    DemoTeamSettings,
     PlayerGender,
     PlayerRowFoldOutMode,
     PositionDataForBuyingPlayer,
@@ -485,7 +486,7 @@ import AddRemoveComponent from "./AddRemove.vue";
 import ModalComponent from "./Modal.vue";
 import FumbblApi from "../include/FumbblApi";
 
-@Component({
+const TeamComponentProps = Vue.extend({
     components: {
         'editteamname': EditTeamNameComponent,
         'player': PlayerComponent,
@@ -496,32 +497,34 @@ import FumbblApi from "../include/FumbblApi";
     },
     props: {
         fumbblApi: {
-            type: Object,
+            type: Object as PropType<FumbblApi>,
             required: true,
         },
         demoTeamSettings: {
-            type: Object,
+            type: Object as PropType<DemoTeamSettings>,
             required: true,
         },
     },
-})
-export default class TeamComponent extends Vue {
+});
+
+@Component
+export default class TeamComponent extends TeamComponentProps {
     private userRoles: UserRole[] = ['OWNER']; // TODO: fix hardcoded values here
-    private accessControl: AccessControl | null = null;
-    private teamManagementSettings: TeamManagementSettings | null = null;
-    private rosterIconManager: RosterIconManager | null = null;
+    public accessControl: AccessControl | null = null;
+    public teamManagementSettings: TeamManagementSettings | null = null;
+    public rosterIconManager: RosterIconManager | null = null;
     public team: Team | null = null;
     public teamSheet: TeamSheet | null = null;
-    private editTeamNameInProgress: boolean = false;
-    private rawApiSpecialRules: {fromRoster: any, fromTeam: any} = {fromRoster: null, fromTeam: null};
-    private mainMenuShow: string = 'none';
+    public editTeamNameInProgress: boolean = false;
+    public rawApiSpecialRules: {fromRoster: any, fromTeam: any} = {fromRoster: null, fromTeam: null};
+    public mainMenuShow: string = 'none';
     private showHireRookies: boolean = false;
-    private errorModalInfo: {general: string, technical: string} = null;
+    public errorModalInfo: {general: string, technical: string} = null;
     private requireReloadTeam: boolean = false;
     private requireReloadTeamIntervalId: number = null;
     private readonly requireReloadTeamIntervalDelay: number = 5000;
 
-    private modals: {
+    public modals: {
         activateTeam: boolean,
         errorsForCreate: boolean,
         deleteTeam: boolean,
@@ -541,26 +544,22 @@ export default class TeamComponent extends Vue {
         removeApothecary: false,
     };
 
-    private getFumbblApi(): FumbblApi {
-        return this.$props.fumbblApi;
-    }
-
-    private menuShow(menu: string) {
+    public menuShow(menu: string) {
         this.mainMenuShow = menu;
     }
 
-    private menuHide(menu: string) {
+    public menuHide(menu: string) {
         this.mainMenuShow = 'none';
     }
 
     async mounted() {
         // this section should be removed soon
-        if (this.$props.demoTeamSettings.newTeam !== null) {
-            const rulesetId = this.$props.demoTeamSettings.newTeam.rulesetId;
-            const rosterId = this.$props.demoTeamSettings.newTeam.rosterId;
+        if (this.demoTeamSettings.newTeam !== null) {
+            const rulesetId = this.demoTeamSettings.newTeam.rulesetId;
+            const rosterId = this.demoTeamSettings.newTeam.rosterId;
             await this.setupForRulesetAndRoster(rulesetId, rosterId);
             this.team = new Team(
-                this.$props.demoTeamSettings.newTeam.division,
+                this.demoTeamSettings.newTeam.division,
                 this.teamManagementSettings.minStartFans,
                 this.teamManagementSettings.startTreasury,
             );
@@ -594,7 +593,7 @@ export default class TeamComponent extends Vue {
     }
 
     private async reloadTeam() {
-        const apiResponse = await this.getFumbblApi().getTeam(this.$props.demoTeamSettings.existingTeamId);
+        const apiResponse = await this.fumbblApi.getTeam(this.demoTeamSettings.existingTeamId);
         if (apiResponse.isSuccessful()) {
             const rawApiTeam = apiResponse.getData();
             this.rawApiSpecialRules.fromTeam = rawApiTeam.specialRules;
@@ -662,8 +661,8 @@ export default class TeamComponent extends Vue {
             return;
         }
 
-        const apiResponseRuleset = await this.getFumbblApi().getRuleset(rulesetId);
-        const apiResponseRoster = await this.getFumbblApi().getRoster(rosterId);
+        const apiResponseRuleset = await this.fumbblApi.getRuleset(rulesetId);
+        const apiResponseRoster = await this.fumbblApi.getRoster(rosterId);
 
         if (apiResponseRuleset.isSuccessful() && apiResponseRoster.isSuccessful()) {
             const rawApiRuleset = apiResponseRuleset.getData();
@@ -706,19 +705,19 @@ export default class TeamComponent extends Vue {
         this.rosterIconManager = rosterIconManager;
     }
 
-    private get teamValue(): number {
+    public get teamValue(): number {
         return this.teamManagementSettings.calculateTeamValue(this.team);
     }
 
-    private get currentTeamValue(): number {
+    public get currentTeamValue(): number {
         return this.teamManagementSettings.calculateCurrentTeamValue(this.team);
     }
 
-    private get teamCreationCost(): number {
+    public get teamCreationCost(): number {
         return this.teamManagementSettings.calculateCreateTeamCost(this.team);
     }
 
-    private get rosterPositionDataForBuyingPlayer(): PositionDataForBuyingPlayer[] {
+    public get rosterPositionDataForBuyingPlayer(): PositionDataForBuyingPlayer[] {
         const positionQuantities: {positionId: number, quantity: number}[] = [];
 
         for (const position of this.teamManagementSettings.positions) {
@@ -735,34 +734,34 @@ export default class TeamComponent extends Vue {
         );
     }
 
-    private get showHireRookiesWithPermissionsCheck(): boolean {
+    public get showHireRookiesWithPermissionsCheck(): boolean {
         return this.showHireRookies && this.accessControl.canHireRookie();
     }
 
-    private get gamesPlayedStatDisplay(): string {
+    public get gamesPlayedStatDisplay(): string {
         return '0 (0/0/0)'; // todo
     }
 
-    private get tdDiffStatDisplay(): string {
+    public get tdDiffStatDisplay(): string {
         return '0 (0 - 0)'; // todo
     }
 
-    private get casDiffStatDisplay(): string {
+    public get casDiffStatDisplay(): string {
         return '0 (0/0/0 - 0/0/0)'; // todo
     }
 
-    private get lastPlayedTeamData(): {id: number, name: string} {
+    public get lastPlayedTeamData(): {id: number, name: string} {
         return {
             id: 10000000000,
             name: 'Todo United',
         };
     }
 
-    private get addRemovePermissions(): AddRemovePermissions {
+    public get addRemovePermissions(): AddRemovePermissions {
         return this.teamManagementSettings.getAddRemovePermissions(this.team);
     }
 
-    private get divisionLogoImageUrl(): string {
+    public get divisionLogoImageUrl(): string {
         if (this.team.isCompetitiveDivision()) {
             return 'https://fumbbl.com/i/677766';
         } else if (this.team.isLeagueDivision()) {
@@ -779,7 +778,7 @@ export default class TeamComponent extends Vue {
         );
     }
 
-    private get rerollCostForMode(): number {
+    public get rerollCostForMode(): number {
         if (this.team.getTeamStatus().isNew()) {
             return this.teamManagementSettings.rerollCostOnCreate;
         } else {
@@ -807,7 +806,7 @@ export default class TeamComponent extends Vue {
         );
         this.handleGeneralTeamUpdate();
 
-        const apiResponse = await this.getFumbblApi().renumberPlayers(this.team.getId(), playerNumbers);
+        const apiResponse = await this.fumbblApi.renumberPlayers(this.team.getId(), playerNumbers);
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred whilst renumbering your players.',
@@ -831,14 +830,14 @@ export default class TeamComponent extends Vue {
         this.teamSheet.clearDragDrop();
     }
 
-    private async removeAllPlayers() {
+    public async removeAllPlayers() {
         const playerIdsToRemove = this.team.getPlayers().map(player => player.getId());
         this.team.removeAllPlayers();
         // call this to immediately show the players have gone (handleGeneralTeamUpdate needs to be called after all have been fully removed).
         this.refreshTeamSheet();
 
         for (const playerId of playerIdsToRemove) {
-            const apiResponse = await this.getFumbblApi().removePlayer(this.team.getId(), playerId);
+            const apiResponse = await this.fumbblApi.removePlayer(this.team.getId(), playerId);
             if (! apiResponse.isSuccessful()) {
                 await this.recoverFromUnexpectedError(
                     'An error occurred removing a player whilst removing all players from team.',
@@ -853,10 +852,10 @@ export default class TeamComponent extends Vue {
         this.handleGeneralTeamUpdate();
     }
 
-    private async updateDedicatedFans() {
+    public async updateDedicatedFans() {
         this.handleGeneralTeamUpdate();
 
-        const apiResponse = await this.getFumbblApi().setDedicatedFans(this.team.getId(), this.team.getDedicatedFans());
+        const apiResponse = await this.fumbblApi.setDedicatedFans(this.team.getId(), this.team.getDedicatedFans());
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred setting dedicated fans.',
@@ -865,13 +864,13 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async addReroll() {
+    public async addReroll() {
         this.team.addReroll(
             this.team.getTeamStatus().isNew() ? this.teamManagementSettings.rerollCostOnCreate : this.teamManagementSettings.rerollCostFull
         );
         this.handleGeneralTeamUpdate();
 
-        const apiResponse = await this.getFumbblApi().addReroll(this.team.getId());
+        const apiResponse = await this.fumbblApi.addReroll(this.team.getId());
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred adding a reroll.',
@@ -880,16 +879,16 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async removeReroll() {
+    public async removeReroll() {
         this.team.removeReroll(this.teamManagementSettings.rerollCostOnCreate);
         this.modals.removeReroll = false;
         this.handleGeneralTeamUpdate();
 
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
-            apiResponse = await this.getFumbblApi().removeReroll(this.team.getId());
+            apiResponse = await this.fumbblApi.removeReroll(this.team.getId());
         } else {
-            apiResponse = await this.getFumbblApi().discardReroll(this.team.getId());
+            apiResponse = await this.fumbblApi.discardReroll(this.team.getId());
         }
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
@@ -899,11 +898,11 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async addAssistantCoach() {
+    public async addAssistantCoach() {
         this.team.addAssistantCoach(this.teamManagementSettings.assistantCoachCost);
         this.handleGeneralTeamUpdate();
 
-        const apiResponse = await this.getFumbblApi().addAssistantCoach(this.team.getId());
+        const apiResponse = await this.fumbblApi.addAssistantCoach(this.team.getId());
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred adding an assistant coach.',
@@ -912,16 +911,16 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async removeAssistantCoach() {
+    public async removeAssistantCoach() {
         this.team.removeAssistantCoach(this.teamManagementSettings.assistantCoachCost);
         this.modals.removeAssistantCoach = false;
         this.handleGeneralTeamUpdate();
 
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
-            apiResponse = await this.getFumbblApi().removeAssistantCoach(this.team.getId());
+            apiResponse = await this.fumbblApi.removeAssistantCoach(this.team.getId());
         } else {
-            apiResponse = await this.getFumbblApi().fireAssistantCoach(this.team.getId());
+            apiResponse = await this.fumbblApi.fireAssistantCoach(this.team.getId());
         }
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
@@ -931,11 +930,11 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async addCheerleader() {
+    public async addCheerleader() {
         this.team.addCheerleader(this.teamManagementSettings.cheerleaderCost);
         this.handleGeneralTeamUpdate();
 
-        const apiResponse = await this.getFumbblApi().addCheerleader(this.team.getId());
+        const apiResponse = await this.fumbblApi.addCheerleader(this.team.getId());
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred adding a cheerleader.',
@@ -944,16 +943,16 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async removeCheerleader() {
+    public async removeCheerleader() {
         this.team.removeCheerleader(this.teamManagementSettings.cheerleaderCost);
         this.modals.removeCheerleader = false;
         this.handleGeneralTeamUpdate();
 
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
-            apiResponse = await this.getFumbblApi().removeCheerleader(this.team.getId());
+            apiResponse = await this.fumbblApi.removeCheerleader(this.team.getId());
         } else {
-            apiResponse = await this.getFumbblApi().fireCheerleader(this.team.getId());
+            apiResponse = await this.fumbblApi.fireCheerleader(this.team.getId());
         }
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
@@ -963,11 +962,11 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async addApothecary() {
+    public async addApothecary() {
         this.team.addApothecary(this.teamManagementSettings.apothecaryCost);
         this.handleGeneralTeamUpdate();
 
-        const apiResponse = await this.getFumbblApi().addApothecary(this.team.getId());
+        const apiResponse = await this.fumbblApi.addApothecary(this.team.getId());
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred adding an apothecary.',
@@ -976,16 +975,16 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async removeApothecary() {
+    public async removeApothecary() {
         this.team.removeApothecary(this.teamManagementSettings.apothecaryCost);
         this.modals.removeApothecary = false;
         this.handleGeneralTeamUpdate();
 
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
-            apiResponse = await this.getFumbblApi().removeApothecary(this.team.getId());
+            apiResponse = await this.fumbblApi.removeApothecary(this.team.getId());
         } else {
-            apiResponse = await this.getFumbblApi().fireApothecary(this.team.getId());
+            apiResponse = await this.fumbblApi.fireApothecary(this.team.getId());
         }
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
@@ -995,7 +994,7 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private enableShowHireRookies(): void {
+    public enableShowHireRookies(): void {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         this.showHireRookies = ! this.showHireRookies;
     }
@@ -1021,7 +1020,7 @@ export default class TeamComponent extends Vue {
         this.team.removePlayer(player);
         this.handleGeneralTeamUpdate();
 
-        const apiResponse = await this.getFumbblApi().removePlayer(this.team.getId(), playerId);
+        const apiResponse = await this.fumbblApi.removePlayer(this.team.getId(), playerId);
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred removing a player.',
@@ -1043,7 +1042,7 @@ export default class TeamComponent extends Vue {
         this.team.removePlayer(player);
         this.handleGeneralTeamUpdate();
 
-        const apiResponse = await this.getFumbblApi().retirePlayer(this.team.getId(), playerId);
+        const apiResponse = await this.fumbblApi.retirePlayer(this.team.getId(), playerId);
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred retiring a player.',
@@ -1052,11 +1051,11 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
+    public handleFoldOut(teamSheetEntryNumber: number, playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode: boolean) {
         this.teamSheet.updateFoldOut(teamSheetEntryNumber, playerRowFoldOutMode, multipleOpenMode);
     }
 
-    private async handleHireRookie(positionId: number) {
+    public async handleHireRookie(positionId: number) {
         const position = this.teamManagementSettings.getPosition(positionId);
         const gender = this.getGender(position.defaultGender);
         const iconRowVersionPosition = this.rosterIconManager.getRandomIconRowVersionPosition(positionId);
@@ -1071,7 +1070,7 @@ export default class TeamComponent extends Vue {
         );
         this.handleGeneralTeamUpdate();
 
-        const apiResponsePlayerName = await this.getFumbblApi().generatePlayerName(this.teamManagementSettings.nameGenerator, gender);
+        const apiResponsePlayerName = await this.fumbblApi.generatePlayerName(this.teamManagementSettings.nameGenerator, gender);
 
         if (! apiResponsePlayerName.isSuccessful()) {
             this.team.removeTemporaryPlayers();
@@ -1085,7 +1084,7 @@ export default class TeamComponent extends Vue {
         const playerName = apiResponsePlayerName.getData();
         temporaryPlayer.setPlayerName(playerName);
 
-        const apiResponse = await this.getFumbblApi().addPlayer(this.team.getId(), positionId, gender, playerName);
+        const apiResponse = await this.fumbblApi.addPlayer(this.team.getId(), positionId, gender, playerName);
         if (apiResponse.isSuccessful()) {
             const newPlayerResponseData: {playerId: number, number: number} = apiResponse.getData();
             temporaryPlayer.setIdForTemporaryPlayer(newPlayerResponseData.playerId);
@@ -1105,22 +1104,22 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private handleSpecialRulesUpdated() {
+    public handleSpecialRulesUpdated() {
         this.reloadTeam();
     }
 
-    private handleBeginEditTeamName() {
+    public handleBeginEditTeamName() {
         this.editTeamNameInProgress = true;
     }
 
-    private handleCancelEditTeamName() {
+    public handleCancelEditTeamName() {
         this.editTeamNameInProgress = false;
     }
 
-    private async handleEditTeamName(newTeamName: string) {
+    public async handleEditTeamName(newTeamName: string) {
         const originalTeamName = this.team.getName();
         this.team.setName(newTeamName);
-        const apiResponse = await this.getFumbblApi().renameTeam(this.team.getId(), newTeamName);
+        const apiResponse = await this.fumbblApi.renameTeam(this.team.getId(), newTeamName);
         if (! apiResponse.isSuccessful()) {
             this.team.setName(originalTeamName);
             await this.recoverFromUnexpectedError('Unable to rename team.', apiResponse.getErrorMessage());
@@ -1129,8 +1128,8 @@ export default class TeamComponent extends Vue {
         this.editTeamNameInProgress = false;
     }
 
-    private async handleActivateTeam() {
-        const apiResponse = await this.getFumbblApi().activateTeam(this.team.getId());
+    public async handleActivateTeam() {
+        const apiResponse = await this.fumbblApi.activateTeam(this.team.getId());
         if (apiResponse.isSuccessful()) {
             await this.reloadTeam();
             this.modals.activateTeam = false;
@@ -1141,8 +1140,8 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async handleDeleteTeam() {
-        const apiResponse = await this.getFumbblApi().deleteTeam(this.team.getId());
+    public async handleDeleteTeam() {
+        const apiResponse = await this.fumbblApi.deleteTeam(this.team.getId());
         if (apiResponse.isSuccessful()) {
             this.modals.deleteTeam = false;
             this.$emit('delete-team');
@@ -1152,8 +1151,8 @@ export default class TeamComponent extends Vue {
         }
     }
 
-    private async handleRetireTeam() {
-        const apiResponse = await this.getFumbblApi().retireTeam(this.team.getId());
+    public async handleRetireTeam() {
+        const apiResponse = await this.fumbblApi.retireTeam(this.team.getId());
         if (apiResponse.isSuccessful()) {
             await this.reloadTeam();
             this.modals.retireTeam = false;
