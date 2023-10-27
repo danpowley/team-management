@@ -65,11 +65,11 @@ import modal from "./components/Modal.vue";
 export default class TeamManagement extends Vue {
     private coachName: string = null;
     private isDevMode: boolean = true;
-    private fumbblApi: FumbblApi = null;
-    private overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' | 'ERROR' | 'DELETED' = 'DEMO_SETUP';
-    private unexpectedErrorMessage: {currentAction: string, errorMessage: string} = null;
+    public fumbblApi: FumbblApi = null;
+    public overallApplicationMode: 'DEMO_SETUP' | 'CHOOSE_ROSTER' | 'TEAM' | 'ERROR' | 'DELETED' = 'DEMO_SETUP';
+    public unexpectedErrorMessage: {currentAction: string, errorMessage: string} = null;
 
-    private demoTeamSettings: {existingTeamId: number | null, newTeam: {division: string, rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
+    public demoTeamSettings: {existingTeamId: number | null, newTeam: {division: string, rulesetId: number, rosterId: number} | null} = {existingTeamId: null, newTeam: null};
 
     mounted() {
         // TODO: hardcoded coach name
@@ -115,24 +115,24 @@ export default class TeamManagement extends Vue {
         // this.handleDemoTeamChosen(1089112); // Necro
     }
 
-    private handleCreateEmptyDemoTeam(division: string, rulesetId: number, rosterId: number) {
+    public handleCreateEmptyDemoTeam(division: string, rulesetId: number, rosterId: number) {
         this.demoTeamSettings = {existingTeamId: null, newTeam: {division: division, rulesetId: rulesetId, rosterId: rosterId}};
         this.overallApplicationMode = 'TEAM';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    private handleDemoTeamChosen(demoTeamId: number) {
+    public handleDemoTeamChosen(demoTeamId: number) {
         this.demoTeamSettings = {existingTeamId: demoTeamId, newTeam: null};
         this.overallApplicationMode = 'TEAM';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    private handleUnexpectedError(currentAction: string, errorMessage: string) {
+    public handleUnexpectedError(currentAction: string, errorMessage: string) {
         this.unexpectedErrorMessage = {currentAction, errorMessage};
         this.overallApplicationMode = 'ERROR';
     }
 
-    private handleDeleteTeam() {
+    public handleDeleteTeam() {
         this.overallApplicationMode = 'DELETED';
         setTimeout(() => window.location.href = `https://fumbbl.com/~${this.coachName}`, 5000);
     }
