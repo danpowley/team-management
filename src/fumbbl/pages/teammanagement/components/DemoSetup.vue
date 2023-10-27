@@ -41,7 +41,7 @@ import Vue from "vue";
 import Component from 'vue-class-component';
 import FumbblApi from "../include/FumbblApi";
 
-@Component({
+const DemoSetUpComponentProps = Vue.extend({
     components: {
     },
     props: {
@@ -50,17 +50,19 @@ import FumbblApi from "../include/FumbblApi";
             required: true,
         },
     }
-})
-export default class DemoSetupComponent extends Vue {
-    private coachesForSelect: any[] = ['HimalayaP1C7', 'Christer', 'PurpleChest', 'Malmir', 'Nelphine', 'Java', 'MerryZ', 'Mekutata', 'Jopotzuki', 'iena'];
-    private coach: string = '';
-    private teamsForSelect: any[] = [];
-    private quickTeamsForSelect: any[] = [];
+});
+
+@Component
+export default class DemoSetupComponent extends DemoSetUpComponentProps {
+    public coachesForSelect: any[] = ['HimalayaP1C7', 'Christer', 'PurpleChest', 'Malmir', 'Nelphine', 'Java', 'MerryZ', 'Mekutata', 'Jopotzuki', 'iena'];
+    public coach: string = '';
+    public teamsForSelect: any[] = [];
+    public quickTeamsForSelect: any[] = [];
     public demoTeamId: number | null = null;
-    private divisionOrGroup: string = '';
-    private rostersForSelect: any[] = [];
+    public divisionOrGroup: string = '';
+    public rostersForSelect: any[] = [];
     private rulesetId: number = 0;
-    private rosterId: number = 0;
+    public rosterId: number = 0;
     public newTeamDivisionId: number | null = null;
     public newTeamLeagueId: number | null = null;
 
@@ -82,7 +84,7 @@ export default class DemoSetupComponent extends Vue {
         }
     }
 
-    private async setupRosters() {
+    public async setupRosters() {
         const bits = this.divisionOrGroup.split('-');
         const isDivision = bits[0] === 'd';
         const divisionOrGroupId = ~~bits[1];
@@ -138,7 +140,7 @@ export default class DemoSetupComponent extends Vue {
         this.quickTeamsForSelect = await this.convertToBasicTeams(rawApiTeams);
     }
 
-    private async setupTeams() {
+    public async setupTeams() {
         const apiResponse = await this.getFumbblApi().getTeamsForCoach(this.coach);
         const rawApiTeams = apiResponse.getData();
         if (! apiResponse.isSuccessful()) {
