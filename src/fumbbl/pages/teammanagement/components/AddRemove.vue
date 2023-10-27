@@ -28,7 +28,7 @@
 import Vue from "vue";
 import Component from 'vue-class-component';
 
-@Component({
+const AddRemoveComponentProps = Vue.extend({
     components: {
     },
     props: {
@@ -61,23 +61,25 @@ import Component from 'vue-class-component';
             required: true,
         },
     },
-})
-export default class AddRemoveComponent extends Vue {
-    private get addIsEnabled(): boolean {
+});
+
+@Component
+export default class AddRemoveComponent extends AddRemoveComponentProps {
+    public get addIsEnabled(): boolean {
         return this.$props.canAdd;
     }
 
-    private get removeIsEnabled(): boolean {
+    public get removeIsEnabled(): boolean {
         return this.$props.canRemove;
     }
 
-    private add() {
+    public add() {
         if (this.addIsEnabled) {
             this.$emit('add');
         }
     }
 
-    private remove() {
+    public remove() {
         if (this.removeIsEnabled) {
             this.$emit(this.$props.canRemoveImmediately ? 'remove-immediately' : 'remove-with-confirm');
         }
