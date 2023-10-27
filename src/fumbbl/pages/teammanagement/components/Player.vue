@@ -66,32 +66,32 @@
                     <div class="playerposition" :title="teamSheetEntry.getPlayer().getPositionName()">{{ teamSheetEntry.getPlayer().getPositionName() }}</div>
                 </div>
                 <div class="cell statma">
-                    <span class="statany" :class="{
+                    <span :class="{
                         statincrease: teamSheetEntry.getPlayer().hasMovementIncrease,
                         statdecrease: teamSheetEntry.getPlayer().hasMovementDecrease,
                         }">{{ teamSheetEntry.getPlayer().movementStat }}</span>
                 </div>
                 <div class="cell statst">
-                    <span class="statany" :class="{
+                    <span :class="{
                         statincrease: teamSheetEntry.getPlayer().hasStrengthIncrease,
                         statdecrease: teamSheetEntry.getPlayer().hasStrengthDecrease,
                         }">{{ teamSheetEntry.getPlayer().strengthStat }}</span>
                 </div>
                 <div class="cell statag">
-                    <span class="statany" :class="{
+                    <span :class="{
                         statincrease: teamSheetEntry.getPlayer().hasAgilityIncrease,
                         statdecrease: teamSheetEntry.getPlayer().hasAgilityDecrease,
                         }">{{ teamSheetEntry.getPlayer().agilityStat }}+</span>
                 </div>
                 <div class="cell statpa">
-                    <span class="statany" v-if="teamSheetEntry.getPlayer().getPositionStats().Passing" :class="{
+                    <span v-if="teamSheetEntry.getPlayer().getPositionStats().Passing" :class="{
                         statincrease: teamSheetEntry.getPlayer().hasPassingIncrease,
                         statdecrease: teamSheetEntry.getPlayer().hasPassingDecrease,
                         }">{{ teamSheetEntry.getPlayer().passingStat }}+</span>
-                    <span class="statany" v-else>-</span>
+                    <span v-else>-</span>
                 </div>
                 <div class="cell statav">
-                    <span class="statany" :class="{
+                    <span :class="{
                         statincrease: teamSheetEntry.getPlayer().hasArmourIncrease,
                         statdecrease: teamSheetEntry.getPlayer().hasArmourDecrease,
                         }">{{ teamSheetEntry.getPlayer().armourStat }}+</span>
