@@ -49,19 +49,21 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { PropType } from "vue";
 import Component from 'vue-class-component';
 import { PositionDataForBuyingPlayer } from "../include/Interfaces";
+import RosterIconManager from "../include/RosterIconManager";
 
-@Component({
+const HireRookiesComponentProps = Vue.extend({
     components: {
     },
     props: {
         rosterPositionDataForBuyingPlayer: {
-            type: Array,
+            type: Array as PropType<PositionDataForBuyingPlayer[]>,
             required: true,
         },
         rosterIconManager: {
-            type: Object,
+            type: Object as PropType<RosterIconManager>,
             required: true,
         },
         hasEmptyTeamSheetEntry: {
@@ -73,20 +75,23 @@ import { PositionDataForBuyingPlayer } from "../include/Interfaces";
             required: true,
         },
     },
-})
-export default class HireRookiesComponent extends Vue {
+});
+
+@Component
+export default class HireRookiesComponent extends HireRookiesComponentProps {
     private get bigGuyCount(): number {
         let bigGuyCount = 0;
-        for (const positionDataForBuyingPlayer of this.$props.rosterPositionDataForBuyingPlayer as PositionDataForBuyingPlayer[]) {
+        for (const positionDataForBuyingPlayer of this.rosterPositionDataForBuyingPlayer) {
             if (positionDataForBuyingPlayer.position.isBigGuy) {
                bigGuyCount += positionDataForBuyingPlayer.quantityHired;
             }
         }
         return bigGuyCount;
     }
-    private reasonsCannotBuy(positionDataForBuyingPlayer: PositionDataForBuyingPlayer): string[] {
+
+    public reasonsCannotBuy(positionDataForBuyingPlayer: PositionDataForBuyingPlayer): string[] {
         const errors: string[] = [];
-        if (! this.$props.hasEmptyTeamSheetEntry) {
+        if (! this.hasEmptyTeamSheetEntry) {
             errors.push('No space left on team list.');
         }
         if (positionDataForBuyingPlayer.quantityHired >= positionDataForBuyingPlayer.position.quantityAllowed) {
@@ -95,17 +100,17 @@ export default class HireRookiesComponent extends Vue {
         if (! positionDataForBuyingPlayer.canAfford) {
             errors.push('Insufficient treasury.');
         }
-        if (positionDataForBuyingPlayer.position.isBigGuy && this.bigGuyCount >= this.$props.maxBigGuys) {
+        if (positionDataForBuyingPlayer.position.isBigGuy && this.bigGuyCount >= this.maxBigGuys) {
             errors.push('Maximum Big Guy limit reached.');
         }
         return errors;
     }
 
-    private canBuyPosition(positionDataForBuyingPlayer: PositionDataForBuyingPlayer): boolean {
+    public canBuyPosition(positionDataForBuyingPlayer: PositionDataForBuyingPlayer): boolean {
         return this.reasonsCannotBuy(positionDataForBuyingPlayer).length === 0;
     }
 
-    private hireRookie(positionDataForBuyingPlayer: PositionDataForBuyingPlayer) {
+    public hireRookie(positionDataForBuyingPlayer: PositionDataForBuyingPlayer) {
         if (this.canBuyPosition(positionDataForBuyingPlayer)) {
             this.$emit('hire-rookie', positionDataForBuyingPlayer.position.id);
         }
