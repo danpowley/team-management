@@ -109,7 +109,7 @@
                 </div>
                 <div v-if="! accessControl.canCreate()" class="cell spp" :title="sppSummaryText">
                     <span class="spendable">{{ sppDisplayInfo.spendable }}/</span><span class="maxlimit">{{ sppDisplayInfo.maxLimit }}</span>
-                    <div class="tierinfo"><template v-for="n in sppDisplayInfo.tier">•</template></div>
+                    <div class="tierinfo"><span v-for="n in sppDisplayInfo.tier" :key="n">•</span></div>
                 </div>
                 <div class="cell cost">
                     <div class="costbasic">{{ teamSheetEntry.getPlayer().getPlayerCost()/1000 }}k</div>
@@ -153,7 +153,7 @@ import { PlayerRowFoldOutMode } from "../include/Interfaces";
 import PlayerDetailsComponent from "./PlayerDetails.vue";
 import FumbblApi from "../include/FumbblApi";
 
-@Component({
+const PlayerComponentProps = Vue.extend({
     components: {
         'playerdetails': PlayerDetailsComponent,
     },
@@ -191,12 +191,12 @@ import FumbblApi from "../include/FumbblApi";
             required: true,
         },
     },
-    watch: {
-    }
-})
-export default class PlayerComponent extends Vue {
+});
+
+@Component
+export default class PlayerComponent extends PlayerComponentProps {
     readonly delayForFoldoutAnimations = 600;
-    private showPlayerInfoFoldoutTemporarily: boolean = false;
+    public showPlayerInfoFoldoutTemporarily: boolean = false;
     private intervalIdsScrollDuringCssTransition: number[] = [];
 
     private mounted() {
@@ -213,7 +213,7 @@ export default class PlayerComponent extends Vue {
         window.removeEventListener("keydown", this.handleKeyDown);
     }
 
-    private getFumbblApi(): FumbblApi {
+    public getFumbblApi(): FumbblApi {
         return this.$props.fumbblApi;
     }
 
@@ -226,7 +226,7 @@ export default class PlayerComponent extends Vue {
         }
     }
 
-    private get isFoldOutMore(): boolean {
+    public get isFoldOutMore(): boolean {
         return this.$props.teamSheetEntry.getFoldOut() === 'MORE';
     }
 
@@ -240,7 +240,7 @@ export default class PlayerComponent extends Vue {
         };
     }
 
-    private performFoldOut(playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode = false) {
+    public performFoldOut(playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode = false) {
         this.$emit('fold-out', this.$props.teamSheetEntry.getNumber(), playerRowFoldOutMode, multipleOpenMode);
         this.enableSmartScroll();
         if (playerRowFoldOutMode === 'CLOSED') {
@@ -278,7 +278,7 @@ export default class PlayerComponent extends Vue {
         this.intervalIdsScrollDuringCssTransition = [];
     }
 
-    private toggleFoldOutMore(multipleOpenMode: boolean) {
+    public toggleFoldOutMore(multipleOpenMode: boolean) {
         if (this.isFoldOutMore) {
             this.performFoldOut('CLOSED', multipleOpenMode);
         } else {
@@ -311,26 +311,26 @@ export default class PlayerComponent extends Vue {
         this.$emit('retire-player', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.getPlayer().getId());
     }
 
-    private handleDragEnter() {
+    public handleDragEnter() {
         this.$emit('drag-enter', this.$props.teamSheetEntry.getNumber());
     }
 
-    private handleDragOver(event) {
+    public handleDragOver(event) {
         event.preventDefault();
         return false;
     }
 
-    private handleDrop(event) {
+    public handleDrop(event) {
         this.$emit('drop', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.hasPlayer());
         event.stopPropagation();
         return false;
     }
 
-    private handleDragEnd() {
+    public handleDragEnd() {
         this.$emit('drag-end');
     }
 
-    private displayInjuries(injuries: string[]): string {
+    public displayInjuries(injuries: string[]): string {
         let niggleCount = 0;
         const displayInjuries: string[] = [];
 
@@ -352,11 +352,11 @@ export default class PlayerComponent extends Vue {
         return displayInjuries.sort().join(', ');
     }
 
-    private get sppDisplayInfo(): any {
+    public get sppDisplayInfo(): any {
         return this.$props.teamSheetEntry.getPlayer().sppDisplayInfo;
     }
 
-    private get sppSummaryText(): string {
+    public get sppSummaryText(): string {
         const spendable = this.sppDisplayInfo.spendable;
 
         const randomPrimaryThreshold = this.sppDisplayInfo.thresholds.randomPrimary;
