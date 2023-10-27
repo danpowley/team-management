@@ -48,8 +48,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { PropType } from "vue";
+import Vue, { PropType } from "vue";
 import Component from 'vue-class-component';
 import { PositionDataForBuyingPlayer } from "../include/Interfaces";
 import RosterIconManager from "../include/RosterIconManager";
