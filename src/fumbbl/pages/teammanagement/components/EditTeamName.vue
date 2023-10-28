@@ -34,9 +34,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import Component from 'vue-class-component';
 import modal from "./Modal.vue";
+import FumbblApi from "../include/FumbblApi";
 
 const EditTeamNameComponentProps = Vue.extend({
     components: {
@@ -44,7 +45,7 @@ const EditTeamNameComponentProps = Vue.extend({
     },
     props: {
         fumbblApi: {
-            type: Object,
+            type: Object as PropType<FumbblApi>,
             required: true,
         },
         teamName: {
@@ -67,7 +68,7 @@ export default class EditTeamNameComponent extends EditTeamNameComponentProps {
     private async refreshValidationErrors() {
         const errors = [];
 
-        if (this.newTeamName === this.$props.teamName) {
+        if (this.newTeamName === this.teamName) {
             errors.push('The team name has not been altered.');
         }
 
@@ -92,7 +93,7 @@ export default class EditTeamNameComponent extends EditTeamNameComponentProps {
         }
 
         if (errors.length === 0) {
-            const apiResponse = await this.$props.fumbblApi.checkTeamName(this.newTeamName);
+            const apiResponse = await this.fumbblApi.checkTeamName(this.newTeamName);
             if (! apiResponse.isSuccessful()) {
                 errors.push(apiResponse.getErrorMessage());
             }
@@ -104,7 +105,7 @@ export default class EditTeamNameComponent extends EditTeamNameComponentProps {
     public begin(): void {
         this.validationErrors = [];
         this.editTeamName = true;
-        this.newTeamName = this.$props.teamName;
+        this.newTeamName = this.teamName;
         this.$emit('begin');
     }
 

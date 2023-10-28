@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import Component from 'vue-class-component';
 import FumbblApi from "../include/FumbblApi";
 
@@ -46,7 +46,7 @@ const DemoSetUpComponentProps = Vue.extend({
     },
     props: {
         fumbblApi: {
-            type: Object,
+            type: Object as PropType<FumbblApi>,
             required: true,
         },
     }
@@ -70,10 +70,6 @@ export default class DemoSetupComponent extends DemoSetUpComponentProps {
         await this.setupQuickTeam();
     }
 
-    private getFumbblApi(): FumbblApi {
-        return this.$props.fumbblApi;
-    }
-
     private get basicDivisionName(): 'Competitive' | 'Ranked' | 'League' {
         if (this.divisionOrGroup === 'd-2') {
             return 'Competitive';
@@ -90,20 +86,20 @@ export default class DemoSetupComponent extends DemoSetUpComponentProps {
         const divisionOrGroupId = ~~bits[1];
 
         if (isDivision) {
-            const apiResponse = await this.getFumbblApi().getRulesetIdForDivision(divisionOrGroupId);
+            const apiResponse = await this.fumbblApi.getRulesetIdForDivision(divisionOrGroupId);
             this.rulesetId = apiResponse.getData();
             if (! apiResponse.isSuccessful()) {
                 console.log('Error getting ruleset id for division', apiResponse.getErrorMessage());
             }
         } else {
-            const apiResponse = await this.getFumbblApi().getRulesetIdForGroup(divisionOrGroupId);
+            const apiResponse = await this.fumbblApi.getRulesetIdForGroup(divisionOrGroupId);
             this.rulesetId = apiResponse.getData();
             if (! apiResponse.isSuccessful()) {
                 console.log('Error getting ruleset id for group', apiResponse.getErrorMessage());
             }
         }
 
-        const apiResponse = await this.getFumbblApi().getRuleset(this.rulesetId);
+        const apiResponse = await this.fumbblApi.getRuleset(this.rulesetId);
         const rawApiRuleset = apiResponse.getData();
         if (! apiResponse.isSuccessful()) {
             console.log('Error getting ruleset for ruleset id', apiResponse.getErrorMessage());
@@ -132,7 +128,7 @@ export default class DemoSetupComponent extends DemoSetUpComponentProps {
     }
 
     private async setupQuickTeam() {
-        const apiResponse = await this.getFumbblApi().getTeamsForCoach('HimalayaP1C7');
+        const apiResponse = await this.fumbblApi.getTeamsForCoach('HimalayaP1C7');
         const rawApiTeams = apiResponse.getData();
         if (! apiResponse.isSuccessful()) {
             console.log('Error getting quick teams for demo coach', apiResponse.getErrorMessage());
@@ -141,7 +137,7 @@ export default class DemoSetupComponent extends DemoSetUpComponentProps {
     }
 
     public async setupTeams() {
-        const apiResponse = await this.getFumbblApi().getTeamsForCoach(this.coach);
+        const apiResponse = await this.fumbblApi.getTeamsForCoach(this.coach);
         const rawApiTeams = apiResponse.getData();
         if (! apiResponse.isSuccessful()) {
             console.log('Error getting teams for chosen coach', apiResponse.getErrorMessage());

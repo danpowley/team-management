@@ -66,11 +66,11 @@ const AddRemoveComponentProps = Vue.extend({
 @Component
 export default class AddRemoveComponent extends AddRemoveComponentProps {
     public get addIsEnabled(): boolean {
-        return this.$props.canAdd;
+        return this.canAdd;
     }
 
     public get removeIsEnabled(): boolean {
-        return this.$props.canRemove;
+        return this.canRemove;
     }
 
     public add() {
@@ -81,7 +81,7 @@ export default class AddRemoveComponent extends AddRemoveComponentProps {
 
     public remove() {
         if (this.removeIsEnabled) {
-            this.$emit(this.$props.canRemoveImmediately ? 'remove-immediately' : 'remove-with-confirm');
+            this.$emit(this.canRemoveImmediately ? 'remove-immediately' : 'remove-with-confirm');
         }
     }
 }

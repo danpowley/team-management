@@ -132,7 +132,7 @@
         </div>
         <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
             <playerdetails v-if="teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily"
-                :fumbbl-api="getFumbblApi()"
+                :fumbbl-api="fumbblApi"
                 :team-sheet-entry="teamSheetEntry"
                 :can-create="accessControl.canCreate()"
                 :can-edit="accessControl.canEdit()"
@@ -147,11 +147,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import Component from 'vue-class-component';
 import { PlayerRowFoldOutMode } from "../include/Interfaces";
 import PlayerDetailsComponent from "./PlayerDetails.vue";
 import FumbblApi from "../include/FumbblApi";
+import TeamSheetEntry from "../include/TeamSheetEntry";
+import AccessControl from "../include/AccessControl";
+import RosterIconManager from "../include/RosterIconManager";
 
 const PlayerComponentProps = Vue.extend({
     components: {
@@ -159,15 +162,15 @@ const PlayerComponentProps = Vue.extend({
     },
     props: {
         fumbblApi: {
-            type: Object,
+            type: Object as PropType<FumbblApi>,
             required: true,
         },
         teamSheetEntry: {
-            type: Object,
+            type: Object as PropType<TeamSheetEntry>,
             required: true,
         },
         accessControl: {
-            type: Object,
+            type: Object as PropType<AccessControl>,
             required: true,
         },
         allFoldOutsClosed: {
@@ -183,7 +186,7 @@ const PlayerComponentProps = Vue.extend({
             required: true,
         },
         rosterIconManager: {
-            type: Object,
+            type: Object as PropType<RosterIconManager>,
             required: true,
         },
         nameGenerator: {
@@ -213,10 +216,6 @@ export default class PlayerComponent extends PlayerComponentProps {
         window.removeEventListener("keydown", this.handleKeyDown);
     }
 
-    public getFumbblApi(): FumbblApi {
-        return this.$props.fumbblApi;
-    }
-
     private handleKeyDown(event: KeyboardEvent) {
         if (event.key === "Escape") {
             if (this.isFoldOutMore) {
@@ -227,11 +226,11 @@ export default class PlayerComponent extends PlayerComponentProps {
     }
 
     public get isFoldOutMore(): boolean {
-        return this.$props.teamSheetEntry.getFoldOut() === 'MORE';
+        return this.teamSheetEntry.getFoldOut() === 'MORE';
     }
 
     public getSeperatorClasses() {
-        if (this.$props.useActiveSeperatorForDragDrop) {
+        if (this.useActiveSeperatorForDragDrop) {
             return { active: true };
         }
 
@@ -241,10 +240,10 @@ export default class PlayerComponent extends PlayerComponentProps {
     }
 
     public performFoldOut(playerRowFoldOutMode: PlayerRowFoldOutMode, multipleOpenMode = false) {
-        this.$emit('fold-out', this.$props.teamSheetEntry.getNumber(), playerRowFoldOutMode, multipleOpenMode);
+        this.$emit('fold-out', this.teamSheetEntry.getNumber(), playerRowFoldOutMode, multipleOpenMode);
         this.enableSmartScroll();
         if (playerRowFoldOutMode === 'CLOSED') {
-            this.$props.teamSheetEntry.refreshUpdatePlayerDetails();
+            this.teamSheetEntry.refreshUpdatePlayerDetails();
         }
     }
 
@@ -287,7 +286,7 @@ export default class PlayerComponent extends PlayerComponentProps {
     }
 
     public makePlayerDraggable() {
-        this.$emit('make-player-draggable', this.$props.teamSheetEntry.getNumber());
+        this.$emit('make-player-draggable', this.teamSheetEntry.getNumber());
     }
 
     public endPlayerDraggable() {
@@ -303,16 +302,16 @@ export default class PlayerComponent extends PlayerComponentProps {
 
     public handleRemovePlayer() {
         this.closeFoldOutWithAnimationDelay();
-        this.$emit('remove-player', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.getPlayer().getId());
+        this.$emit('remove-player', this.teamSheetEntry.getNumber(), this.teamSheetEntry.getPlayer().getId());
     }
 
     public handleRetirePlayer() {
         this.closeFoldOutWithAnimationDelay();
-        this.$emit('retire-player', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.getPlayer().getId());
+        this.$emit('retire-player', this.teamSheetEntry.getNumber(), this.teamSheetEntry.getPlayer().getId());
     }
 
     public handleDragEnter() {
-        this.$emit('drag-enter', this.$props.teamSheetEntry.getNumber());
+        this.$emit('drag-enter', this.teamSheetEntry.getNumber());
     }
 
     public handleDragOver(event) {
@@ -321,7 +320,7 @@ export default class PlayerComponent extends PlayerComponentProps {
     }
 
     public handleDrop(event) {
-        this.$emit('drop', this.$props.teamSheetEntry.getNumber(), this.$props.teamSheetEntry.hasPlayer());
+        this.$emit('drop', this.teamSheetEntry.getNumber(), this.teamSheetEntry.hasPlayer());
         event.stopPropagation();
         return false;
     }
@@ -353,7 +352,7 @@ export default class PlayerComponent extends PlayerComponentProps {
     }
 
     public get sppDisplayInfo(): any {
-        return this.$props.teamSheetEntry.getPlayer().sppDisplayInfo;
+        return this.teamSheetEntry.getPlayer().sppDisplayInfo;
     }
 
     public get sppSummaryText(): string {

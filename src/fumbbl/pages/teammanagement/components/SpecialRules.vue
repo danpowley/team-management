@@ -108,10 +108,6 @@ export default class SpecialRulesComponent extends SpecialRulesComponentProps {
     public updateInProgress = false;
     public errorModalInfo: {general: string, technical: string} = null;
 
-    private getFumbblApi(): FumbblApi {
-        return this.$props.fumbblApi;
-    }
-
     public get isOneOfActive(): boolean {
         return this.oneOfOptions.length > 0;
     }
@@ -149,7 +145,7 @@ export default class SpecialRulesComponent extends SpecialRulesComponentProps {
 
     public get specialRuleLabels(): string[] {
         const specialRuleLabels = [];
-        const rosterSpecialRules = this.$props.rawApiSpecialRules.fromRoster;
+        const rosterSpecialRules = this.rawApiSpecialRules.fromRoster;
         for (const rosterSpecialRule of rosterSpecialRules) {
             if (rosterSpecialRule.id === this.ONE_OF_ID) {
                 continue;
@@ -165,7 +161,7 @@ export default class SpecialRulesComponent extends SpecialRulesComponentProps {
             return [];
         }
         const displayNames: string[] = [];
-        const rosterSpecialRules = this.$props.rawApiSpecialRules.fromRoster;
+        const rosterSpecialRules = this.rawApiSpecialRules.fromRoster;
         for (const rosterSpecialRule of rosterSpecialRules) {
             let displayName = rosterSpecialRule.name;
 
@@ -180,7 +176,7 @@ export default class SpecialRulesComponent extends SpecialRulesComponentProps {
 
     private get teamChoices(): any {
         const teamChoices = {};
-        const teamSpecialRules = this.$props.rawApiSpecialRules.fromTeam;
+        const teamSpecialRules = this.rawApiSpecialRules.fromTeam;
         for (const specialRuleLabel of Object.keys(teamSpecialRules)) {
             const teamSpecialRule = teamSpecialRules[specialRuleLabel];
             const teamSpecialRuleOptions = teamSpecialRule[0];
@@ -200,7 +196,7 @@ export default class SpecialRulesComponent extends SpecialRulesComponentProps {
 
     public get teamOptions(): any {
         const teamOptions = {};
-        const rosterSpecialRules = this.$props.rawApiSpecialRules.fromRoster;
+        const rosterSpecialRules = this.rawApiSpecialRules.fromRoster;
         for (const rosterSpecialRule of rosterSpecialRules) {
             if (rosterSpecialRule.id === this.ONE_OF_ID) {
                 continue;
@@ -218,7 +214,7 @@ export default class SpecialRulesComponent extends SpecialRulesComponentProps {
     }
 
     public get oneOfChoice(): any {
-        const teamSpecialRules = this.$props.rawApiSpecialRules.fromTeam;
+        const teamSpecialRules = this.rawApiSpecialRules.fromTeam;
         for (const specialRuleLabel of Object.keys(teamSpecialRules)) {
             const teamSpecialRule = teamSpecialRules[specialRuleLabel];
             const teamSpecialRuleChoice = teamSpecialRule[1];
@@ -235,7 +231,7 @@ export default class SpecialRulesComponent extends SpecialRulesComponentProps {
     public get oneOfOptions(): any {
         const oneOfOptions = [];
         let oneOfIsActive = false;
-        const rosterSpecialRules = this.$props.rawApiSpecialRules.fromRoster;
+        const rosterSpecialRules = this.rawApiSpecialRules.fromRoster;
         for (const rosterSpecialRule of rosterSpecialRules) {
             if (rosterSpecialRule.id === this.ONE_OF_ID) {
                 oneOfIsActive = true;
@@ -251,7 +247,7 @@ export default class SpecialRulesComponent extends SpecialRulesComponentProps {
     }
 
     private get oneOfRuleName(): string {
-        const rosterSpecialRules = this.$props.rawApiSpecialRules.fromRoster;
+        const rosterSpecialRules = this.rawApiSpecialRules.fromRoster;
         for (const rosterSpecialRule of rosterSpecialRules) {
             if (rosterSpecialRule.id === this.ONE_OF_ID) {
                 return rosterSpecialRule.name;
@@ -278,7 +274,7 @@ export default class SpecialRulesComponent extends SpecialRulesComponentProps {
     }
 
     private async setSpecialRule(ruleName: string, ruleValue: string) {
-        const apiResponse = await this.getFumbblApi().setSpecialRule(this.$props.teamId, ruleName, ruleValue);
+        const apiResponse = await this.fumbblApi.setSpecialRule(this.teamId, ruleName, ruleValue);
         if (apiResponse.isSuccessful()) {
             this.$emit('rules-updated');
             this.updateInProgress = true;
