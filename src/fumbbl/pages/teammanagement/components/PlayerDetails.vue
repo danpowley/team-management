@@ -101,20 +101,21 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import Component from 'vue-class-component';
-import Axios from "axios";
 import UpdatePlayerDetails from "../include/UpdatePlayerDetails";
 import ModalComponent from "./Modal.vue";
 import FumbblApi from "../include/FumbblApi";
+import TeamSheetEntry from "../include/TeamSheetEntry";
 
-@Component({
+
+const PlayerDetailsComponentProps = Vue.extend({
     components: {
         'modal': ModalComponent,
     },
     props: {
         fumbblApi: {
-            type: Object,
+            type: Object as PropType<FumbblApi>,
             required: true,
         },
         canCreate: {
@@ -126,50 +127,47 @@ import FumbblApi from "../include/FumbblApi";
             required: true,
         },
         teamSheetEntry: {
-            validator: function (teamSheetEntry) {
-                return typeof teamSheetEntry === 'object' || teamSheetEntry === null;
-            }
+            type: Object as PropType<TeamSheetEntry>,
+            required: true,
         },
         nameGenerator: {
             type: String,
             required: true,
         },
     },
-})
-export default class PlayerDetailsComponent extends Vue {
-    private updatePlayerDetailsErrors: string[] = [];
-    private errorModalInfo: {general: string, technical: string} = null;
-    private modals: {
+});
+
+@Component
+export default class PlayerDetailsComponent extends PlayerDetailsComponentProps {
+    public updatePlayerDetailsErrors: string[] = [];
+    public errorModalInfo: {general: string, technical: string} = null;
+    public modals: {
         retirePlayer: boolean,
     } = {
         retirePlayer: false,
     };
 
     public get player() {
-        return this.$props.teamSheetEntry.getPlayer();
+        return this.teamSheetEntry.getPlayer();
     }
 
     public get updatePlayerDetails(): UpdatePlayerDetails {
-        return this.$props.teamSheetEntry.getUpdatePlayerDetails();
+        return this.teamSheetEntry.getUpdatePlayerDetails();
     }
 
-    private getFumbblApi(): FumbblApi {
-        return this.$props.fumbblApi;
-    }
-
-    private async saveUpdatedPlayerDetails() {
+    public async saveUpdatedPlayerDetails() {
         if (this.updatePlayerDetails) {
             this.updatePlayerDetailsErrors = this.updatePlayerDetails.getErrors();
         }
 
         if (this.updatePlayerDetailsErrors.length === 0) {
-            const apiResponse = await this.getFumbblApi().updatePlayer(
-                this.$props.teamSheetEntry.getPlayer().getId(),
+            const apiResponse = await this.fumbblApi.updatePlayer(
+                this.teamSheetEntry.getPlayer().getId(),
                 this.updatePlayerDetails.getPlayerName(),
                 this.updatePlayerDetails.getGender()
             );
             if (apiResponse.isSuccessful()) {
-                this.$props.teamSheetEntry.saveUpdatePlayerDetails();
+                this.teamSheetEntry.saveUpdatePlayerDetails();
             } else {
                 this.errorModalInfo = {
                     general: 'An error occurred updating player details.',
@@ -180,8 +178,8 @@ export default class PlayerDetailsComponent extends Vue {
         }
     }
 
-    private async generatePlayerName(): Promise<void> {
-        const apiResponse = await this.getFumbblApi().generatePlayerName(this.$props.nameGenerator, this.updatePlayerDetails.getGender());
+    public async generatePlayerName(): Promise<void> {
+        const apiResponse = await this.fumbblApi.generatePlayerName(this.nameGenerator, this.updatePlayerDetails.getGender());
         if (apiResponse.isSuccessful()) {
             const playerName = apiResponse.getData();
             this.updatePlayerDetails.setPlayerName(playerName);

@@ -1,8 +1,8 @@
 import { PlayerGender } from "./Interfaces";
 
 export default class UpdatePlayerDetails {
-    private playerName: string = '';
-    private gender: PlayerGender | null = null;
+    public playerName: string = ''; // public as used in v-model
+    public gender: PlayerGender | null = null; // public as used in v-model
 
     constructor(playerName: string, gender: PlayerGender) {
         this.playerName = playerName;
