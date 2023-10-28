@@ -15,7 +15,7 @@
                         <select @change="changeOneOf">
                             <option value="">Choose Special Rule</option>
                             <template v-for="oneOfOption in oneOfOptions">
-                                <option :value="oneOfOption">{{ oneOfOption }}</option>
+                                <option :value="oneOfOption" :key="oneOfOption">{{ oneOfOption }}</option>
                             </template>
                         </select>
                     </template>
@@ -24,25 +24,27 @@
                     </template>
                 </template>
                 <template v-for="(specialRuleLabel, index) in specialRuleLabels">
-                    <span v-if="index !== 0" :class="{oneofseparator: isOneOfActive}">{{ isOneOfActive ? 'OR' : ', ' }}</span>
-                    <template v-if="labelHasOptions(specialRuleLabel)">
-                        <template v-if="showTeamOptions">
-                            <select @change="changeTeamOption">
-                                <template v-if="!labelHasChoice(specialRuleLabel)">
-                                    <option value="">Choose Special Rule</option>
-                                </template>
-                                <template v-for="specialRuleOption in teamOptions[specialRuleLabel]">
-                                    <option :value="specialRuleLabel + '|' + specialRuleOption" :selected="getLabelChoice(specialRuleLabel) === specialRuleOption">{{ specialRuleOption }}</option>
-                                </template>
-                            </select>
+                    <span :key="index">
+                        <span v-if="index !== 0" :class="{oneofseparator: isOneOfActive}">{{ isOneOfActive ? 'OR' : ', ' }}</span>
+                        <template v-if="labelHasOptions(specialRuleLabel)">
+                            <template v-if="showTeamOptions">
+                                <select @change="changeTeamOption">
+                                    <template v-if="!labelHasChoice(specialRuleLabel)">
+                                        <option value="">Choose Special Rule</option>
+                                    </template>
+                                    <template v-for="specialRuleOption in teamOptions[specialRuleLabel]">
+                                        <option :value="specialRuleLabel + '|' + specialRuleOption" :key="specialRuleOption" :selected="getLabelChoice(specialRuleLabel) === specialRuleOption">{{ specialRuleOption }}</option>
+                                    </template>
+                                </select>
+                            </template>
+                            <template v-else>
+                                {{ oneOfChoice === specialRuleLabel ? '✓' : '' }}<a @click.prevent="showTeamOptions = !showTeamOptions" href="#" :class="{oneofchosen: oneOfChoice === specialRuleLabel}">{{ getLabelChoice(specialRuleLabel) }}</a>
+                            </template>
                         </template>
                         <template v-else>
-                            {{ oneOfChoice === specialRuleLabel ? '✓' : '' }}<a @click.prevent="showTeamOptions = !showTeamOptions" href="#" :class="{oneofchosen: oneOfChoice === specialRuleLabel}">{{ getLabelChoice(specialRuleLabel) }}</a>
+                            <span :class="{oneofchosen: oneOfChoice === specialRuleLabel}">{{ oneOfChoice === specialRuleLabel ? '✓' : '' }}{{ specialRuleLabel }}</span>
                         </template>
-                    </template>
-                    <template v-else>
-                        <span :class="{oneofchosen: oneOfChoice === specialRuleLabel}">{{ oneOfChoice === specialRuleLabel ? '✓' : '' }}{{ specialRuleLabel }}</span>
-                    </template>
+                    </span>
                 </template>
             </template>
         </template>
@@ -68,18 +70,19 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import Component from 'vue-class-component';
 import FumbblApi from "../include/FumbblApi";
 import modal from "./Modal.vue";
+import { RawApiSpecialRules } from "../include/Interfaces";
 
-@Component({
+const SpecialRulesComponentProps = Vue.extend({
     components: {
         modal
     },
     props: {
         fumbblApi: {
-            type: Object,
+            type: Object as PropType<FumbblApi>,
             required: true,
         },
         teamId: {
@@ -91,27 +94,29 @@ import modal from "./Modal.vue";
             required: true,
         },
         rawApiSpecialRules: {
-            type: Object,
+            type: Object as PropType<RawApiSpecialRules>,
             required: true,
         },
     },
-})
-export default class SpecialRulesComponent extends Vue {
+});
+
+@Component
+export default class SpecialRulesComponent extends SpecialRulesComponentProps {
     private readonly ONE_OF_ID = '-3';
-    private showOneOfOptions = false;
-    private showTeamOptions = false;
-    private updateInProgress = false;
-    private errorModalInfo: {general: string, technical: string} = null;
+    public showOneOfOptions = false;
+    public showTeamOptions = false;
+    public updateInProgress = false;
+    public errorModalInfo: {general: string, technical: string} = null;
 
     private getFumbblApi(): FumbblApi {
         return this.$props.fumbblApi;
     }
 
-    private get isOneOfActive(): boolean {
+    public get isOneOfActive(): boolean {
         return this.oneOfOptions.length > 0;
     }
 
-    private get oneOfDisplayName(): string {
+    public get oneOfDisplayName(): string {
         if (! this.isOneOfActive) {
             return '';
         }
@@ -127,22 +132,22 @@ export default class SpecialRulesComponent extends Vue {
         return '';
     }
 
-    private getLabelChoice(label: string): string {
+    public getLabelChoice(label: string): string {
         if (this.labelHasChoice(label)) {
             return this.teamChoices[label];
         }
         return label;
     }
 
-    private labelHasChoice(label: string): boolean {
+    public labelHasChoice(label: string): boolean {
         return Object.keys(this.teamChoices).includes(label) && this.teamChoices[label] !== null;
     }
 
-    private labelHasOptions(label: string): boolean {
+    public labelHasOptions(label: string): boolean {
         return Object.keys(this.teamOptions).includes(label);
     }
 
-    private get specialRuleLabels(): string[] {
+    public get specialRuleLabels(): string[] {
         const specialRuleLabels = [];
         const rosterSpecialRules = this.$props.rawApiSpecialRules.fromRoster;
         for (const rosterSpecialRule of rosterSpecialRules) {
@@ -155,7 +160,7 @@ export default class SpecialRulesComponent extends Vue {
         return specialRuleLabels;
     }
 
-    private get displayNames(): string[] {
+    public get displayNames(): string[] {
         if (this.isOneOfActive) {
             return [];
         }
@@ -193,7 +198,7 @@ export default class SpecialRulesComponent extends Vue {
         return teamChoices;
     }
 
-    private get teamOptions(): any {
+    public get teamOptions(): any {
         const teamOptions = {};
         const rosterSpecialRules = this.$props.rawApiSpecialRules.fromRoster;
         for (const rosterSpecialRule of rosterSpecialRules) {
@@ -212,7 +217,7 @@ export default class SpecialRulesComponent extends Vue {
         return teamOptions;
     }
 
-    private get oneOfChoice(): any {
+    public get oneOfChoice(): any {
         const teamSpecialRules = this.$props.rawApiSpecialRules.fromTeam;
         for (const specialRuleLabel of Object.keys(teamSpecialRules)) {
             const teamSpecialRule = teamSpecialRules[specialRuleLabel];
@@ -227,7 +232,7 @@ export default class SpecialRulesComponent extends Vue {
         return null;
     }
 
-    private get oneOfOptions(): any {
+    public get oneOfOptions(): any {
         const oneOfOptions = [];
         let oneOfIsActive = false;
         const rosterSpecialRules = this.$props.rawApiSpecialRules.fromRoster;
@@ -255,14 +260,14 @@ export default class SpecialRulesComponent extends Vue {
         return '';
     }
 
-    private async changeOneOf(event) {
+    public async changeOneOf(event) {
         const newSpecialRuleValue = event.target.value;
         if (newSpecialRuleValue) {
             await this.setSpecialRule(this.oneOfRuleName, newSpecialRuleValue);
         }
     }
 
-    private async changeTeamOption(event) {
+    public async changeTeamOption(event) {
         const newSpecialRuleRaw = event.target.value;
         if (newSpecialRuleRaw.includes('|')) {
             const ruleBits = newSpecialRuleRaw.split('|');

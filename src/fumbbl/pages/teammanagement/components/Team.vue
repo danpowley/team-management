@@ -470,6 +470,7 @@ import {
     PlayerGender,
     PlayerRowFoldOutMode,
     PositionDataForBuyingPlayer,
+    RawApiSpecialRules,
     UserRole,
 } from "../include/Interfaces";
 import AccessControl from "../include/AccessControl";
@@ -516,7 +517,7 @@ export default class TeamComponent extends TeamComponentProps {
     public team: Team | null = null;
     public teamSheet: TeamSheet | null = null;
     public editTeamNameInProgress: boolean = false;
-    public rawApiSpecialRules: {fromRoster: any, fromTeam: any} = {fromRoster: null, fromTeam: null};
+    public rawApiSpecialRules: RawApiSpecialRules = {fromRoster: null, fromTeam: null};
     public mainMenuShow: string = 'none';
     private showHireRookies: boolean = false;
     public errorModalInfo: {general: string, technical: string} = null;
