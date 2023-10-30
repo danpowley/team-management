@@ -181,9 +181,10 @@
                 </div>
                 <div class="info right">
                     <template v-if="accessControl.canCreate()">
-                        <select v-model.number="team.dedicatedFans" @change="updateDedicatedFans()">
+                        <select v-model.number="dedicatedFansChoice">
                             <option v-for="dedicatedFansStartValue in teamManagementSettings.getDedicatedFansAllowedValues(team.getDedicatedFans(), team.getTreasury())" :key="dedicatedFansStartValue">{{ dedicatedFansStartValue }}</option>
                         </select>
+                        <button @click="updateDedicatedFans()">Ok</button>
                     </template>
                     <template v-else>
                         {{ team.getDedicatedFans() }}
@@ -519,6 +520,7 @@ export default class TeamComponent extends TeamComponentProps {
     public team: Team | null = null;
     public teamSheet: TeamSheet | null = null;
     public editTeamNameInProgress: boolean = false;
+    public dedicatedFansChoice: number | null = null;
     public rawApiSpecialRules: RawApiSpecialRules = {fromRoster: null, fromTeam: null};
     public mainMenuShow: string = 'none';
     private showHireRookies: boolean = false;
@@ -566,6 +568,8 @@ export default class TeamComponent extends TeamComponentProps {
         }
 
         await this.reloadTeam();
+
+        this.dedicatedFansChoice = this.team.getDedicatedFans();
 
         // Reload the team when someone returns to the tab
         document.addEventListener("visibilitychange", () => {
@@ -842,9 +846,10 @@ export default class TeamComponent extends TeamComponentProps {
     }
 
     public async updateDedicatedFans() {
+        this.team.updateDedicatedFans(this.dedicatedFansChoice, this.teamManagementSettings.dedicatedFansCost);
         this.reloadTeamWithDelay();
 
-        const apiResponse = await this.fumbblApi.setDedicatedFans(this.team.getId(), this.team.getDedicatedFans());
+        const apiResponse = await this.fumbblApi.setDedicatedFans(this.team.getId(), this.dedicatedFansChoice);
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred setting dedicated fans.',

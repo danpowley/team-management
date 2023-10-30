@@ -257,6 +257,14 @@ export default class Team {
         return this.players.length - this.countMissNextGamePlayers();
     }
 
+    public updateDedicatedFans(dedicatedFans: number, dedicatedFansCost: number): void {
+        if (this.teamStatus.isNew()) {
+            const dedicatedFansDifference = dedicatedFans - this.getDedicatedFans();
+            this.treasury -= dedicatedFansDifference * dedicatedFansCost;
+            this.dedicatedFans = dedicatedFans;
+        }
+    }
+
     public addReroll(cost: number): void {
         this.rerolls++;
         this.treasury -= cost;
