@@ -257,7 +257,7 @@ export default class TeamManagementSettings {
             rosterPositionDataForBuyingPlayer.push({
                 positionId: position.id,
                 quantityHired: quantityHired,
-                canAfford: position.cost < availableTreasury,
+                canAfford: position.cost <= availableTreasury,
                 position: position,
             } as PositionDataForBuyingPlayer);
         }
