@@ -510,6 +510,8 @@ const TeamComponentProps = Vue.extend({
 
 @Component
 export default class TeamComponent extends TeamComponentProps {
+    private readonly MODIFICATION_RELOAD_DELAY: number = 5000;
+    private teamLastModifiedTimestamp: number = 0;
     private userRoles: UserRole[] = ['OWNER']; // TODO: fix hardcoded values here
     public accessControl: AccessControl | null = null;
     public teamManagementSettings: TeamManagementSettings | null = null;
@@ -521,9 +523,6 @@ export default class TeamComponent extends TeamComponentProps {
     public mainMenuShow: string = 'none';
     private showHireRookies: boolean = false;
     public errorModalInfo: {general: string, technical: string} = null;
-    private requireReloadTeam: boolean = false;
-    private requireReloadTeamIntervalId: number = null;
-    private readonly requireReloadTeamIntervalDelay: number = 5000;
 
     public modals: {
         activateTeam: boolean,
@@ -574,23 +573,6 @@ export default class TeamComponent extends TeamComponentProps {
                 this.reloadTeam();
             }
         });
-
-        // Check if team reload is required at regular intervals
-        this.requireReloadTeamIntervalId = setInterval(() => {
-            if (this.requireReloadTeam) {
-                // Do not reload team whilst drag is in progress
-                if (! this.teamSheet.isDragInProgress()) {
-                    this.requireReloadTeam = false;
-                    this.reloadTeam();
-                }
-            }
-        }, this.requireReloadTeamIntervalDelay);
-    }
-
-    unmounted() {
-        if (this.requireReloadTeamIntervalId) {
-            clearInterval(this.requireReloadTeamIntervalId);
-        }
     }
 
     private async reloadTeam() {
@@ -624,6 +606,17 @@ export default class TeamComponent extends TeamComponentProps {
         }
     }
 
+    private reloadTeamWithDelay() {
+        const currentTimestamp = Date.now();
+        this.teamLastModifiedTimestamp = currentTimestamp;
+        const reloadForRecentModification = () => {
+            if (this.teamLastModifiedTimestamp === currentTimestamp && ! this.teamSheet.isDragInProgress()) {
+                this.reloadTeam();
+            }
+        };
+        setTimeout(reloadForRecentModification, this.MODIFICATION_RELOAD_DELAY);
+    }
+
     private created() {
         window.addEventListener("keydown", this.handleKeyDown);
     }
@@ -641,11 +634,6 @@ export default class TeamComponent extends TeamComponentProps {
                 }
             }
         }
-    }
-
-    private handleGeneralTeamUpdate() {
-        this.refreshTeamSheet();
-        this.requireReloadTeam = true;
     }
 
     private async recoverFromUnexpectedError(generalErrorMessage: string, technicalErrorMessage: string) {
@@ -805,7 +793,7 @@ export default class TeamComponent extends TeamComponentProps {
             playerNumber,
             ! hasPlayer,
         );
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         const apiResponse = await this.fumbblApi.renumberPlayers(this.team.getId(), playerNumbers);
         if (! apiResponse.isSuccessful()) {
@@ -850,11 +838,11 @@ export default class TeamComponent extends TeamComponentProps {
 
         // Important to call this after all players have finished being removed,
         // otherwise some players will reappear during the removal process.
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
     }
 
     public async updateDedicatedFans() {
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         const apiResponse = await this.fumbblApi.setDedicatedFans(this.team.getId(), this.team.getDedicatedFans());
         if (! apiResponse.isSuccessful()) {
@@ -869,7 +857,7 @@ export default class TeamComponent extends TeamComponentProps {
         this.team.addReroll(
             this.team.getTeamStatus().isNew() ? this.teamManagementSettings.rerollCostOnCreate : this.teamManagementSettings.rerollCostFull
         );
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         const apiResponse = await this.fumbblApi.addReroll(this.team.getId());
         if (! apiResponse.isSuccessful()) {
@@ -883,7 +871,7 @@ export default class TeamComponent extends TeamComponentProps {
     public async removeReroll() {
         this.team.removeReroll(this.teamManagementSettings.rerollCostOnCreate);
         this.modals.removeReroll = false;
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
@@ -901,7 +889,7 @@ export default class TeamComponent extends TeamComponentProps {
 
     public async addAssistantCoach() {
         this.team.addAssistantCoach(this.teamManagementSettings.assistantCoachCost);
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         const apiResponse = await this.fumbblApi.addAssistantCoach(this.team.getId());
         if (! apiResponse.isSuccessful()) {
@@ -915,7 +903,7 @@ export default class TeamComponent extends TeamComponentProps {
     public async removeAssistantCoach() {
         this.team.removeAssistantCoach(this.teamManagementSettings.assistantCoachCost);
         this.modals.removeAssistantCoach = false;
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
@@ -933,7 +921,7 @@ export default class TeamComponent extends TeamComponentProps {
 
     public async addCheerleader() {
         this.team.addCheerleader(this.teamManagementSettings.cheerleaderCost);
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         const apiResponse = await this.fumbblApi.addCheerleader(this.team.getId());
         if (! apiResponse.isSuccessful()) {
@@ -947,7 +935,7 @@ export default class TeamComponent extends TeamComponentProps {
     public async removeCheerleader() {
         this.team.removeCheerleader(this.teamManagementSettings.cheerleaderCost);
         this.modals.removeCheerleader = false;
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
@@ -965,7 +953,7 @@ export default class TeamComponent extends TeamComponentProps {
 
     public async addApothecary() {
         this.team.addApothecary(this.teamManagementSettings.apothecaryCost);
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         const apiResponse = await this.fumbblApi.addApothecary(this.team.getId());
         if (! apiResponse.isSuccessful()) {
@@ -979,7 +967,7 @@ export default class TeamComponent extends TeamComponentProps {
     public async removeApothecary() {
         this.team.removeApothecary(this.teamManagementSettings.apothecaryCost);
         this.modals.removeApothecary = false;
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         let apiResponse = null;
         if (this.accessControl.canCreate()) {
@@ -1019,7 +1007,7 @@ export default class TeamComponent extends TeamComponentProps {
         }
 
         this.team.removePlayer(player);
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         const apiResponse = await this.fumbblApi.removePlayer(this.team.getId(), playerId);
         if (! apiResponse.isSuccessful()) {
@@ -1041,7 +1029,7 @@ export default class TeamComponent extends TeamComponentProps {
         }
 
         this.team.removePlayer(player);
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
 
         const apiResponse = await this.fumbblApi.retirePlayer(this.team.getId(), playerId);
         if (! apiResponse.isSuccessful()) {
@@ -1069,7 +1057,7 @@ export default class TeamComponent extends TeamComponentProps {
             iconRowVersionPosition,
             gender,
         );
-        this.handleGeneralTeamUpdate();
+        this.refreshTeamSheet();
 
         const apiResponsePlayerName = await this.fumbblApi.generatePlayerName(this.teamManagementSettings.nameGenerator, gender);
 
@@ -1089,7 +1077,7 @@ export default class TeamComponent extends TeamComponentProps {
         if (apiResponse.isSuccessful()) {
             const newPlayerResponseData: {playerId: number, number: number} = apiResponse.getData();
             temporaryPlayer.setIdForTemporaryPlayer(newPlayerResponseData.playerId);
-            this.handleGeneralTeamUpdate();
+            this.reloadTeamWithDelay();
             if (temporaryPlayer.getPlayerNumber() !== newPlayerResponseData.number) {
                 await this.recoverFromUnexpectedError(
                     'Your player has been purchased but your team page is out of synch with the latest version on the server. Please refresh the page if this problem continues.',
@@ -1125,7 +1113,7 @@ export default class TeamComponent extends TeamComponentProps {
             this.team.setName(originalTeamName);
             await this.recoverFromUnexpectedError('Unable to rename team.', apiResponse.getErrorMessage());
         }
-        this.handleGeneralTeamUpdate();
+        this.reloadTeamWithDelay();
         this.editTeamNameInProgress = false;
     }
 
