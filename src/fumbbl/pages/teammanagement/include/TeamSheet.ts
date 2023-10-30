@@ -16,6 +16,12 @@ export default class TeamSheet {
             }
             this.teamSheetEntries.push(new TeamSheetEntry(step, entryPlayer));
         }
+
+        for (const player of players) {
+            if (player.getPlayerNumber() > maxPlayers) {
+                this.teamSheetEntries.push(new TeamSheetEntry(player.getPlayerNumber(), player, true));
+            }
+        }
     }
 
     public getEntries(): TeamSheetEntry[] {

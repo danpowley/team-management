@@ -5,15 +5,17 @@ import UpdatePlayerDetails from "./UpdatePlayerDetails";
 export default class TeamSheetEntry {
     private entryNumber: number;
     private entryPlayer: Player | null;
+    private isJourneyMan: boolean;
     private updatePlayerDetails: UpdatePlayerDetails | null;
     private isDragSource: boolean = false;
     private isDropTarget: boolean = false;
     private foldOut: PlayerRowFoldOutMode = 'CLOSED';
 
-    constructor(entryNumber: number, entryPlayer: Player | null) {
+    constructor(entryNumber: number, entryPlayer: Player | null, isJourneyMan = false) {
         this.entryNumber = entryNumber;
         this.entryPlayer = entryPlayer;
         this.refreshUpdatePlayerDetails();
+        this.isJourneyMan = isJourneyMan;
     }
 
     public refreshUpdatePlayerDetails() {
@@ -33,12 +35,20 @@ export default class TeamSheetEntry {
         return this.entryPlayer;
     }
 
+    public getIsJourneyMan(): boolean {
+        return this.isJourneyMan;
+    }
+
     public getUpdatePlayerDetails(): UpdatePlayerDetails {
         return this.updatePlayerDetails;
     }
 
     public hasPlayer(): any {
         return this.entryPlayer !== null;
+    }
+
+    public hasRosteredPlayer(): any {
+        return this.entryPlayer !== null && this.isJourneyMan === false;
     }
 
     public isFirst(): boolean {

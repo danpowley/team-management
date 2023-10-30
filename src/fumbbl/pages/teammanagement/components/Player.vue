@@ -1,15 +1,15 @@
 <template>
     <div class="playerrow"
-        :draggable="teamSheetEntry.getIsDragSource()"
+        :draggable="teamSheetEntry.getIsDragSource() && ! teamSheetEntry.getIsJourneyMan()"
         :class="{
             playerinrow: teamSheetEntry.hasPlayer(),
             dragsource: teamSheetEntry.getIsDragSource(),
             droptarget: teamSheetEntry.getIsDropTarget(),
         }"
-        @dragenter="handleDragEnter()"
-        @dragover="handleDragOver($event)"
-        @drop="handleDrop($event)"
-        @dragend="handleDragEnd()"
+        @dragenter="! teamSheetEntry.getIsJourneyMan() ? handleDragEnter() : undefined"
+        @dragover="! teamSheetEntry.getIsJourneyMan() ? handleDragOver($event) : undefined"
+        @drop="! teamSheetEntry.getIsJourneyMan() ? handleDrop($event) : undefined"
+        @dragend="! teamSheetEntry.getIsJourneyMan() ? handleDragEnd() : undefined"
     >
         <template v-if="teamSheetEntry.isFirst() && teamSheetEntry.hasPlayer() && !teamSheetEntry.getIsDragSource() && teamSheetEntry.getIsDropTarget()">
             <div class="seperator active"><div class="line"></div></div>
@@ -19,7 +19,7 @@
         </template>
         <div class="main" :class="{missnextgame: teamSheetEntry.hasPlayer() && teamSheetEntry.getPlayer().isMissNextGame()}">
             <template v-if="accessControl.canEdit()">
-                <template v-if="teamSheetEntry.hasPlayer()">
+                <template v-if="teamSheetEntry.hasRosteredPlayer()">
                     <div v-if="allFoldOutsClosed" class="cell draghandle" @mousedown="makePlayerDraggable()" @mouseup="endPlayerDraggable()">
                         <template v-if="!isAnyPlayerDragInProgress || teamSheetEntry.getIsDragSource()">
                             <svg fill="#000000" version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -60,7 +60,7 @@
                 <div class="cell playerdetails">
                     <div class="playername" :title="teamSheetEntry.getPlayer().getPlayerName()">
                         <span v-if="teamSheetEntry.getPlayer().isTemporaryPlayerWithoutName()">Loading...</span>
-                        <span v-else-if="teamSheetEntry.getPlayer().isTemporaryPlayer()">{{ teamSheetEntry.getPlayer().getPlayerName() }}</span>
+                        <span v-else-if="teamSheetEntry.getPlayer().isTemporaryPlayer() || teamSheetEntry.getIsJourneyMan()">{{ teamSheetEntry.getPlayer().getPlayerName() }}</span>
                         <a v-else href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)" :title="`Player: ${teamSheetEntry.getPlayer().getPlayerName()}, ID: ${teamSheetEntry.getPlayer().getId()}`">{{ teamSheetEntry.getPlayer().getPlayerName() }}</a>
                     </div>
                     <div class="playerposition" :title="teamSheetEntry.getPlayer().getPositionName()">{{ teamSheetEntry.getPlayer().getPositionName() }}</div>
@@ -102,6 +102,7 @@
                     </div>
                     <div class="playerskills" :title="teamSheetEntry.getPlayer().getSkills().join(', ')">
                         {{ teamSheetEntry.getPlayer().getSkills().join(', ') }}
+                        <template v-if="teamSheetEntry.getIsJourneyMan()">Loner</template>
                     </div>
                 </div>
                 <div v-if="! accessControl.canCreate()" class="cell injuries" :title="'Injuries in chronological order: ' + teamSheetEntry.getPlayer().getInjuries().join(',')">
@@ -131,7 +132,7 @@
             </template>
         </div>
         <div class="foldout foldoutmore" :class="{active: isFoldOutMore}">
-            <playerdetails v-if="teamSheetEntry.hasPlayer() || showPlayerInfoFoldoutTemporarily"
+            <playerdetails v-if="teamSheetEntry.hasRosteredPlayer() || showPlayerInfoFoldoutTemporarily"
                 :fumbbl-api="fumbblApi"
                 :team-sheet-entry="teamSheetEntry"
                 :can-create="accessControl.canCreate()"
