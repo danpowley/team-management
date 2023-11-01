@@ -1012,6 +1012,7 @@ export default class TeamComponent extends TeamComponentProps {
         }
 
         this.team.removePlayer(player);
+        this.refreshTeamSheet();
         this.reloadTeamWithDelay();
 
         const apiResponse = await this.fumbblApi.removePlayer(this.team.getId(), playerId);
