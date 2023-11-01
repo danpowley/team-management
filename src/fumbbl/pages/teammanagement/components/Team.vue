@@ -183,8 +183,8 @@
                     <template v-if="accessControl.canCreate()">
                         <select v-model.number="dedicatedFansChoice">
                             <option v-for="dedicatedFansStartValue in teamManagementSettings.getDedicatedFansAllowedValues(team.getDedicatedFans(), team.getTreasury())" :key="dedicatedFansStartValue">{{ dedicatedFansStartValue }}</option>
-                        </select>
-                        <button @click="updateDedicatedFans()">Ok</button>
+                        </select>&nbsp;
+                        <button v-if="dedicatedFansChoice != team.getDedicatedFans()" @click="updateDedicatedFans()" class="teambutton">Ok</button>
                     </template>
                     <template v-else>
                         {{ team.getDedicatedFans() }}
