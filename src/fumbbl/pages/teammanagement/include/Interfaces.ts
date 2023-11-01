@@ -48,6 +48,7 @@ export interface Position {
     quantityAllowed: number,
     isBigGuy: boolean,
     defaultGender: string,
+    isPeaked: boolean,
 };
 
 export interface PositionDataForBuyingPlayer {

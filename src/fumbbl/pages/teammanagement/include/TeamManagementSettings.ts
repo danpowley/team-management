@@ -46,6 +46,7 @@ export default class TeamManagementSettings {
                         quantityAllowed: ~~position.quantity,
                         isBigGuy: position.type === 'BIGGUY',
                         defaultGender: position.gender,
+                        isPeaked: position.type === 'PEAKED',
                     } as Position;
                 }),
             },

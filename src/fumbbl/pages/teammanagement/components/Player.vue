@@ -107,8 +107,13 @@
                     {{ displayInjuries(teamSheetEntry.getPlayer().getInjuries()) }}
                 </div>
                 <div v-if="! accessControl.canCreate()" class="cell spp" :title="sppSummaryText">
-                    <span class="spendable">{{ sppDisplayInfo.spendable }}/</span><span class="maxlimit">{{ sppDisplayInfo.maxLimit }}</span>
-                    <div class="tierinfo"><span v-for="n in sppDisplayInfo.tier" :key="n">•</span></div>
+                    <template v-if="teamSheetEntry.getPlayer().getPosition().isPeaked">
+                        <div>Peak-{{ sppDisplayInfo.spendable }}</div>
+                    </template>
+                    <template v-else>
+                        <span class="spendable">{{ sppDisplayInfo.spendable }}/</span><span class="maxlimit">{{ sppDisplayInfo.maxLimit }}</span>
+                        <div class="tierinfo"><span v-for="n in sppDisplayInfo.tier" :key="n">•</span></div>
+                    </template>
                 </div>
                 <div class="cell cost">
                     <div class="costbasic">{{ teamSheetEntry.getPlayer().getPlayerCost()/1000 }}k</div>
