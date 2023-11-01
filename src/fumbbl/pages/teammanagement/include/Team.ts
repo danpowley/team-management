@@ -65,7 +65,10 @@ export default class Team {
         team.seasonInfo.currentSeason = rawApiTeam.seasonInfo.currentSeason;
 
         for (const rawApiPlayer of rawApiTeam.players) {
-            let iconRowVersionPosition = rosterIconManager.getRandomIconRowVersionPosition(rawApiPlayer.positionId);
+            let iconRowVersionPosition = rosterIconManager.getNextAvailableIconRowVersionPosition(
+                rawApiPlayer.positionId,
+                team.getTakenIconRowVersionPositionsOfPositionId(rawApiPlayer.positionId),
+            );
             if (playerIconRowVersionPositions[rawApiPlayer.id] !== undefined) {
                 iconRowVersionPosition = playerIconRowVersionPositions[rawApiPlayer.id];
             }
@@ -235,6 +238,14 @@ export default class Team {
 
     public countPlayersOfPositionId(positionId: number): number {
         return this.players.filter(player => player.getPositionId() === positionId).length;
+    }
+
+    public getTakenIconRowVersionPositionsOfPositionId(positionId: number): number[] {
+        return this.players.filter(player => player.getPositionId() === positionId).map(
+            (player: Player) => {
+                return player.getIconRowVersionPosition();
+            }
+        );
     }
 
     public getMissNextGamePlayers(): Player[] {

@@ -1052,7 +1052,10 @@ export default class TeamComponent extends TeamComponentProps {
     public async handleHireRookie(positionId: number) {
         const position = this.teamManagementSettings.getPosition(positionId);
         const gender = this.getGender(position.defaultGender);
-        const iconRowVersionPosition = this.rosterIconManager.getRandomIconRowVersionPosition(positionId);
+        const iconRowVersionPosition = this.rosterIconManager.getNextAvailableIconRowVersionPosition(
+            positionId,
+            this.team.getTakenIconRowVersionPositionsOfPositionId(positionId),
+        );
 
         // Add quick temporary player for user interface responsiveness
         // This temporary player is removed when reload team is called later in this method

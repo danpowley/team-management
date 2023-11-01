@@ -50,8 +50,11 @@ export default class RosterIconManager {
         }
     }
 
-    public getRandomIconRowVersionPosition(positionId: number) {
-        return Math.floor(Math.random() * this.positionsIconData[positionId].iconData.iconRowVersionPositions.length);
+    public getNextAvailableIconRowVersionPosition(positionId: number, takenIconRowVersionPositions: number[]): number {
+        const nextAvailableIconRowVersionPosition = this.positionsIconData[positionId].iconData.iconRowVersionPositions.findIndex((iconRowVersionPosition, index) => {
+            return ! takenIconRowVersionPositions.includes(index);
+        });
+        return nextAvailableIconRowVersionPosition !== -1 ? nextAvailableIconRowVersionPosition : 0;
     }
 
     public getIconStyle(positionId: number, iconRowVersionPosition: number | null): string {
