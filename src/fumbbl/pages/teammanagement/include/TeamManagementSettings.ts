@@ -2,6 +2,7 @@ import { AddRemovePermissions, Position, PositionDataForBuyingPlayer, PositionSt
 import Team from "./Team";
 
 export default class TeamManagementSettings {
+    private readonly ALLOW_DISCARD_REROLL: boolean = true;
     private settings: SetupTeamManagementSettings;
 
     constructor(rawApiRuleset: any, rawApiRoster: any, hasLowCostLinemen: boolean) {
@@ -224,7 +225,7 @@ export default class TeamManagementSettings {
         return {
             rerolls: {
                 add: team.getRerolls() < this.settings.rerolls.max && team.canAfford(rerollCost),
-                remove: team.getRerolls() > 0,
+                remove: team.getRerolls() > 0 && (this.ALLOW_DISCARD_REROLL || team.getTeamStatus().isNew()),
             },
             assistantCoaches: {
                 add: team.getAssistantCoaches() < this.settings.sidelineStaff.assistantCoaches.max && team.canAfford(this.assistantCoachCost),
