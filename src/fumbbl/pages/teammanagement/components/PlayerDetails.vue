@@ -56,32 +56,7 @@
                     <td>MVPs</td>
                 </tr>
             </table>
-            <button v-if="canCreate" class="teambutton" @click.prevent="$emit('remove-player')" style="float: right;">Remove</button>
-            <button v-else-if="canEdit" class="teambutton" @click.prevent="modals.retirePlayer = true" style="float: right;">Retire</button>
         </div>
-        <modal
-            v-if="player"
-            v-show="modals.retirePlayer === true"
-            :buttons-config="{'close': 'Close', 'retire': 'Retire player'}"
-            :modal-size="'small'"
-            @close="modals.retirePlayer = false"
-            @retire="modals.retirePlayer = false; $emit('retire-player')"
-        >
-            <template v-slot:header>
-                Retire player?
-            </template>
-
-            <template v-slot:body>
-                <p>Are you sure you want to retire the following player?</p>
-                <p>{{ player.getPositionName() }}: {{ player.getPlayerName() }}</p>
-                <template v-if="player.getSkills().length === 0">
-                    <p>No earned skills.</p>
-                </template>
-                <template v-else>
-                    <p>Earned skills: <strong>{{ player.getSkills().join(', ') }}</strong></p>
-                </template>
-            </template>
-        </modal>
         <modal
             v-if="errorModalInfo !== null"
             :buttons-config="{'close': 'Ok'}"
@@ -118,10 +93,6 @@ const PlayerDetailsComponentProps = Vue.extend({
             type: Object as PropType<FumbblApi>,
             required: true,
         },
-        canCreate: {
-            type: Boolean,
-            required: true,
-        },
         canEdit: {
             type: Boolean,
             required: true,
@@ -141,11 +112,6 @@ const PlayerDetailsComponentProps = Vue.extend({
 export default class PlayerDetailsComponent extends PlayerDetailsComponentProps {
     public updatePlayerDetailsErrors: string[] = [];
     public errorModalInfo: {general: string, technical: string} = null;
-    public modals: {
-        retirePlayer: boolean,
-    } = {
-        retirePlayer: false,
-    };
 
     public get player() {
         return this.teamSheetEntry.getPlayer();

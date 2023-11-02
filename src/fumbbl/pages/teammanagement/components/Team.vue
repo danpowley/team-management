@@ -95,20 +95,26 @@
             <div class="playerrowsouter">
                 <div class="playerrows">
                     <div class="playerrowsheader">
-                        <div v-if="accessControl.canEdit()" class="cell draghandle"></div>
-                        <div class="cell playernumber"></div>
-                        <div class="cell playericoncontainer"></div>
-                        <div class="cell playerdetails"></div>
-                        <div class="cell statma">Ma</div>
-                        <div class="cell statst">St</div>
-                        <div class="cell statag">Ag</div>
-                        <div class="cell statpa">Pa</div>
-                        <div class="cell statav">Av</div>
-                        <div class="cell skills">Skills</div>
-                        <div v-if="! accessControl.canCreate()" class="cell injuries">Inj</div>
-                        <div v-if="! accessControl.canCreate()" class="cell spp">SPP</div>
-                        <div class="cell cost">Cost</div>
-                        <div v-if="accessControl.canCreate()" class="cell removenewplayer">Remove</div>
+                        <template v-if="! showHireRookiesWithPermissionsCheck">
+                            <div class="cell draghandle"></div>
+                            <div class="cell playernumber"></div>
+                            <div class="cell playericoncontainer"></div>
+                            <div class="cell playerdetails"></div>
+                            <div class="cell statma">Ma</div>
+                            <div class="cell statst">St</div>
+                            <div class="cell statag">Ag</div>
+                            <div class="cell statpa">Pa</div>
+                            <div class="cell statav">Av</div>
+                            <div class="cell skills">Skills</div>
+                            <div class="cell injuries">Inj</div>
+                            <div class="cell spp">SPP</div>
+                            <div class="cell cost">Cost</div>
+                            <div v-if="accessControl.canCreate()" class="cell removenewplayer">Remove</div>
+                            <div v-else-if="accessControl.canEdit()" class="cell removenewplayer">Retire</div>
+                        </template>
+                        <template v-else>
+                            <div class="cell">...</div>
+                        </template>
                     </div>
                     <template v-if="teamSheet !== null">
                         <player v-for="teamSheetEntry in teamSheet.getEntries()" :key="teamSheetEntry.getNumber()"
@@ -120,6 +126,7 @@
                             :use-active-seperator-for-drag-drop="teamSheet.useActiveSeperatorForDragDrop(teamSheetEntry)"
                             :roster-icon-manager="rosterIconManager"
                             :name-generator="teamManagementSettings.nameGenerator"
+                            :compact-view="showHireRookiesWithPermissionsCheck"
                             @remove-player="handleRemovePlayer"
                             @retire-player="handleRetirePlayer"
                             @make-player-draggable="handleMakePlayerDraggable"
