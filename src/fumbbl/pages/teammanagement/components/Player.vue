@@ -122,10 +122,14 @@
                     <div class="costbreakdown">({{ teamSheetEntry.getPlayer().getPositionCost()/1000 }}+{{ teamSheetEntry.getPlayer().getSkillCost()/1000 }})k</div>
                 </div>
                 <div v-if="accessControl.canCreate()" class="cell removenewplayer">
-                    (<a href="#" @click.prevent="handleRemovePlayer">Remove</a>)
+                    <template v-if="! teamSheetEntry.getIsJourneyMan()">
+                        (<a href="#" @click.prevent="handleRemovePlayer">Remove</a>)
+                    </template>
                 </div>
                 <div v-else-if="accessControl.canEdit()" class="cell retireplayer">
-                    (<a href="#" @click.prevent="handleRetirePlayer">Retire</a>)
+                    <template v-if="! teamSheetEntry.getIsJourneyMan()">
+                        (<a href="#" @click.prevent="handleRetirePlayer">Retire</a>)
+                    </template>
                 </div>
             </template>
             <template v-else>
@@ -302,6 +306,7 @@ export default class PlayerComponent extends PlayerComponentProps {
     }
 
     public handleRetirePlayer() {
+        this.$emit('nominate-retire-player', this.teamSheetEntry.getPlayer());
     }
 
     public handleDragEnter() {

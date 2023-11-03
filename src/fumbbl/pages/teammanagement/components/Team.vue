@@ -128,7 +128,7 @@
                             :name-generator="teamManagementSettings.nameGenerator"
                             :compact-view="showHireRookiesWithPermissionsCheck"
                             @remove-player="handleRemovePlayer"
-                            @retire-player="handleRetirePlayer"
+                            @nominate-retire-player="handleNominateRetirePlayer"
                             @make-player-draggable="handleMakePlayerDraggable"
                             @drag-enter="handlePlayerDragEnter"
                             @drop="handlePlayerDrop"
@@ -466,6 +466,13 @@
                 <p>Team: <strong>{{ team.getName() }}</strong> {{ team.getTeamValue() / 1000 }}k ({{ teamManagementSettings.rosterName }})</p>
             </template>
         </modal>
+        <retireplayer
+            v-if="playerToRetire"
+            :fumbblApi="fumbblApi"
+            :player="playerToRetire"
+            @nominate-retire-player-cancel="handleNominateRetirePlayerCancel"
+            @nominate-retire-player-confirm="handleNominateRetirePlayerConfirm"
+        ></retireplayer>
     </div>
 </template>
 
@@ -493,7 +500,9 @@ import TeamManagementSettings from "../include/TeamManagementSettings";
 import SpecialRulesComponent from "./SpecialRules.vue";
 import AddRemoveComponent from "./AddRemove.vue";
 import ModalComponent from "./Modal.vue";
+import RetirePlayerComponent from "./RetirePlayer.vue";
 import FumbblApi from "../include/FumbblApi";
+import Player from "../include/Player";
 
 const TeamComponentProps = Vue.extend({
     components: {
@@ -503,6 +512,7 @@ const TeamComponentProps = Vue.extend({
         'specialrules': SpecialRulesComponent,
         'addremove': AddRemoveComponent,
         'modal': ModalComponent,
+        'retireplayer': RetirePlayerComponent,
     },
     props: {
         fumbblApi: {
@@ -528,6 +538,7 @@ export default class TeamComponent extends TeamComponentProps {
     public teamSheet: TeamSheet | null = null;
     public editTeamNameInProgress: boolean = false;
     public dedicatedFansChoice: number | null = null;
+    public playerToRetire: Player | null = null;
     public rawApiSpecialRules: RawApiSpecialRules = {fromRoster: null, fromTeam: null};
     public mainMenuShow: string = 'none';
     private showHireRookies: boolean = false;
@@ -1031,20 +1042,27 @@ export default class TeamComponent extends TeamComponentProps {
         }
     }
 
-    public async handleRetirePlayer(teamSheetEntryNumber: number, playerId: number) {
-        const player = this.team.findPlayerByNumber(teamSheetEntryNumber);
-        if (player === null || player.getId() !== playerId) {
-            await this.recoverFromUnexpectedError(
-                'Unable to retire player, if this problem continues please reload the page.',
-                `Retiring playerId ${playerId} from number ${teamSheetEntryNumber} but found playerId ${player ? player.getId() : 'empty'}`,
-            );
+    public handleNominateRetirePlayer(player: Player) {
+        this.playerToRetire = player;
+    }
+
+    public handleNominateRetirePlayerCancel() {
+        this.playerToRetire = null;
+    }
+
+    public async handleNominateRetirePlayerConfirm() {
+        if (! this.playerToRetire) {
             return;
         }
 
-        this.team.removePlayer(player);
+        this.team.removePlayer(this.playerToRetire);
+        this.refreshTeamSheet();
         this.reloadTeamWithDelay();
 
-        const apiResponse = await this.fumbblApi.retirePlayer(this.team.getId(), playerId);
+        const playerToRetireId = this.playerToRetire.getId();
+        this.playerToRetire = null;
+
+        const apiResponse = await this.fumbblApi.retirePlayer(this.team.getId(), playerToRetireId);
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred retiring a player.',

@@ -155,6 +155,11 @@ export default class FumbblApi {
         return await this.post(url);
     }
 
+    public async getPlayer(playerId: number): Promise<ApiResponse> {
+        const url = this.getUrl('/api/player/get/' + playerId);
+        return await this.post(url);
+    }
+
     public async generatePlayerName(nameGenerator: string, gender: PlayerGender): Promise<ApiResponse> {
         const url = this.getUrl(`/api/name/generate/${nameGenerator}/${gender.toLowerCase()}`);
         return await this.post(url);

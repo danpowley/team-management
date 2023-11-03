@@ -1,4 +1,4 @@
-import {PlayerGender, PlayerSkillStatus, Position} from "./Interfaces";
+import {PlayerGender, PlayerRecord, PlayerSkillStatus, Position} from "./Interfaces";
 import UpdatePlayerDetails from "./UpdatePlayerDetails";
 
 export default class Player {
@@ -14,7 +14,7 @@ export default class Player {
     private position: Position;
     private injuries: string[] = []; // Type?
     private skills: string[] = [];
-    private record: {completions: number, touchdowns: number, interceptions: number, casualties: number, mvps: number, spp: {total: number, extra: number, spent: number}} = null;
+    private record: PlayerRecord = null;
     private skillStatus: {status: PlayerSkillStatus, maxLimit: number, tier: number} = null;
     private skillCost: number = 0;
 
@@ -61,7 +61,7 @@ export default class Player {
             iconRowVersionPosition,
             rawApiPlayer.gender ? rawApiPlayer.gender.toUpperCase() : 'NEUTRAL', // it is possible for null genders to come through in the API
         );
-        player.injuries = rawApiPlayer.injuries.split(',');
+        player.injuries = rawApiPlayer.injuries.split(',').filter(injury => injury !== '');
         player.skills = rawApiPlayer.skills;
 
         player.skillCost = rawApiPlayer.skillCosts.reduce((totalCost, skillCost) => totalCost += skillCost, 0);
@@ -250,7 +250,7 @@ export default class Player {
         return this.armourStat < this.getPositionStats().Armour;
     }
 
-    public getRecord(): any {
+    public getRecord(): PlayerRecord {
         return this.record;
     }
 

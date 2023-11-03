@@ -66,6 +66,19 @@ export interface PositionStats {
     Armour: number,
 }
 
+export interface PlayerRecord {
+    completions: number,
+    touchdowns: number,
+    interceptions: number,
+    casualties: number,
+    mvps: number,
+    spp: {
+        total: number,
+        extra: number,
+        spent: number,
+    },
+}
+
 export interface SetupTeamManagementSettings {
     roster: {
         name: string,
