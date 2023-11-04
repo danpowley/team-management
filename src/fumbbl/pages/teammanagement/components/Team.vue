@@ -39,6 +39,8 @@
                         <li class="menu" @mouseenter="menuShow('misc')" @mouseleave="menuHide('misc')">
                             <a href="#">Misc<img src="https://fumbbl.com/FUMBBL/Images/Icons/disclosure.png"></a>
                             <ul class="submenu" v-show="mainMenuShow === 'misc'">
+                                <li><a :href="`https://fumbbl.com/p/gallery3?team=${team.getId()}`">Change Image</a></li>
+                                <li><a :href="`https://fumbbl.com/p/team?op=editbio&amp;team_id=${team.getId()}`">Edit Bio</a></li>
                                 <li><a :href="`https://fumbbl.com/p/team?op=reportteam&team_id=${team.getId()}`">Report</a></li>
                             </ul>
                         </li>
@@ -46,12 +48,6 @@
                 </div>
             </div>
             <img class="divisionlogo" :src="divisionLogoImageUrl" :alt="`Division logo for ${team.getDivision()}.`" :title="`Division logo for ${team.getDivision()}.`">
-        </div>
-        <div class="teamfluff">
-            <div class="teamflufflinks">
-                <span>(<a :href="`https://fumbbl.com/p/gallery3?team=${team.getId()}`">Change Image</a>) </span>
-                <span>(<a :href="`https://fumbbl.com/p/team?op=editbio&amp;team_id=${team.getId()}`">Edit Bio</a>) </span>
-            </div>
         </div>
         <div v-if="accessControl.canCreate()" class="createteamstats">
             <div class="playerinfo">
