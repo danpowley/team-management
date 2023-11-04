@@ -128,7 +128,7 @@ export default class Team {
         if (this.teamStatus.isRetired() || ! this.isCompetitiveDivision()) {
             return 0;
         }
-        return Math.floor(this.tvLimit / 5000) * 5;
+        return Math.ceil(this.tvLimit / 5000) * 5;
     }
 
     public getCurrentTeamValue(): number {
