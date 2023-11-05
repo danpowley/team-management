@@ -51,7 +51,12 @@
                 </span>
                 <div class="draggingnowindicator">&#8597;</div>
             </div>
-            <template v-if="teamSheetEntry.hasPlayer()">
+            <template v-if="teamSheetEntry.getIsUpdating()">
+                <div class="isupdating">
+                    <span class="loadingellipsis">Updating</span>
+                </div>
+            </template>
+            <template v-else-if="teamSheetEntry.hasPlayer()">
                 <div class="cell playericoncontainer">
                     <div class="iconusingbackground" :style="rosterIconManager.getIconStyle(teamSheetEntry.getPlayer().getPositionId(), teamSheetEntry.getPlayer().getIconRowVersionPosition())"></div>
                 </div>
@@ -128,7 +133,10 @@
                 </div>
                 <div v-else-if="accessControl.canEdit()" class="cell retireplayer">
                     <template v-if="! teamSheetEntry.getIsJourneyMan()">
-                        (<a href="#" @click.prevent="handleRetirePlayer">Retire</a>)
+                        (<a href="#" @click.prevent="handleRetirePlayer">{{ teamSheetEntry.getPlayer().isRefundable() ? 'Refund' : 'Retire' }}</a>)
+                    </template>
+                    <template v-else>
+                        (<a href="#" @click.prevent="handleHireJourneyman">Hire</a>)
                     </template>
                 </div>
             </template>
@@ -309,6 +317,10 @@ export default class PlayerComponent extends PlayerComponentProps {
         this.$emit('nominate-retire-player', this.teamSheetEntry.getPlayer());
     }
 
+    public handleHireJourneyman() {
+        this.$emit('hire-journeyman', this.teamSheetEntry.getPlayer());
+    }
+
     public handleDragEnter() {
         this.$emit('drag-enter', this.teamSheetEntry.getNumber());
     }
@@ -351,10 +363,18 @@ export default class PlayerComponent extends PlayerComponentProps {
     }
 
     public get sppDisplayInfo(): any {
+        if (! this.teamSheetEntry.hasPlayer()) {
+            return null;
+        }
+
         return this.teamSheetEntry.getPlayer().sppDisplayInfo;
     }
 
     public get sppSummaryText(): string {
+        if (! this.teamSheetEntry.hasPlayer()) {
+            return '';
+        }
+
         const spendable = this.sppDisplayInfo.spendable;
 
         const randomPrimaryThreshold = this.sppDisplayInfo.thresholds.randomPrimary;

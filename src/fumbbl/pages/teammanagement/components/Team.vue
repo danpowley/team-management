@@ -125,6 +125,7 @@
                             :compact-view="showHireRookiesWithPermissionsCheck"
                             @remove-player="handleRemovePlayer"
                             @nominate-retire-player="handleNominateRetirePlayer"
+                            @hire-journeyman="handleHireJourneyman"
                             @make-player-draggable="handleMakePlayerDraggable"
                             @drag-enter="handlePlayerDragEnter"
                             @drop="handlePlayerDrop"
@@ -212,7 +213,7 @@
                         :can-add="addRemovePermissions.assistantCoaches.add"
                         :can-remove="addRemovePermissions.assistantCoaches.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
-                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
+                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Fire'"
                         @add="addAssistantCoach"
                         @remove-with-confirm="modals.removeAssistantCoach = true"
                         @remove-immediately="removeAssistantCoach"
@@ -237,7 +238,7 @@
                         :can-add="addRemovePermissions.cheerleaders.add"
                         :can-remove="addRemovePermissions.cheerleaders.remove"
                         :label-add="accessControl.canCreate() ? 'Add' : 'Buy'"
-                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Discard'"
+                        :label-remove="accessControl.canCreate() ? 'Remove' : 'Fire'"
                         @add="addCheerleader"
                         @remove-with-confirm="modals.removeCheerleader = true"
                         @remove-immediately="removeCheerleader"
@@ -489,7 +490,6 @@ import Team from "../include/Team";
 import TeamSheet from "../include/TeamSheet";
 import PlayerComponent from "./Player.vue";
 import EditTeamNameComponent from "./EditTeamName.vue";
-
 import HireRookiesComponent from "./HireRookies.vue";
 import RosterIconManager from "../include/RosterIconManager";
 import TeamManagementSettings from "../include/TeamManagementSettings";
@@ -778,10 +778,11 @@ export default class TeamComponent extends TeamComponentProps {
         }
     }
 
-    public refreshTeamSheet() {
+    public refreshTeamSheet(entryNumbersUpdating: number[] = []) {
         this.teamSheet = new TeamSheet(
             this.teamManagementSettings.maxPlayers,
             this.team.getPlayers(),
+            entryNumbersUpdating,
         );
     }
 
@@ -1062,6 +1063,27 @@ export default class TeamComponent extends TeamComponentProps {
         if (! apiResponse.isSuccessful()) {
             await this.recoverFromUnexpectedError(
                 'An error occurred retiring a player.',
+                apiResponse.getErrorMessage(),
+            );
+        }
+    }
+
+    public async handleHireJourneyman(player: Player) {
+        const teamSheetEntryId = this.teamSheet.findFirstEmptyTeamSheetEntry().getNumber();
+
+        this.team.hireJourneyman(
+            teamSheetEntryId,
+            player
+        );
+
+        this.refreshTeamSheet([teamSheetEntryId]);
+        setTimeout(() => this.teamSheet.clearAllIsUpdating(), 2000);
+        this.reloadTeamWithDelay();
+
+        const apiResponse = await this.fumbblApi.hireJourneyman(this.team.getId(), player.getId());
+        if (! apiResponse.isSuccessful()) {
+            await this.recoverFromUnexpectedError(
+                'An error occurred permanently hiring a journeyman.',
                 apiResponse.getErrorMessage(),
             );
         }

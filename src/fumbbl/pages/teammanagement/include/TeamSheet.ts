@@ -5,7 +5,7 @@ import TeamSheetEntry from "./TeamSheetEntry";
 export default class TeamSheet {
     private teamSheetEntries: TeamSheetEntry[] = [];
 
-    constructor(maxPlayers: number, players: Player[]) {
+    constructor(maxPlayers: number, players: Player[], entryNumbersUpdating: number[]) {
         for (let step = 1; step <= maxPlayers; step++) {
             let entryPlayer = null;
             for (const player of players) {
@@ -14,7 +14,9 @@ export default class TeamSheet {
                     break;
                 }
             }
-            this.teamSheetEntries.push(new TeamSheetEntry(step, entryPlayer));
+            const teamSheetEntry = new TeamSheetEntry(step, entryPlayer);
+            teamSheetEntry.setIsUpdating(entryNumbersUpdating.includes(step));
+            this.teamSheetEntries.push(teamSheetEntry);
         }
 
         for (const player of players) {
@@ -145,5 +147,11 @@ export default class TeamSheet {
 
         const teamSheetEntry = this.findTeamSheetEntry(teamSheetEntryNumber);
         teamSheetEntry.setFoldOut(playerRowFoldOutMode);
+    }
+
+    public clearAllIsUpdating() {
+        this.teamSheetEntries.forEach(teamSheetEntry => {
+            teamSheetEntry.setIsUpdating(false);
+        });
     }
 }

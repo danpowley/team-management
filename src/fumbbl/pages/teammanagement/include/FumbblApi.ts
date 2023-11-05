@@ -254,6 +254,12 @@ export default class FumbblApi {
         return await this.enqueuePost(url, data);
     }
 
+    public async hireJourneyman(teamId: number, playerId: number): Promise<ApiResponse> {
+        const url = this.getUrl('/api/team/hireJourneyman');
+        const data = {teamId: teamId, playerId: playerId};
+        return await this.enqueuePost(url, data);
+    }
+
     public async updatePlayer(playerId: number, playerName: string, gender: PlayerGender): Promise<ApiResponse> {
         const url = this.getUrl('/api/player/update');
         const data = {playerId: playerId, gender: gender.toLowerCase(), name: playerName};

@@ -6,6 +6,7 @@ export default class TeamSheetEntry {
     private entryNumber: number;
     private entryPlayer: Player | null;
     private isJourneyMan: boolean;
+    private isUpdating: boolean = false;
     private updatePlayerDetails: UpdatePlayerDetails | null;
     private isDragSource: boolean = false;
     private isDropTarget: boolean = false;
@@ -37,6 +38,14 @@ export default class TeamSheetEntry {
 
     public getIsJourneyMan(): boolean {
         return this.isJourneyMan;
+    }
+
+    public getIsUpdating(): boolean {
+        return this.isUpdating;
+    }
+
+    public setIsUpdating(isUpdating: boolean) {
+        this.isUpdating = isUpdating;
     }
 
     public getUpdatePlayerDetails(): UpdatePlayerDetails {

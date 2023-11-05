@@ -59,7 +59,7 @@ export default class Player {
             rawApiPlayer.name,
             position,
             iconRowVersionPosition,
-            rawApiPlayer.gender ? rawApiPlayer.gender.toUpperCase() : 'NEUTRAL', // it is possible for null genders to come through in the API
+            rawApiPlayer.gender ? rawApiPlayer.gender.toUpperCase() : 'NONBINARY', // older journeymen have null gender
         );
         player.injuries = rawApiPlayer.injuries.split(',').filter(injury => injury !== '');
         player.skills = rawApiPlayer.skills;
@@ -298,5 +298,10 @@ export default class Player {
     public updatePlayerDetails(updatePlayerDetails: UpdatePlayerDetails) {
         this.playerName = updatePlayerDetails.getPlayerName();
         this.gender = updatePlayerDetails.getGender();
+    }
+
+    // TODO: awaiting support from this from the API, need to know number of games played, and whether player is former journeyman.
+    public isRefundable(): boolean {
+        return false;
     }
 }

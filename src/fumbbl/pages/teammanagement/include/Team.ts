@@ -167,6 +167,10 @@ export default class Team {
         return temporaryPlayer;
     }
 
+    public hireJourneyman(teamSheetEntryNumber: number, player: Player) {
+        player.setPlayerNumber(teamSheetEntryNumber);
+    }
+
     public findPlayerByNumber(playerNumber: number): Player | null {
         const player = this.players.find(player => player.getPlayerNumber() === playerNumber);
         return player ? player : null;
