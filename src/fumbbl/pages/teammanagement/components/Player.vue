@@ -133,7 +133,7 @@
                 </div>
                 <div v-else-if="accessControl.canEdit()" class="cell retireplayer">
                     <template v-if="! teamSheetEntry.getIsJourneyMan()">
-                        (<a href="#" @click.prevent="handleRetirePlayer">{{ teamSheetEntry.getPlayer().isRefundable() ? 'Refund' : 'Retire' }}</a>)
+                        (<a href="#" @click.prevent="handleRetirePlayer">{{ teamSheetEntry.getPlayer().getIsRefundable() ? 'Refund' : 'Retire' }}</a>)
                     </template>
                     <template v-else>
                         (<a href="#" @click.prevent="handleHireJourneyman">Hire</a>)

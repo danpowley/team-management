@@ -17,6 +17,7 @@ export default class Player {
     private record: PlayerRecord = null;
     private skillStatus: {status: PlayerSkillStatus, maxLimit: number, tier: number} = null;
     private skillCost: number = 0;
+    private isRefundable: boolean = true;
 
     constructor(
         id: number,
@@ -83,6 +84,8 @@ export default class Player {
             maxLimit: rawApiPlayer.skillStatus.maxLimit,
             tier: rawApiPlayer.skillStatus.tier,
         };
+
+        player.isRefundable = rawApiPlayer.refundable;
 
         return player;
     }
@@ -163,6 +166,10 @@ export default class Player {
 
     public getSkills(): string[] {
         return this.skills;
+    }
+
+    public getIsRefundable(): boolean {
+        return this.isRefundable;
     }
 
     private calculateStat(positionStat: number, statTwoLetterIdentifier: string): number {
@@ -298,10 +305,5 @@ export default class Player {
     public updatePlayerDetails(updatePlayerDetails: UpdatePlayerDetails) {
         this.playerName = updatePlayerDetails.getPlayerName();
         this.gender = updatePlayerDetails.getGender();
-    }
-
-    // TODO: awaiting support from this from the API, need to know number of games played, and whether player is former journeyman.
-    public isRefundable(): boolean {
-        return false;
     }
 }
