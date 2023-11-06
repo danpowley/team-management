@@ -32,8 +32,8 @@
             <div class="title">Details</div>
             <table class="playerstats">
                 <tr>
-                    <td>0</td>
-                    <td>Games played: [data unavailable]</td>
+                    <td>{{ player ? player.getRecord().games : '0' }}</td>
+                    <td>Games played</td>
                 </tr>
                 <tr>
                     <td>{{ player ? player.getRecord().completions : '0' }}</td>

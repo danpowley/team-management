@@ -67,6 +67,7 @@ export interface PositionStats {
 }
 
 export interface PlayerRecord {
+    games: number,
     completions: number,
     touchdowns: number,
     interceptions: number,

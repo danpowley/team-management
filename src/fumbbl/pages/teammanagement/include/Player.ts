@@ -38,6 +38,7 @@ export default class Player {
         this.skills = [];
 
         this.record = {
+            games: 0,
             completions: 0,
             touchdowns: 0,
             interceptions: 0,
@@ -67,6 +68,7 @@ export default class Player {
 
         player.skillCost = rawApiPlayer.skillCosts.reduce((totalCost, skillCost) => totalCost += skillCost, 0);
 
+        player.record.games = rawApiPlayer.record.games;
         player.record.completions = rawApiPlayer.record.completions;
         player.record.touchdowns = rawApiPlayer.record.touchdowns;
         player.record.interceptions = rawApiPlayer.record.interceptions;
