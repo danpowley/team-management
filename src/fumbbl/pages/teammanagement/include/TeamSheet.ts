@@ -21,7 +21,8 @@ export default class TeamSheet {
 
         for (const player of players) {
             if (player.getPlayerNumber() > maxPlayers) {
-                this.teamSheetEntries.push(new TeamSheetEntry(player.getPlayerNumber(), player, true));
+                player.setIsJourneyman(true);
+                this.teamSheetEntries.push(new TeamSheetEntry(player.getPlayerNumber(), player));
             }
         }
     }

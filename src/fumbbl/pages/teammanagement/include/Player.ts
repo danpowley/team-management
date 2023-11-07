@@ -12,11 +12,12 @@ export default class Player {
     private gender: PlayerGender = 'NEUTRAL';
     private iconRowVersionPosition: number; // allows selection of icon for display when position has multiple versions in the icon image
     private position: Position;
-    private injuries: string[] = []; // Type?
+    private injuries: string[] = [];
     private skills: string[] = [];
     private record: PlayerRecord = null;
     private skillStatus: {status: PlayerSkillStatus, maxLimit: number, tier: number} = null;
     private skillCost: number = 0;
+    private isJourneyman: boolean = false;
     private isRefundable: boolean = true;
 
     constructor(
@@ -138,6 +139,11 @@ export default class Player {
         return this.position.name;
     }
 
+    public getDisplayPositionName(): string {
+        const journeymanPrefix = this.getIsJourneyman() ? 'Journeyman ' : '';
+        return journeymanPrefix + this.getPositionName();
+    }
+
     public getPositionCost(): number {
         return this.position.cost;
     }
@@ -168,6 +174,21 @@ export default class Player {
 
     public getSkills(): string[] {
         return this.skills;
+    }
+
+    public getIsJourneyman(): boolean {
+        return this.isJourneyman;
+    }
+
+    public setIsJourneyman(isJourneyman: boolean) {
+        this.isJourneyman = isJourneyman;
+    }
+
+    public permanentlyHireJourneyman(newTeamSheetEntryNumber: number) {
+        if (this.getIsJourneyman()) {
+            this.setPlayerNumber(newTeamSheetEntryNumber);
+            this.setIsJourneyman(false);
+        }
     }
 
     public getIsRefundable(): boolean {

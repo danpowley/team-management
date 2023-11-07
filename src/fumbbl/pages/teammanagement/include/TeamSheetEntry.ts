@@ -5,18 +5,16 @@ import UpdatePlayerDetails from "./UpdatePlayerDetails";
 export default class TeamSheetEntry {
     private entryNumber: number;
     private entryPlayer: Player | null;
-    private isJourneyMan: boolean;
     private isUpdating: boolean = false;
     private updatePlayerDetails: UpdatePlayerDetails | null;
     private isDragSource: boolean = false;
     private isDropTarget: boolean = false;
     private foldOut: PlayerRowFoldOutMode = 'CLOSED';
 
-    constructor(entryNumber: number, entryPlayer: Player | null, isJourneyMan = false) {
+    constructor(entryNumber: number, entryPlayer: Player | null) {
         this.entryNumber = entryNumber;
         this.entryPlayer = entryPlayer;
         this.refreshUpdatePlayerDetails();
-        this.isJourneyMan = isJourneyMan;
     }
 
     public refreshUpdatePlayerDetails() {
@@ -36,13 +34,11 @@ export default class TeamSheetEntry {
         return this.entryPlayer;
     }
 
-    public getIsJourneyMan(): boolean {
-        return this.isJourneyMan;
-    }
-
-    public getDisplayPositionName(): string {
-        const journeymanPrefix = this.getIsJourneyMan() ? 'Journeyman' : '';
-        return `${journeymanPrefix} ${this.getPlayer().getPositionName()}`;
+    public getIsJourneyman(): boolean {
+        if (! this.hasPlayer()) {
+            return false;
+        }
+        return this.entryPlayer.getIsJourneyman();
     }
 
     public getIsUpdating(): boolean {
@@ -62,7 +58,7 @@ export default class TeamSheetEntry {
     }
 
     public hasRosteredPlayer(): any {
-        return this.entryPlayer !== null && this.isJourneyMan === false;
+        return this.hasPlayer() && this.getIsJourneyman() === false;
     }
 
     public isFirst(): boolean {

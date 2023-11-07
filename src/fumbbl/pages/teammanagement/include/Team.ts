@@ -143,8 +143,8 @@ export default class Team {
         return this.players;
     }
 
-    public getPlayerCount(): number {
-        return this.players.length;
+    public getRosteredPlayers(): Player[] {
+        return this.players.filter(player => ! player.getIsJourneyman());
     }
 
     public addPlayer(player: Player): void {
@@ -165,10 +165,6 @@ export default class Team {
         );
         this.buyPlayer(temporaryPlayer);
         return temporaryPlayer;
-    }
-
-    public hireJourneyman(teamSheetEntryNumber: number, player: Player) {
-        player.setPlayerNumber(teamSheetEntryNumber);
     }
 
     public findPlayerByNumber(playerNumber: number): Player | null {
@@ -253,13 +249,13 @@ export default class Team {
     }
 
     public getMissNextGamePlayers(): Player[] {
-        return this.players.filter((player) => {
+        return this.getRosteredPlayers().filter((player) => {
             return player.isMissNextGame();
         });
     }
 
     public getLinemenPlayers(): Player[] {
-        return this.players.filter((player) => {
+        return this.getRosteredPlayers().filter((player) => {
             return player.getPosition().quantityAllowed >= this.QUANTITY_ALLOWED_DENOTING_LINEMEN;
         });
     }
@@ -269,7 +265,7 @@ export default class Team {
     }
 
     public countPlayersAvailableNextGame(): number {
-        return this.players.length - this.countMissNextGamePlayers();
+        return this.getRosteredPlayers().length - this.countMissNextGamePlayers();
     }
 
     public updateDedicatedFans(dedicatedFans: number, dedicatedFansCost: number): void {

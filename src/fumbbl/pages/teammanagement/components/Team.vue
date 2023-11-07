@@ -51,7 +51,7 @@
         </div>
         <div v-if="accessControl.canCreate()" class="createteamstats">
             <div class="playerinfo">
-                <div class="currentplayercount">{{ team.getPlayerCount() }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required) <a href="#" @click.prevent="removeAllPlayers">Remove all players</a></div>
+                <div class="currentplayercount">{{ team.getRosteredPlayers().length }}</div> <div class="currentplayercountlabel">Players ({{ teamManagementSettings.startPlayers }} required) <a href="#" @click.prevent="removeAllPlayers">Remove all players</a></div>
             </div>
             <div class="costinfo">
                 <div class="currentteamcostlabel">Treasury spent (Max {{ teamManagementSettings.startTreasury/1000 }}k)</div> <div class="currentteamcost">{{ teamCreationCost/1000 }}k</div>
@@ -1071,10 +1071,7 @@ export default class TeamComponent extends TeamComponentProps {
     public async handleHireJourneyman(player: Player) {
         const teamSheetEntryId = this.teamSheet.findFirstEmptyTeamSheetEntry().getNumber();
 
-        this.team.hireJourneyman(
-            teamSheetEntryId,
-            player
-        );
+        player.permanentlyHireJourneyman(teamSheetEntryId);
 
         this.refreshTeamSheet([teamSheetEntryId]);
         setTimeout(() => this.teamSheet.clearAllIsUpdating(), 2000);

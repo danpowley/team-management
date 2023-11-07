@@ -1,15 +1,15 @@
 <template>
     <div class="playerrow"
-        :draggable="teamSheetEntry.getIsDragSource() && ! teamSheetEntry.getIsJourneyMan()"
+        :draggable="teamSheetEntry.getIsDragSource() && ! teamSheetEntry.getIsJourneyman()"
         :class="{
             playerinrow: teamSheetEntry.hasPlayer(),
             dragsource: teamSheetEntry.getIsDragSource(),
             droptarget: teamSheetEntry.getIsDropTarget(),
         }"
-        @dragenter="! teamSheetEntry.getIsJourneyMan() ? handleDragEnter() : undefined"
-        @dragover="! teamSheetEntry.getIsJourneyMan() ? handleDragOver($event) : undefined"
-        @drop="! teamSheetEntry.getIsJourneyMan() ? handleDrop($event) : undefined"
-        @dragend="! teamSheetEntry.getIsJourneyMan() ? handleDragEnd() : undefined"
+        @dragenter="! teamSheetEntry.getIsJourneyman() ? handleDragEnter() : undefined"
+        @dragover="! teamSheetEntry.getIsJourneyman() ? handleDragOver($event) : undefined"
+        @drop="! teamSheetEntry.getIsJourneyman() ? handleDrop($event) : undefined"
+        @dragend="! teamSheetEntry.getIsJourneyman() ? handleDragEnd() : undefined"
     >
         <template v-if="teamSheetEntry.isFirst() && teamSheetEntry.hasPlayer() && !teamSheetEntry.getIsDragSource() && teamSheetEntry.getIsDropTarget()">
             <div class="seperator active"><div class="line"></div></div>
@@ -63,10 +63,10 @@
                 <div class="cell playerdetails">
                     <div class="playername" :title="teamSheetEntry.getPlayer().getPlayerName()">
                         <span v-if="teamSheetEntry.getPlayer().isTemporaryPlayerWithoutName()">Loading...</span>
-                        <span v-else-if="teamSheetEntry.getPlayer().isTemporaryPlayer() || teamSheetEntry.getIsJourneyMan()">{{ teamSheetEntry.getPlayer().getPlayerName() }}</span>
+                        <span v-else-if="teamSheetEntry.getPlayer().isTemporaryPlayer() || teamSheetEntry.getIsJourneyman()">{{ teamSheetEntry.getPlayer().getPlayerName() }}</span>
                         <a v-else href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)" :title="`Player: ${teamSheetEntry.getPlayer().getPlayerName()}, ID: ${teamSheetEntry.getPlayer().getId()}`">{{ teamSheetEntry.getPlayer().getPlayerName() }}</a>
                     </div>
-                    <div class="playerposition" :title="teamSheetEntry.getDisplayPositionName()">{{ teamSheetEntry.getDisplayPositionName() }}</div>
+                    <div class="playerposition" :title="teamSheetEntry.getPlayer().getDisplayPositionName()">{{ teamSheetEntry.getPlayer().getDisplayPositionName() }}</div>
                 </div>
                 <template v-if="! compactView">
                     <div class="cell statma">
@@ -107,7 +107,7 @@
                     </div>
                     <div class="playerskills" :title="teamSheetEntry.getPlayer().getSkills().join(', ')">
                         {{ teamSheetEntry.getPlayer().getSkills().join(', ') }}
-                        <template v-if="teamSheetEntry.getIsJourneyMan()">Loner</template>
+                        <template v-if="teamSheetEntry.getIsJourneyman()">Loner</template>
                     </div>
                 </div>
                 <div class="cell injuries" :title="'Injuries in chronological order: ' + teamSheetEntry.getPlayer().getInjuries().join(',')">
@@ -127,12 +127,12 @@
                     <div class="costbreakdown">({{ teamSheetEntry.getPlayer().getPositionCost()/1000 }}+{{ teamSheetEntry.getPlayer().getSkillCost()/1000 }})k</div>
                 </div>
                 <div v-if="accessControl.canCreate()" class="cell removenewplayer">
-                    <template v-if="! teamSheetEntry.getIsJourneyMan()">
+                    <template v-if="! teamSheetEntry.getIsJourneyman()">
                         (<a href="#" @click.prevent="handleRemovePlayer">Remove</a>)
                     </template>
                 </div>
                 <div v-else-if="accessControl.canEdit()" class="cell retireplayer">
-                    <template v-if="! teamSheetEntry.getIsJourneyMan()">
+                    <template v-if="! teamSheetEntry.getIsJourneyman()">
                         (<a href="#" @click.prevent="handleRetirePlayer">{{ teamSheetEntry.getPlayer().getIsRefundable() ? 'Refund' : 'Retire' }}</a>)
                     </template>
                     <template v-else>

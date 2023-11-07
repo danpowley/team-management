@@ -282,7 +282,7 @@ export default class TeamManagementSettings {
             errors.push('teamNameBlank');
         }
 
-        if (team.getPlayerCount() < this.startPlayers) {
+        if (team.getRosteredPlayers().length < this.startPlayers) {
             errors.push('insufficientPlayers');
         }
 
