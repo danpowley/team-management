@@ -66,7 +66,7 @@
                         <span v-else-if="teamSheetEntry.getPlayer().isTemporaryPlayer() || teamSheetEntry.getIsJourneyMan()">{{ teamSheetEntry.getPlayer().getPlayerName() }}</span>
                         <a v-else href="#" @click.exact.prevent="toggleFoldOutMore(false)" @click.ctrl.prevent="toggleFoldOutMore(true)" :title="`Player: ${teamSheetEntry.getPlayer().getPlayerName()}, ID: ${teamSheetEntry.getPlayer().getId()}`">{{ teamSheetEntry.getPlayer().getPlayerName() }}</a>
                     </div>
-                    <div class="playerposition" :title="teamSheetEntry.getPlayer().getPositionName()">{{ teamSheetEntry.getPlayer().getPositionName() }}</div>
+                    <div class="playerposition" :title="teamSheetEntry.getDisplayPositionName()">{{ teamSheetEntry.getDisplayPositionName() }}</div>
                 </div>
                 <template v-if="! compactView">
                     <div class="cell statma">

@@ -40,6 +40,11 @@ export default class TeamSheetEntry {
         return this.isJourneyMan;
     }
 
+    public getDisplayPositionName(): string {
+        const journeymanPrefix = this.getIsJourneyMan() ? 'Journeyman' : '';
+        return `${journeymanPrefix} ${this.getPlayer().getPositionName()}`;
+    }
+
     public getIsUpdating(): boolean {
         return this.isUpdating;
     }
