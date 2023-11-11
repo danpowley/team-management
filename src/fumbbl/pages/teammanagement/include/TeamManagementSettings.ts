@@ -3,6 +3,7 @@ import Team from "./Team";
 
 export default class TeamManagementSettings {
     private readonly ALLOW_DISCARD_REROLL: boolean = true;
+    private readonly JOURNEYMAN_QUANTITY_INDICATORS: number[] = [12, 16];
     private settings: SetupTeamManagementSettings;
 
     constructor(rawApiRuleset: any, rawApiRoster: any, hasLowCostLinemen: boolean) {
@@ -180,6 +181,10 @@ export default class TeamManagementSettings {
 
     public get positions(): Position[] {
         return this.settings.players.positions;
+    }
+
+    public get journeymanPositions(): Position[] {
+        return this.settings.players.positions.filter(position => this.JOURNEYMAN_QUANTITY_INDICATORS.includes(position.quantityAllowed));
     }
 
     public getPosition(positionId: number): Position {

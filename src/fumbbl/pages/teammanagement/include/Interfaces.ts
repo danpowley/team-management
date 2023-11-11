@@ -80,6 +80,15 @@ export interface PlayerRecord {
     },
 }
 
+export interface JourneymanQuantityChoice {
+    positionId: number,
+    quantity: number,
+}
+
+export interface JourneymanQuantityInput extends JourneymanQuantityChoice {
+    positionName: string,
+}
+
 export interface SetupTeamManagementSettings {
     roster: {
         name: string,

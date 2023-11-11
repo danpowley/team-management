@@ -319,6 +319,12 @@
         <div v-if="accessControl.canRetireTeam()" class="retireteam">
             <button @click="modals.retireTeam = true" class="teambutton">Retire Team</button>
         </div>
+        <readytoplay
+            v-if="accessControl.canEdit()"
+            :journeymanQuantityForNextGame="journeymanQuantityForNextGame"
+            :journeymanPositions="teamManagementSettings.journeymanPositions"
+            @ready-to-play="handleReadyToPlay"
+        ></readytoplay>
         <modal
             v-if="errorModalInfo !== null"
             :buttons-config="{'close': 'Ok'}"
@@ -479,6 +485,7 @@ import Component from 'vue-class-component';
 import {
     AddRemovePermissions,
     DemoTeamSettings,
+    JourneymanQuantityChoice,
     PlayerGender,
     PlayerRowFoldOutMode,
     PositionDataForBuyingPlayer,
@@ -497,6 +504,7 @@ import SpecialRulesComponent from "./SpecialRules.vue";
 import AddRemoveComponent from "./AddRemove.vue";
 import ModalComponent from "./Modal.vue";
 import RetirePlayerComponent from "./RetirePlayer.vue";
+import ReadyToPlayComponent from "./ReadyToPlay.vue";
 import FumbblApi from "../include/FumbblApi";
 import Player from "../include/Player";
 
@@ -509,6 +517,7 @@ const TeamComponentProps = Vue.extend({
         'addremove': AddRemoveComponent,
         'modal': ModalComponent,
         'retireplayer': RetirePlayerComponent,
+        'readytoplay': ReadyToPlayComponent,
     },
     props: {
         fumbblApi: {
@@ -792,6 +801,11 @@ export default class TeamComponent extends TeamComponentProps {
         } else {
             return this.teamManagementSettings.rerollCostFull;
         }
+    }
+
+    public get journeymanQuantityForNextGame(): number {
+        const playerDeficit = this.teamManagementSettings.startPlayers - this.team.countPlayersAvailableNextGame();
+        return playerDeficit < 0 ? 0 : playerDeficit;
     }
 
     public handleMakePlayerDraggable(playerNumber: number) {
@@ -1199,6 +1213,10 @@ export default class TeamComponent extends TeamComponentProps {
             this.modals.retireTeam = false;
             await this.recoverFromUnexpectedError('An error occurred retiring your team.', apiResponse.getErrorMessage());
         }
+    }
+
+    public async handleReadyToPlay(journeymanQuantityChoices: JourneymanQuantityChoice[]) {
+        console.log('TODO: ready the team now', journeymanQuantityChoices);
     }
 }
 </script>
